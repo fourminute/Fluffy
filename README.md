@@ -7,7 +7,7 @@ A one-dependency, feature-rich GUI for Tinfoil!
 * Switch connected indicator.
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
-<img src="https://i.imgur.com/kOLaqQx.png" />
+<img src="https://i.imgur.com/oGuVBHQ.png" />
 
 ## Coming soon
 <b>High-priority</b>
