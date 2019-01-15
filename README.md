@@ -19,7 +19,7 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 * GoldLeaf Support (<i>on top</i> of existing TinFoil support)
 
-<b>Lower priority:</b>
+<b>Low-priority:</b>
 
 * Network Installs for TinFoil
 
