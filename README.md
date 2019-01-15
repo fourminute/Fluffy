@@ -22,13 +22,11 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 # Instructions For Use
 ## Install and Setup Zadig Driver (Windows 10)
-* Download and Install Zadig: https://zadig.akeo.ie.
-* <b>While your Switch is plugged in</b> head to Device Manager.
-* Under "Other Devices" find "libnx USB comms", right-click it and click "Update driver".
-* Click "Browse my computer..." then "Let me pick from a list..."
-* Find and select "libusbK USB Devices" then click next.
-* With "Nintendo Switch APX Mode" selected click next.
-* Click <b>Yes</b> to any warning pop-up messages.
+* Download Zadig: https://zadig.akeo.ie.
+* With your Switch plugged in to your PC using a USB-C cable, open TinFoil. This will ensure your Switch is visible.
+* Open Zadig > Options > List All Devices.
+* In the scroll box above the button "Install Driver", tap the arrow until arriving at "libusbK".
+* Click "Install Driver"
 * Done!
 
 ## Install PyUSB
