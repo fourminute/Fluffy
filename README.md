@@ -10,8 +10,16 @@ A one-dependency, feature-rich GUI for Tinfoil!
 <img src="https://i.imgur.com/kOLaqQx.png" />
 
 ## Instructions For Use
-### Install and Setup Zadig Driver
-* 
+### Install and Setup Zadig Driver (Windows 10)
+* Download and Install Zadig: https://zadig.akeo.io.
+* <b>While your Switch is plugged in</b> head to Device Manager.
+* Under "Other Devices" find "libnx USB comms", right-click it and click "Update driver".
+* Click "Browse my computer..." then "Let me pick from a list..."
+* Find and select "libusbK USB Devices" then click next.
+* With "Nintendo Switch APX Mode" selected click next.
+* Click <b>Yes</b> to any warning pop-up messages.
+* Done!
+
 ### Install PyUSB
 * <b>Python 3 and PyUSB is required for Fluffy to work.</b>
 * Download and Install Latest Python 3 (https://www.python.org/downloads/)
@@ -21,12 +29,8 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 ### How-To-Use
 Complete beginner? No problem. 
-* On your switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
+* <b>First follow the installation steps above for Zadig Driver, Python 3, and PyUSB. Done? Let's continue!</b>
+* On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
 * Double-click on Fluffy.py to start it
 * Click "Open Folder" and browse to a folder where your NSPs are located then select "Open". <b>A word of caution, try to select a folder with 3 or less NSPs. TinFoil is unable to parse large amounts of files.</b>
 * If "Switch Detected!" is visible. Click "Send Header".
-
-### 
-
-
-### Open fluffy.py to run.
