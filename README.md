@@ -1,7 +1,7 @@
 # Fluffy
 A one-dependency, feature-rich GUI for Tinfoil!
 
-<b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.1">Download Latest Version(1.1)</a></b>
+## <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.1">Latest Release</a></b>
 
 ## Features
 * Show current NSP being installed.
