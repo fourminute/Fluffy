@@ -38,9 +38,14 @@ A one-dependency, feature-rich GUI for Tinfoil!
 * Run "pip3 install pyusb"
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
 
+## Install TinFoil
+* <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
+* Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
+* Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
+
 ## How-To-Use
 Complete beginner? No problem. 
-* <b>First follow the installation steps above for Zadig Driver, Python 3, and PyUSB. Done? Let's continue!</b>
+* <b>First follow the installation steps above for Zadig Driver, TinFoil, Python 3, and PyUSB. Done? Let's continue!</b>
 * On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
 * Double-click on Fluffy.pyw to start it
 * Click "Open Folder" and browse to a folder where your NSPs are located then select "Open". <b>A word of caution, try to select a folder with 3 or less NSPs. TinFoil is unable to parse large amounts of files.</b>
