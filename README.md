@@ -47,6 +47,6 @@ A one-dependency, feature-rich GUI for Tinfoil!
 Complete beginner? No problem. 
 * <b>First follow the installation steps above for Zadig Driver, Python 3, and PyUSB. Done? Let's continue!</b>
 * On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
-* Double-click on Fluffy.py to start it
+* Double-click on Fluffy.pyw to start it
 * Click "Open Folder" and browse to a folder where your NSPs are located then select "Open". <b>A word of caution, try to select a folder with 3 or less NSPs. TinFoil is unable to parse large amounts of files.</b>
 * If "Switch Detected!" is visible. Click "Send Header".
