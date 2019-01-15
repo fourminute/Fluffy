@@ -2,6 +2,7 @@
 A one-dependency, feature-rich GUI for Tinfoil!
 
 ### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.1">Latest Release</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
 * Show current NSP being installed.
