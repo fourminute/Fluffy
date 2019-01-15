@@ -13,16 +13,10 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 ## Coming soon
 <b>High-priority</b>
-* Better UI multi-threading (Tk by default, is not thread safe. Hacky-methods are necessary)
-* Code optimization and fail-safes.
-* (<i>If necessary</i>) NCA Buffering. See <a href="https://github.com/satelliteseeker/Tinfoil/commit/f33c735e3fda9e8127ec3b3b5f7296a438dc9a2c">f33c735</a>.
-
-<b>Medium-priority:</b>
-
 * GoldLeaf Support (<i>on top</i> of existing TinFoil support)
 
-<b>Low-priority:</b>
-
+<b>Low/Medium-priority:</b>
+* (<i>If necessary</i>) NCA Buffering. See <a href="https://github.com/satelliteseeker/Tinfoil/commit/f33c735e3fda9e8127ec3b3b5f7296a438dc9a2c">f33c735</a>.
 * Network Installs for TinFoil
 
 # Instructions For Use
