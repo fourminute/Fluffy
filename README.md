@@ -23,7 +23,7 @@ A one-dependency, feature-rich GUI for Tinfoil!
 # Instructions For Use
 ## Install and Setup Zadig Driver (Windows 10)
 * Download Zadig: https://zadig.akeo.ie.
-* With your Switch plugged in to your PC using a USB-C cable, open TinFoil. This will ensure your Switch is visible.
+* With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
 * Open Zadig > Options > List All Devices.
 * In the scroll box above the button "Install Driver", tap the arrow until arriving at "libusbK".
 * Click "Install Driver"
