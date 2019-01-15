@@ -9,8 +9,8 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 <img src="https://i.imgur.com/kOLaqQx.png" />
 
-## Instructions For Use
-### Install and Setup Zadig Driver (Windows 10)
+# Instructions For Use
+## Install and Setup Zadig Driver (Windows 10)
 * Download and Install Zadig: https://zadig.akeo.io.
 * <b>While your Switch is plugged in</b> head to Device Manager.
 * Under "Other Devices" find "libnx USB comms", right-click it and click "Update driver".
@@ -20,14 +20,14 @@ A one-dependency, feature-rich GUI for Tinfoil!
 * Click <b>Yes</b> to any warning pop-up messages.
 * Done!
 
-### Install PyUSB
+## Install PyUSB
 * <b>Python 3 and PyUSB is required for Fluffy to work.</b>
 * Download and Install Latest Python 3 (https://www.python.org/downloads/)
 * Open Terminal/CMD
 * Run "pip3 install pyusb" or "pip install pyusb"
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
 
-### How-To-Use
+## How-To-Use
 Complete beginner? No problem. 
 * <b>First follow the installation steps above for Zadig Driver, Python 3, and PyUSB. Done? Let's continue!</b>
 * On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
