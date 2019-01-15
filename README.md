@@ -11,7 +11,7 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 # Instructions For Use
 ## Install and Setup Zadig Driver (Windows 10)
-* Download and Install Zadig: https://zadig.akeo.io.
+* Download and Install Zadig: https://zadig.akeo.ie.
 * <b>While your Switch is plugged in</b> head to Device Manager.
 * Under "Other Devices" find "libnx USB comms", right-click it and click "Update driver".
 * Click "Browse my computer..." then "Let me pick from a list..."
