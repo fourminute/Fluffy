@@ -9,6 +9,20 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 <img src="https://i.imgur.com/kOLaqQx.png" />
 
+## Coming soon
+<b>High-priority</b>
+* Better UI multi-threading (Tk by default, is not thread safe. Hacky-methods are necessary)
+* Code optimization and fail-safes.
+* (<i>If necessary</i>) NCA Buffering. See f33c735.
+
+<b>Medium-priority:</b>
+
+* GoldLeaf Support (<i>on top</i> of existing TinFoil support)
+
+<b>Lower priority:</b>
+
+* Network Installs for TinFoil
+
 # Instructions For Use
 ## Install and Setup Zadig Driver (Windows 10)
 * Download and Install Zadig: https://zadig.akeo.ie.
