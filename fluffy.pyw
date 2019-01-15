@@ -34,6 +34,9 @@ from tkinter import *
 from tkinter import scrolledtext
 from tkinter.ttk import Progressbar
 from tkinter import filedialog
+import logging
+LOG_FILENAME = 'fluffy.log'
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 root = tk.Tk()
 root.withdraw()
 try:
@@ -44,7 +47,9 @@ except ImportError:
     exit()
 
 installing = False
+is_done = False
 selected_dir = None
+exit_status = False
 last_name_len = 0
 last_data_size = 0
 cur = 0
@@ -101,6 +106,10 @@ def get_total_nsp():
     global total_nsp
     return total_nsp
 
+def complete_install():
+    global is_done
+    is_done = True
+
 CMD_ID_EXIT = 0
 CMD_ID_FILE_RANGE = 1
 CMD_TYPE_RESPONSE = 1
@@ -129,6 +138,8 @@ def file_range_cmd(nsp_dir, in_ep, out_ep, data_size):
         end_off = range_size
         read_size = 0x100000
         while curr_off < end_off:
+            if exit_status:
+                break
             if curr_off + read_size >= end_off:
                 read_size = end_off - curr_off
                 try:
@@ -145,17 +156,20 @@ def file_range_cmd(nsp_dir, in_ep, out_ep, data_size):
 
 def poll_commands(nsp_dir, in_ep, out_ep):
     while True:
+        if exit_status:
+            break
         cmd_header = bytes(in_ep.read(0x20, timeout=0))
         magic = cmd_header[:4]
-        print('Magic: {}'.format(magic), flush=True)
+        #print('Magic: {}'.format(magic), flush=True)
         if magic != b'TUC0': # Tinfoil USB Command 0
             continue
         cmd_type = struct.unpack('<B', cmd_header[4:5])[0]
         cmd_id = struct.unpack('<I', cmd_header[8:12])[0]
         data_size = struct.unpack('<Q', cmd_header[12:20])[0]
-        print('Cmd Type: {}, Command id: {}, Data size: {}'.format(cmd_type, cmd_id, data_size), flush=True)
+        #print('Cmd Type: {}, Command id: {}, Data size: {}'.format(cmd_type, cmd_id, data_size), flush=True)
         if cmd_id == CMD_ID_EXIT:
-            print('Exiting...')
+            #print('Exiting...')
+            complete_install()
             break
         elif cmd_id == CMD_ID_FILE_RANGE:
             file_range_cmd(nsp_dir, in_ep, out_ep, data_size)
@@ -196,6 +210,8 @@ def init_usb_install(args):
 
 def switch_connected():
     while True:
+        if exit_status:
+            break
         if installing == False:
             dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
             if dev is None:
@@ -205,8 +221,10 @@ def switch_connected():
         else:
             break
 
-def update_progress():                                                  
+def update_progress():
     while True:
+        if exit_status:
+            break
         last_c = 1
         try:
             c = get_cur()
@@ -214,58 +232,99 @@ def update_progress():
             v = (int(c) / int(e)) * 100
             bar['value'] = v
             cur_c = get_count()
+            if is_done:
+                lbl_status.config(text="Successfully Installed " + str(get_total_nsp()) + " NSPs!", fg="dark blue", font='Helvetica 9 bold')
+                window.update_idletasks()
+                window.update()
+                break
+            else:
+                lbl_switch.config(text="Progress: " + str(round(v, 2)) + "%",fg="dark green", font='Helvetica 9 bold')
             if cur_c != last_c:
                 last_c = cur_c
                 lbl_status.config(text="Installing " + str(cur_c) + " of " + str(get_total_nsp()) + " NSPs.")
+            window.update_idletasks()
+            window.update()
         except:
             pass
 
 def usb_thread():
-    give_up_usb()
-    init_usb_install(selected_dir)
+    try:
+        give_up_usb()
+        init_usb_install(selected_dir)
+    except Exception as e:
+        logging.error(e, exc_info=True)
+        exit()
 
 
     
 def send():
-    btn.config(state="disabled")
-    btn2.config(state="disabled")
-    lbl_status.config(text="Installing 1 of " + str(get_total_nsp()) + " NSPs.")
-    threading.Thread(target = usb_thread).start()
-    threading.Thread(target = update_progress).start()
+    try:
+        btn.config(state="disabled")
+        btn2.config(state="disabled")
+        lbl_status.config(text="Installing 1 of " + str(get_total_nsp()) + " NSPs.")
+        threading.Thread(target = usb_thread).start()
+        threading.Thread(target = update_progress).start()
+    except Exception as e:
+        logging.error(e, exc_info=True)
+        exit()
 
 
 # UI
-window = Tk()
-window.resizable(0,0)
-window.title("Fluffy")
-window.iconbitmap(r'icon.ico')
-window.geometry('237x228')
-lbl_status = tk.Label(window)
-lbl_switch = tk.Label(window)
-lbl_status.config(text="Select a folder.", font='Helvetica 9 bold')
-lbl_switch.config(text="Switch Not Detected!",fg="dark red", font='Helvetica 9 bold')
-def get_folder():
-    d = filedialog.askdirectory()
-    set_dir(d)
-    i = 0
-    for file in os.listdir(selected_dir):
-        if file.endswith(".nsp"):
-            i += 1
-            listbox.insert(END,str(os.path.basename(file)))
-    set_total_nsp(i)
-    lbl_status.config(text=str(get_total_nsp()) + " NSPs Selected.")
-listbox = Listbox(window)
-btn = Button(window, text="Open Folder", command=get_folder)
-btn2 = Button(window, text="Send Header", command=send)
-bar = Progressbar(window)
-bar['value'] = 0
-btn.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-btn2.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-lbl_status.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-lbl_switch.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-bar.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-listbox.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-listbox.config(height=7)
-threading.Thread(target = switch_connected).start()
-window.mainloop()
-exit()
+try:
+    window = Tk()
+    window.resizable(0,0)
+    window.title("Fluffy")
+    window.iconbitmap(r'icon.ico')
+    window.geometry('237x235')
+    lbl_status = tk.Label(window)
+    lbl_switch = tk.Label(window)
+    lbl_status.config(text="Select a folder.", font='Helvetica 9 bold')
+    lbl_switch.config(text="Switch Not Detected!",fg="dark red", font='Helvetica 9 bold')
+    def get_folder():
+        d = filedialog.askdirectory()
+        set_dir(d)
+        listbox.delete(0, tk.END)
+        i = 0
+        for file in os.listdir(selected_dir):
+            if file.endswith(".nsp"):
+                i += 1
+                listbox.insert(END,str(os.path.basename(file)))
+        if i > 0:
+            btn2.config(state="normal")
+            set_total_nsp(i)
+            lbl_status.config(text=str(get_total_nsp()) + " NSPs Selected.")
+        else:
+            btn2.config(state="disabled")
+            lbl_status.config(text="Select a folder.", font='Helvetica 9 bold')
+    listbox = Listbox(window)
+    btn = Button(window, text="Open Folder", command=get_folder)
+    btn2 = Button(window, text="Send Header", command=send)
+    btn2.config(state="disabled")
+    bar = Progressbar(window)
+    bar['value'] = 0
+    btn.pack(side=TOP,padx=3,pady=(3,0),fill=X)
+    btn2.pack(side=TOP,padx=3,pady=(3,0),fill=X)
+    lbl_status.pack(side=TOP,padx=3,pady=(3,0),fill=X)
+    lbl_switch.pack(side=TOP,padx=3,pady=(3,0),fill=X)
+    bar.pack(side=TOP,padx=3,pady=(3,0),fill=X)
+    listbox.pack(side=TOP,padx=3,pady=(3,5),fill=X)
+    listbox.config(height=7)
+    def close_program():
+        global exit_status
+        if installing:
+            if is_done == False:
+                if messagebox.askokcancel("Quit", "Quitting during installation can cause corruption.\nCancel current installation and quit?"):
+                    exit_status = True
+                    exit()
+            else:
+                exit_status = True
+                exit()
+        else:
+            exit()
+    window.protocol("WM_DELETE_WINDOW", close_program)
+    threading.Thread(target = switch_connected).start()
+    window.mainloop()
+except Exception as e:
+    logging.error(e, exc_info=True)
+    exit()
+
