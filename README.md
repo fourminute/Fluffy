@@ -6,7 +6,7 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 ## Features
 * Show current NSP being installed.
-* Individual NSP selection.
+* Individual NSP selection (suggest by: <b>Shadowhand</b>, thanks!).
 * Progress bar.
 * Switch connected indicator.
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
