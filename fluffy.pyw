@@ -43,12 +43,14 @@ try:
     import usb.core
     import usb.util
 except ImportError:
-    messagebox.showinfo("Error","PyUSB not found. Please install with 'pip3 install pyusb'\nIf you are on MacOS, also install LibUSB with 'brew install libusb'.")
+    messagebox.showinfo("Error","PyUSB not found. Please install with 'pip3 install pyusb'\nIf you are on MacOS, also install LibUSB with 'brew install libusb'. For more info on brew, head to https://brew.sh/.\n\nAlso ensure you have ONLY the latest Python 3 installed on your machine. Having previous versions of Python 3 installed can cause this error to occur.")
     exit()
 
 installing = False
 is_done = False
+is_loading = True
 selected_dir = None
+selected_files = None
 exit_status = False
 last_name_len = 0
 last_data_size = 0
@@ -60,6 +62,10 @@ total_nsp = 0
 def set_dir(d):
     global selected_dir
     selected_dir = d
+    
+def set_selected(f):
+    global selected_files
+    selected_files = f
 
 def give_up_usb():
     global installing
@@ -109,6 +115,10 @@ def get_total_nsp():
 def complete_install():
     global is_done
     is_done = True
+    
+def complete_loading():
+    global is_loading
+    is_loading = False
 
 CMD_ID_EXIT = 0
 CMD_ID_FILE_RANGE = 1
@@ -174,21 +184,24 @@ def poll_commands(nsp_dir, in_ep, out_ep):
         elif cmd_id == CMD_ID_FILE_RANGE:
             file_range_cmd(nsp_dir, in_ep, out_ep, data_size)
 
-def send_nsp_list(nsp_dir, out_ep):
+def send_nsp_list(s_f, nsp_dir, out_ep):
     nsp_path_list = list()
     nsp_path_list_len = 0
     for nsp_path in [f for f in nsp_dir.iterdir() if f.is_file() and f.suffix == '.nsp']:
-        nsp_path_list.append(nsp_path.__str__() + '\n')
-        nsp_path_list_len += len(nsp_path.__str__()) + 1
+        for y in s_f:
+            if str(nsp_path).find(os.path.basename(y)) != -1:
+                nsp_path_list.append(nsp_path.__str__() + '\n')
+                nsp_path_list_len += len(nsp_path.__str__()) + 1
     print('Sending header...')
     out_ep.write(b'TUL0') # Tinfoil USB List 0
     out_ep.write(struct.pack('<I', nsp_path_list_len))
     out_ep.write(b'\x00' * 0x8) # Padding
     print('Sending NSP list: {}'.format(nsp_path_list))
+    complete_loading()
     for nsp_path in nsp_path_list:
         out_ep.write(nsp_path)
         
-def init_usb_install(args):
+def init_usb_install(args, s_f):
     nsp_dir = Path(args)
     if not nsp_dir.is_dir():
         raise ValueError('1st argument must be a directory')
@@ -204,7 +217,7 @@ def init_usb_install(args):
     in_ep = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_in_ep)
     assert out_ep is not None
     assert in_ep is not None
-    send_nsp_list(nsp_dir, out_ep)
+    send_nsp_list(s_f, nsp_dir, out_ep)
     poll_commands(nsp_dir, in_ep, out_ep)
 
 
@@ -227,30 +240,31 @@ def update_progress():
             break
         last_c = 1
         try:
-            c = get_cur()
-            e = get_end()
-            v = (int(c) / int(e)) * 100
-            bar['value'] = v
-            cur_c = get_count()
-            if is_done:
-                lbl_status.config(text="Successfully Installed " + str(get_total_nsp()) + " NSPs!", fg="dark blue", font='Helvetica 9 bold')
+            if is_loading == False:
+                c = get_cur()
+                e = get_end()
+                v = (int(c) / int(e)) * 100
+                bar['value'] = v
+                cur_c = get_count()
+                if is_done:
+                    lbl_status.config(text="Successfully Installed " + str(get_total_nsp()) + " NSPs!", fg="dark blue", font='Helvetica 9 bold')
+                    window.update_idletasks()
+                    window.update()
+                    break
+                else:
+                    lbl_switch.config(text="Progress: " + str(round(v, 2)) + "%",fg="dark green", font='Helvetica 9 bold')
+                lbl_status.config(text="Installing " + str(cur_c) + " of " + str(get_total_nsp()) + " NSPs.")
                 window.update_idletasks()
                 window.update()
-                break
             else:
-                lbl_switch.config(text="Progress: " + str(round(v, 2)) + "%",fg="dark green", font='Helvetica 9 bold')
-            if cur_c != last_c:
-                last_c = cur_c
-                lbl_status.config(text="Installing " + str(cur_c) + " of " + str(get_total_nsp()) + " NSPs.")
-            window.update_idletasks()
-            window.update()
+                lbl_status.config(text="Loading " + str(get_total_nsp()) + " NSPs. Please Wait.")
         except:
             pass
 
 def usb_thread():
     try:
         give_up_usb()
-        init_usb_install(selected_dir)
+        init_usb_install(selected_dir, selected_files)
     except Exception as e:
         logging.error(e, exc_info=True)
         exit()
@@ -261,7 +275,6 @@ def send():
     try:
         btn.config(state="disabled")
         btn2.config(state="disabled")
-        lbl_status.config(text="Installing 1 of " + str(get_total_nsp()) + " NSPs.")
         threading.Thread(target = usb_thread).start()
         threading.Thread(target = update_progress).start()
     except Exception as e:
@@ -281,22 +294,27 @@ try:
     lbl_status.config(text="Select a folder.", font='Helvetica 9 bold')
     lbl_switch.config(text="Switch Not Detected!",fg="dark red", font='Helvetica 9 bold')
     def get_folder():
-        d = filedialog.askdirectory()
-        set_dir(d)
+        d = filedialog.askopenfilenames(parent=window,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
+        set_dir(os.path.dirname(d[0]))
+        file_list = list(d)
+        tmp = list()
         listbox.delete(0, tk.END)
         i = 0
-        for file in os.listdir(selected_dir):
-            if file.endswith(".nsp"):
+        for f in file_list:
+            if f.endswith(".nsp"):
                 i += 1
-                listbox.insert(END,str(os.path.basename(file)))
+                listbox.insert(END,str(os.path.basename(f)))
+                tmp.append(f)
         if i > 0:
             btn2.config(state="normal")
             set_total_nsp(i)
+            set_selected(tmp)
             lbl_status.config(text=str(get_total_nsp()) + " NSPs Selected.")
         else:
             btn2.config(state="disabled")
             lbl_status.config(text="Select a folder.", font='Helvetica 9 bold')
     listbox = Listbox(window)
+
     btn = Button(window, text="Open Folder", command=get_folder)
     btn2 = Button(window, text="Send Header", command=send)
     btn2.config(state="disabled")
@@ -327,4 +345,3 @@ try:
 except Exception as e:
     logging.error(e, exc_info=True)
     exit()
-
