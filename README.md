@@ -30,7 +30,7 @@ A one-dependency, feature-rich GUI for Tinfoil!
 
 ## Install Python and PyUSB
 * <b>Fluffy requires <u>ONLY the latest</u> Python 3 and PyUSB.</b>
-* Download and Install <u>only the latest</u> Python 3 from https://www.python.org/downloads/. On that note, <b>ensure no previous version of Python is installed. This may cause an error "PyUSB not found".</b>
+* Download and Install Python 3 from https://www.python.org/downloads/. <b>Ensure no previous version of Python is installed. This may cause an error "PyUSB not found".</b>
 * Open Terminal/CMD
 * Run "pip3 install pyusb"
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
