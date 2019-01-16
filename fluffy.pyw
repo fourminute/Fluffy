@@ -315,7 +315,7 @@ try:
             lbl_status.config(text="Select a folder.", font='Helvetica 9 bold')
     listbox = Listbox(window)
 
-    btn = Button(window, text="Open Folder", command=get_folder)
+    btn = Button(window, text="Select NSPs", command=get_folder)
     btn2 = Button(window, text="Send Header", command=send)
     btn2.config(state="disabled")
     bar = Progressbar(window)
