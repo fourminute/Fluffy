@@ -399,7 +399,12 @@ else:
         v_box = QtWidgets.QVBoxLayout()
         img_label = QLabel()
         pixmap = QPixmap('inlay.png')
-        img_label.setPixmap(pixmap)
+        lowresfix = pixmap.scaled(280, 298)
+        screen = app.primaryScreen()
+        if screen.size().width() <= 1920:
+            img_label.setPixmap(lowresfix)
+        else:
+            img_label.setPixmap(pixmap)
         def get_nsps():
             try:
                 d = filedialog.askopenfilenames(parent=root,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
@@ -437,7 +442,7 @@ else:
         btn_nsp.clicked.connect(get_nsps)
         btn_header.clicked.connect(send_header_cmd)
         window.setWindowIcon(QIcon('icon.ico'))
-        window.show()
+        window.show()       
         threading.Thread(target = switch_connected_thread).start()
         while True:
             if not window.isVisible():
