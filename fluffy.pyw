@@ -225,9 +225,14 @@ def init_usb_install(args, s_f):
         raise ValueError('1st argument must be a directory')
     find_dev = usb.core.find(find_all=True)
     dev = None
-    for cfg in find_dev:
-        if cfg.idVendor == 0x057E:
-            dev = usb.core.find(idVendor=cfg.idVendor, idProduct=cfg.idProduct)
+    try:
+        dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+    except:
+        pass
+    if dev is None:
+        for cfg in find_dev:
+            if cfg.idVendor == 0x057E:
+                dev = usb.core.find(idVendor=cfg.idVendor, idProduct=cfg.idProduct)
     if dev is None:
         raise ValueError('Switch is not found!')
     dev.reset()
@@ -251,26 +256,18 @@ def switch_connected_thread():
             if is_installing == False:
                 find_dev = usb.core.find(find_all=True)
                 dev = None
-                for cfg in find_dev:
-                    if cfg.idVendor == 0x057E:
-                        dev = usb.core.find(idVendor=cfg.idVendor, idProduct=cfg.idProduct)
+                try:
+                    dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+                except:
+                    pass
+                if dev is None:
+                    for cfg in find_dev:
+                        if cfg.idVendor == 0x057E:
+                            dev = usb.core.find(idVendor=cfg.idVendor, idProduct=cfg.idProduct)
                 if dev is None:
                     lbl_switch.config(text="Switch Not Detected!",fg="dark red", font='Helvetica 9 bold')
                 else:
                     lbl_switch.config(text="Switch Detected!",fg="dark green", font='Helvetica 9 bold')
-            else:
-                break
-    else:
-        # PyQt
-        while True:
-            if exit_status:
-                break
-            if is_installing == False:
-                dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-                if dev is None:
-                    l_switch.setText("<font color='red'>Switch Not Detected!</font>")
-                else:
-                    l_switch.setText("<font color='green'>Switch Detected!</font>")
             else:
                 break
 
@@ -448,6 +445,23 @@ else:
         window.show()
         threading.Thread(target = switch_connected_thread).start()
         while True:
+            if is_installing == False:
+                find_dev = usb.core.find(find_all=True)
+                dev = None
+                try:
+                    dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+                except:
+                    pass
+                if dev is None:
+                    for cfg in find_dev:
+                        if cfg.idVendor == 0x057E:
+                            dev = usb.core.find(idVendor=cfg.idVendor, idProduct=cfg.idProduct)
+                if dev is None:
+                    l_switch.setText("<font color='red'>Switch Not Detected!</font>")
+                    QApplication.processEvents()
+                else:
+                    l_switch.setText("<font color='green'>Switch Detected!</font>")
+                    QApplication.processEvents()
             if not window.isVisible():
                 close_program()
                 exit()
