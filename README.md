@@ -34,15 +34,14 @@
 * Click "Install Driver"
 * Done!
 
-## Fluffy only requires Python and PyUSB
-* <b>Fluffy requires <u>ONLY the latest</u> Python 3 and PyUSB.</b>
+## Install Python and PyUSB
 * Download and Install Python 3 from https://www.python.org/downloads/. <b>Ensure no previous version of Python is installed. This may cause an error "PyUSB not found".</b>
 * Open Terminal/CMD
 * Run "pip3 install pyusb"
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
 
 ## (Optional) Install PyQt and QDarkStyle
-* <b>Please note, this step is NOT required for Fluffy to work. It is 100% optional. However, not doing this step may make Fluffy look outdated.</b>
+* <b>Please note: While 100% optional, not doing this step may make Fluffy look outdated.</b>
 * Open Terminal/CMD
 * Run "pip3 install qdarkstyle" and "pip3 install pyqt5"
 
