@@ -15,7 +15,7 @@
 # Screenshot (PyQt version)
 ![screenshot](screenshot.png)
 
-<i>Disclaimer: In order for Fluffy to look like this, Fluffy requires pyqt and qdarkstyle modules. Install them with "pip3 install qdarkstyle" and "pip3 install pyqt". <b>This is 100% optional, Fluffy will still run without these modules!</b></i>
+<i>Disclaimer: In order for Fluffy to look like this, Fluffy requires pyqt and qdarkstyle modules. Install them with "<b>pip3 install qdarkstyle</b>" and "<b>pip3 install pyqt</b>". <b>This is 100% optional, Fluffy will still run without these modules!</b></i>
 
 
 ## Coming soon
