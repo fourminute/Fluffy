@@ -223,7 +223,11 @@ def init_usb_install(args, s_f):
     nsp_dir = Path(args)
     if not nsp_dir.is_dir():
         raise ValueError('1st argument must be a directory')
-    dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+    find_dev = usb.core.find(find_all=True)
+    dev = None
+    for cfg in find_dev:
+        if cfg.idVendor == 0x057E:
+            dev = usb.core.find(idVendor=cfg.idVendor, idProduct=cfg.idProduct)
     if dev is None:
         raise ValueError('Switch is not found!')
     dev.reset()
@@ -245,7 +249,11 @@ def switch_connected_thread():
             if exit_status:
                 break
             if is_installing == False:
-                dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+                find_dev = usb.core.find(find_all=True)
+                dev = None
+                for cfg in find_dev:
+                    if cfg.idVendor == 0x057E:
+                        dev = usb.core.find(idVendor=cfg.idVendor, idProduct=cfg.idProduct)
                 if dev is None:
                     lbl_switch.config(text="Switch Not Detected!",fg="dark red", font='Helvetica 9 bold')
                 else:
@@ -399,12 +407,7 @@ else:
         v_box = QtWidgets.QVBoxLayout()
         img_label = QLabel()
         pixmap = QPixmap('inlay.png')
-        lowresfix = pixmap.scaled(280, 298)
-        screen = app.primaryScreen()
-        if screen.size().width() <= 1920:
-            img_label.setPixmap(lowresfix)
-        else:
-            img_label.setPixmap(pixmap)
+        img_label.setPixmap(pixmap)
         def get_nsps():
             try:
                 d = filedialog.askopenfilenames(parent=root,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
@@ -442,7 +445,7 @@ else:
         btn_nsp.clicked.connect(get_nsps)
         btn_header.clicked.connect(send_header_cmd)
         window.setWindowIcon(QIcon('icon.ico'))
-        window.show()       
+        window.show()
         threading.Thread(target = switch_connected_thread).start()
         while True:
             if not window.isVisible():
