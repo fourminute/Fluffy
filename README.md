@@ -34,7 +34,7 @@
 * Click "Install Driver"
 * Done!
 
-## Install Python and PyUSB
+## Fluffy only requires Python and PyUSB
 * <b>Fluffy requires <u>ONLY the latest</u> Python 3 and PyUSB.</b>
 * Download and Install Python 3 from https://www.python.org/downloads/. <b>Ensure no previous version of Python is installed. This may cause an error "PyUSB not found".</b>
 * Open Terminal/CMD
