@@ -78,3 +78,5 @@ Answer: All of them will work the same. That is up to you.
 
 
 <b>Still having problems? Consider making a bug report on this GitHub page to request assistance.</b>
+
+<i>Disclaimer: The "Pink Donut" design was designed by fourminute exclusively for Fluffy and infringes on no copyright. The font used in "intro.png" is also 100% royalty free.</i>
