@@ -1,11 +1,12 @@
 # Fluffy
 ![intro](intro.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.3">Latest Release v1.3</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.4">Latest Release v1.4</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed.
+* Support for UI scaling on 4K and 1080P resolutions.
 * Show current NSP being installed.
 * Individual NSP selection (suggest by: <b>Shadowhand</b>, thanks!).
 * Progress bar.
