@@ -15,7 +15,7 @@
 # Screenshot (PyQt version)
 ![screenshot](screenshot.png)
 
-<i>Disclaimer: In order for Fluffy to look like this, Fluffy requires pyqt and qdarkstyle modules. Install them with "<b>pip3 install qdarkstyle</b>" and "<b>pip3 install pyqt</b>". <b>This is 100% optional, Fluffy will still run without these modules!</b></i>
+<i>Disclaimer: In order for Fluffy to look like this, Fluffy requires pyqt5 and qdarkstyle modules. Install them with "<b>pip3 install qdarkstyle</b>" and "<b>pip3 install pyqt5</b>". <b>This is 100% optional, Fluffy will still run without these modules!</b></i>
 
 
 ## Coming soon
@@ -44,7 +44,7 @@
 ## (Optional) Install PyQt and QDarkStyle
 * <b>Please note, this step is NOT required for Fluffy to work. It is 100% optional. However, not doing this step may make Fluffy look outdated.</b>
 * Open Terminal/CMD
-* Run "pip3 install qdarkstyle" and "pip3 install pyqt"
+* Run "pip3 install qdarkstyle" and "pip3 install pyqt5"
 
 ## Install TinFoil
 * <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
