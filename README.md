@@ -55,8 +55,9 @@ Complete beginner? No problem.
 * <b>First follow the installation steps above for Zadig Driver, TinFoil, Python 3, and PyUSB. Done? Let's continue!</b>
 * On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
 * Double-click on Fluffy.pyw to start it
-* Click "Open Folder" and browse to a folder where your NSPs are located then select "Open". <b>A word of caution, try to select a folder with 3 or less NSPs. TinFoil is unable to parse large amounts of files.</b>
+* Click "Select NSPs" and select as many NSPs as you want to install. <b>It is generally recommended to only install 5 or less NSPs at once, installing more NSPs at once may result in unknown issues.</b>
 * If "Switch Detected!" is visible. Click "Send Header".
+* On your Switch, select and install the NSPs.
 
 ## Troubleshooting Tips
 <b>PyUSB Not Found and I've followed all the steps!</b>
