@@ -1,5 +1,6 @@
 """""
-"Pink Donut" design was designed by fourminute exclusively for Fluffy and does not infringe on any copyright.
+"Pink Donut" design was designed by fourminute exclusively for 
+Fluffy and does not infringe on any copyright.
 
 Copyright (c) 2019 fourminute (https://github.com/fourminute)
 
