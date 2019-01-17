@@ -1,17 +1,22 @@
 # Fluffy
-A one-dependency, feature-rich GUI for Tinfoil!
+![intro](intro.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.2">Latest Release v1.2</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.3">Latest Release v1.3</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
+* Smart User-Interface, switches between Tkinter and PyQt depending on modules installed.
 * Show current NSP being installed.
 * Individual NSP selection (suggest by: <b>Shadowhand</b>, thanks!).
 * Progress bar.
 * Switch connected indicator.
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
-<img src="https://i.imgur.com/oGuVBHQ.png" />
+# Screenshot (PyQt version)
+![screenshot](screenshot.png)
+
+<i>Disclaimer: In order for Fluffy to look like this, Fluffy requires pyqt and qdarkstyle modules. Install them with "pip3 install qdarkstyle" and "pip3 install pyqt". <b>This is 100% optional, Fluffy will still run without these modules!</b></i>
+
 
 ## Coming soon
 <b>High-priority</b>
@@ -35,6 +40,11 @@ A one-dependency, feature-rich GUI for Tinfoil!
 * Open Terminal/CMD
 * Run "pip3 install pyusb"
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
+
+## (Optional) Install PyQt and QDarkStyle
+* <b>Please note, this step is NOT required for Fluffy to work. It is 100% optional. However, not doing this step may make Fluffy look outdated.</b>
+* Open Terminal/CMD
+* Run "pip3 install qdarkstyle" and "pip3 install pyqt"
 
 ## Install TinFoil
 * <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
