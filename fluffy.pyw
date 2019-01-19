@@ -19,7 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """""
 # Imports
 import time
-import array
 import base64
 import os
 import sys
