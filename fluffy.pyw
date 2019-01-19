@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """""
 # Imports
 import time
+import array
 import base64
 import os
 import sys
@@ -28,9 +29,6 @@ from binascii import hexlify as hx, unhexlify as uhx
 from pathlib import Path
 from tkinter import messagebox
 import tkinter as tk
-from tkinter import *
-from tkinter import scrolledtext
-from tkinter.ttk import Progressbar
 from tkinter import filedialog
 import logging
 try:
@@ -42,30 +40,33 @@ try:
     app = QtWidgets.QApplication([])
     window = QWidget()
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-    using_pyqt = True
-except:
-    using_pyqt = False
-    pass
+except ImportError:
+    messagebox.showinfo("Error","PyQt5 and QDarkStyle not found. Please install with 'pip3 install pyqt5' and 'pip3 install qdarkstyle'. If you cannot install these modules, please use Fluffy v1.4.1.")
+    exit()
 root = tk.Tk()
 root.withdraw()
 try:
     import usb.core
     import usb.util
 except ImportError:
-    messagebox.showinfo("Error","PyUSB not found. Please install with 'pip3 install pyusb'\nIf you are on MacOS, also install LibUSB with 'brew install libusb'. For more info on brew, head to https://brew.sh/.\n\nAlso ensure you have ONLY the latest Python 3 installed on your machine. Having previous versions of Python 3 installed can cause this error to occur.")
+    messagebox.showinfo("Error","PyUSB not found. Please install with 'pip3 install pyusb'\nIf you are on MacOS, also install LibUSB with 'brew install libusb'. For more info on brew, head to https://brew.sh/.\n\nAlso ensure you have only the latest Python 3(32-bit version) installed on your machine. Having previous versions of Python 3 installed can cause this error to occur.\n\nDo not use Fluffy with the 64-bit version of Python.")
     exit()
 # Variables
 CMD_ID_EXIT = 0
 CMD_ID_FILE_RANGE = 1
 CMD_TYPE_RESPONSE = 1
-pyqt_sent = False
+TRANSFER_RATE = 0
 is_installing = False
 is_done = False
 is_loading = True
 selected_dir = None
 selected_files = None
+sent_usb_header = False
 last_name_len = 0
 last_data_size = 0
+start_time = None
+cur_usb_rate = 0
+last_usb_rate = 0
 cur_progress = 0
 end_progress = 0
 cur_nsp_count = 1
@@ -76,16 +77,37 @@ LOG_FILENAME = 'fluffy.log'
 logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 if os.path.isfile('tmp_fluffy_0'): # Hacky temp fix for major issue.
     os.remove('tmp_fluffy_0')
+class TransferRates:
+    Safe = 0x1F4
+    Normal = 0x100000
+TransferRateDict  = {0: TransferRates.Safe,
+                     1: TransferRates.Normal}
 
 # Main
+def set_start_time():
+    global start_time
+    start_time = time.time()
+    
+def set_cur_usb_rate(v):
+    global cur_usb_rate
+    cur_usb_rate = v
+
+def set_sent_usb_header():
+    global sent_usb_header
+    sent_usb_header = True
+
+def set_last_usb_rate(v):
+    global last_usb_rate
+    last_usb_rate = v
+
 def close_program():
     with open('tmp_fluffy_0', 'w') as w:
         w.write('tmp_fluffy_0')
     exit()
                 
-def set_pyqt_sent():
-    global pyqt_sent
-    pyqt_sent = True
+def set_transfer_rate(v):
+    global TRANSFER_RATE
+    TRANSFER_RATE = TransferRateDict[v]
 
 def set_dir(d):
     global selected_dir
@@ -109,21 +131,24 @@ def set_count(n, d):
     global last_name_len
     global last_data_size
     global cur_nsp_count
+    global last_progress
     if last_name_len != n:
         if last_data_size != d:
             if not last_data_size == 0:
                 cur_nsp_count += 1
                 last_data_size = d
                 last_name_len = n
+                set_start_time()
+                last_progress = 0
             else:
                 last_data_size = d
                 last_name_len = n
+                
 
 def set_total_nsp(n):
     global total_nsp
     total_nsp = n
     
-
 def complete_install():
     global is_done
     is_done = True
@@ -153,7 +178,7 @@ def file_range_cmd(nsp_dir, in_ep, out_ep, data_size):
         f.seek(range_offset)
         curr_off = 0x0
         end_off = range_size
-        read_size = 0x100000
+        read_size = TRANSFER_RATE
         while curr_off < end_off:
             if os.path.isfile('tmp_fluffy_0'):
                 exit()
@@ -168,6 +193,11 @@ def file_range_cmd(nsp_dir, in_ep, out_ep, data_size):
             curr_off += read_size
             try:
                 set_progress(int(curr_off), int(end_off))
+                elapsed_time = time.time() - start_time
+                if elapsed_time >= 1:
+                    set_cur_usb_rate(curr_off - last_usb_rate)
+                    set_last_usb_rate(curr_off)
+                    set_start_time()
             except:
                 pass
 
@@ -185,11 +215,10 @@ def poll_commands(nsp_dir, in_ep, out_ep):
         data_size = struct.unpack('<Q', cmd_header[12:20])[0]
         #print('Cmd Type: {}, Command id: {}, Data size: {}'.format(cmd_type, cmd_id, data_size), flush=True)
         if cmd_id == CMD_ID_EXIT:
-            #print('Exiting...')
             complete_install()
-            time.sleep(11)
-            close_program()
-            exit()
+            while True:
+                if os.path.isfile('tmp_fluffy_0'):
+                    exit()
         elif cmd_id == CMD_ID_FILE_RANGE:
             file_range_cmd(nsp_dir, in_ep, out_ep, data_size)
 
@@ -229,256 +258,135 @@ def init_usb_install(args, s_f):
     send_nsp_list(s_f, nsp_dir, out_ep)
     poll_commands(nsp_dir, in_ep, out_ep)
 
-
-def switch_connected_thread():
-    if not using_pyqt:
-        while True:
-            if os.path.isfile('tmp_fluffy_0'):
-                exit()
-            if is_installing == False:
-                dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-                if dev is None:
-                    lbl_switch.config(text="Switch Not Detected!",fg="dark red", font='Helvetica 9 bold')
-                else:
-                    lbl_switch.config(text="Switch Detected!",fg="dark green", font='Helvetica 9 bold')
-            else:
-                break
-
-
-def update_progress_thread():
-    if not using_pyqt:
-        while True:
-            hit_timer = False
-            if os.path.isfile('tmp_fluffy_0'):
-                exit()
-            last_c = 1
-            try:
-                if is_loading == False:
-                    c = cur_progress
-                    e = end_progress
-                    v = (int(c) / int(e)) * 100
-                    bar['value'] = v
-                    cur_c = cur_nsp_count
-                    if is_done:
-                        lbl_status.config(text="Successfully Installed " + str(total_nsp) + " NSPs!", fg="dark blue", font='Helvetica 9 bold')
-                        window.update_idletasks()
-                        window.update()
-                        sc = 10
-                        if not hit_timer:
-                            while True:
-                                if sc == 0:
-                                    hit_timer = True
-                                if os.path.isfile('tmp_fluffy_0'):
-                                    exit()
-                                if sc != 0:
-                                    lbl_switch.config(text="Closing in " + str(sc) + " seconds.", fg="dark blue", font='Helvetica 9 bold')
-                                    window.update_idletasks()
-                                    window.update()
-                                    time.sleep(1)
-                                    sc -= 1
-                    else:
-                        lbl_switch.config(text="Progress: " + str(round(v, 2)) + "%",fg="dark green", font='Helvetica 9 bold')
-                    lbl_status.config(text="Installing " + str(cur_c) + " of " + str(total_nsp) + " NSPs.")
-                    window.update_idletasks()
-                    window.update()
-                else:
-                    lbl_status.config(text="Loading " + str(total_nsp) + " NSPs. Please Wait.")
-            except:
-                pass
-
 def usb_thread():
     try:
         give_up_usb()
+        set_start_time()
         init_usb_install(selected_dir, selected_files)
     except Exception as e:
         logging.error(e, exc_info=True)
         exit()
 
-
-    
 def send_header_cmd():
     try:
-        if not using_pyqt:
-            btn_nsp.config(state="disabled")
-            btn_header.config(state="disabled")
-            threading.Thread(target = update_progress_thread).start()
-        else:
-            btn_header.setEnabled(False)
-            btn_nsp.setEnabled(False)
-            set_pyqt_sent()
+        btn_header.setEnabled(False)
+        btn_nsp.setEnabled(False)
+        combo.setEnabled(False)
+        set_transfer_rate(combo.currentIndex())
+        set_sent_usb_header()
         threading.Thread(target = usb_thread).start()
     except Exception as e:
         logging.error(e, exc_info=True)
         exit()
 
 
-# Tkinter UI
-if not using_pyqt:
-    try:
-        imgdata = base64.b64decode(ICON_DATA)
-        with open('icon.ico', 'wb') as f:
-            f.write(imgdata)
-        window = Tk()
-        window.iconbitmap(r'icon.ico')
-        window.resizable(0,0)
-        window.title("Fluffy")
-        window.geometry('237x235')
-        lbl_status = tk.Label(window)
-        lbl_switch = tk.Label(window)
-        lbl_status.config(text="Awaiting Selection.", font='Helvetica 9 bold')
-        lbl_switch.config(text="Switch Not Detected!",fg="dark red", font='Helvetica 9 bold')
-        def get_folder():
-            try:
-                d = filedialog.askopenfilenames(parent=window,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
-                set_dir(os.path.dirname(d[0]))
-                file_list = list(d)
-                tmp = list()
-                listbox.delete(0, tk.END)
-                i = 0
-                for f in file_list:
-                    if f.endswith(".nsp"):
-                        i += 1
-                        listbox.insert(END,str(os.path.basename(f)))
-                        tmp.append(f)
-                if i > 0:
-                    btn_header.config(state="normal")
-                    set_total_nsp(i)
-                    set_selected(tmp)
-                    lbl_status.config(text=str(total_nsp) + " NSPs Selected.")
-                else:
-                    btn_header.config(state="disabled")
-                    lbl_status.config(text="Awaiting Selection.", font='Helvetica 9 bold')
-            except:
-                pass
-        listbox = Listbox(window)
-        btn_nsp = Button(window, text="Select NSPs", command=get_folder)
-        btn_header = Button(window, text="Send Header", command=send_header_cmd)
-        btn_header.config(state="disabled")
-        bar = Progressbar(window)
-        bar['value'] = 0
-        btn_nsp.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-        btn_header.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-        lbl_status.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-        lbl_switch.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-        bar.pack(side=TOP,padx=3,pady=(3,0),fill=X)
-        listbox.pack(side=TOP,padx=3,pady=(3,5),fill=X)
-        listbox.config(height=7)
-        window.protocol("WM_DELETE_WINDOW", close_program)
-        threading.Thread(target = switch_connected_thread).start()
-        window.mainloop()
-    except Exception as e:
-            logging.error(e, exc_info=True)
-            exit()
-# PyQt UI 
-else:
-    try:
-        imgdata = base64.b64decode(ICON_DATA)
-        with open('icon.ico', 'wb') as f:
-            f.write(imgdata)
-        imgdata2 = base64.b64decode(DONUT_DATA)
-        with open('inlay.png', 'wb') as f:
-            f.write(imgdata2)
-        btn_nsp = QtWidgets.QPushButton("Select NSPs")
-        btn_header = QtWidgets.QPushButton("Send Header")
-        btn_header.setEnabled(False)
-        l_github = QtWidgets.QLabel("v1.4 | github.com/fourminute/fluffy")
-        l_status = QtWidgets.QLabel("Awaiting Selection.")
-        l_switch = QtWidgets.QLabel("<font color='red'>Switch Not Detected!</font>")
-        list_nsp = QtWidgets.QListWidget()
-        progressbar = QProgressBar()
-        progressbar.setAlignment(Qt.AlignVCenter)
-        progressbar.setMaximum(100)
-        v_box = QtWidgets.QVBoxLayout()
-        img_label = QLabel()
-        pixmap = QPixmap('inlay.png')
-        lowresfix = pixmap.scaled(280, 298)
-        screen = app.primaryScreen()
-        if screen.size().width() <= 1920:
-            img_label.setPixmap(lowresfix)
+# Main
+try:
+    imgdata = base64.b64decode(ICON_DATA)
+    with open('icon.ico', 'wb') as f:
+        f.write(imgdata)
+    imgdata2 = base64.b64decode(DONUT_DATA)
+    with open('inlay.png', 'wb') as f:
+        f.write(imgdata2)
+    btn_nsp = QtWidgets.QPushButton("Select NSPs")
+    btn_header = QtWidgets.QPushButton("Send Header")
+    btn_header.setEnabled(False)
+    l_rate = QtWidgets.QLabel("Transfer Rate")
+    l_github = QtWidgets.QLabel("v1.5 | github.com/fourminute/fluffy")
+    l_status = QtWidgets.QLabel("Awaiting Selection.")
+    l_switch = QtWidgets.QLabel("<font color='red'>Switch Not Detected!</font>")
+    list_nsp = QtWidgets.QListWidget()
+    progressbar = QProgressBar()
+    progressbar.setAlignment(Qt.AlignVCenter)
+    progressbar.setMaximum(100)
+    v_box = QtWidgets.QVBoxLayout()
+    img_label = QLabel()
+    img_label.setAlignment(Qt.AlignCenter)
+    pixmap = QPixmap('inlay.png')
+    screen = app.primaryScreen()
+    if screen.size().width() <= 1920:
+        if screen.size().width() <= 1366:
+            lowresfix = pixmap.scaled(190, 202, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         else:
-            img_label.setPixmap(pixmap)
-        def get_nsps():
+            lowresfix = pixmap.scaled(280, 298, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        img_label.setPixmap(lowresfix)
+    else:
+        img_label.setPixmap(pixmap)
+    def get_nsps():
+        try:
+            d = filedialog.askopenfilenames(parent=root,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
+            set_dir(os.path.dirname(d[0]))
+            file_list = list(d)
+            tmp = list()
+            list_nsp.clear()
+            i = 0
+            for f in file_list:
+                if str(f).endswith(".nsp"):
+                    i += 1
+                    list_nsp.addItem(os.path.basename(str(f)))
+                    tmp.append(str(f))
+            if i > 0:
+                btn_header.setEnabled(True)
+                set_total_nsp(i)
+                set_selected(tmp)
+                l_status.setText(str(total_nsp) + " NSPs Selected.")
+            else:
+                btn_header.setEnabled(False)
+                l_status.setText("Awaiting Selection.")
+        except:
+            pass
+    combo = QComboBox()
+    combo.addItem("Safe Mode")
+    combo.addItem("Normal Mode")
+    combo.setCurrentIndex(1)
+    v_box.addWidget(img_label)
+    v_box.addWidget(l_rate)
+    v_box.addWidget(combo)
+    v_box.addWidget(btn_nsp)
+    v_box.addWidget(btn_header)
+    v_box.addWidget(l_status)
+    v_box.addWidget(l_switch)
+    v_box.addWidget(progressbar)
+    v_box.addWidget(list_nsp)
+    v_box.addWidget(l_github)
+    list_nsp.setMinimumHeight(225)
+    layout = QVBoxLayout()
+    window.setLayout(v_box)
+    window.setGeometry((screen.size().width()-window.size().width())/2,(screen.size().height()-window.size().height())/4,window.size().width()-100,window.size().height())
+    window.setWindowTitle('Fluffy')
+    btn_nsp.clicked.connect(get_nsps)
+    btn_header.clicked.connect(send_header_cmd)
+    window.setWindowIcon(QIcon('icon.ico'))
+    window.show()       
+    while True:
+        QApplication.processEvents()
+        if is_installing == False:
+            dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+            if dev is None:
+                l_switch.setText("<font color='red'>Switch Not Detected!</font>")
+            else:
+                l_switch.setText("<font color='green'>Switch Detected!</font>")
+        if not window.isVisible():
+            close_program()
+            exit()
+        if sent_usb_header:
             try:
-                d = filedialog.askopenfilenames(parent=root,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
-                set_dir(os.path.dirname(d[0]))
-                file_list = list(d)
-                tmp = list()
-                list_nsp.clear()
-                i = 0
-                for f in file_list:
-                    if str(f).endswith(".nsp"):
-                        i += 1
-                        list_nsp.addItem(os.path.basename(str(f)))
-                        tmp.append(str(f))
-                if i > 0:
-                    btn_header.setEnabled(True)
-                    set_total_nsp(i)
-                    set_selected(tmp)
-                    l_status.setText(str(total_nsp) + " NSPs Selected.")
+                if is_loading == False:
+                    v = (int(cur_progress) / int(end_progress)) * 100
+                    progressbar.setValue(v)
+                    if is_done:
+                        l_status.setText("<font color='green'>Successfully Installed " + str(total_nsp) + " NSPs!</font>")
+                        l_switch.setText("<font color='green'>You may close Fluffy.</font>")
+                    else:
+                        n_rate = round((cur_usb_rate /1000000),2)
+                        if n_rate < 0:
+                            n_rate = 0.0
+                        l_status.setText("Installing " + str(cur_nsp_count) + " of " + str(total_nsp) + " NSPs.")
+                        l_switch.setText("<font color='green'>Download Speed: " + str(n_rate) + "MB/s.</font>")                       
                 else:
-                    btn_header.setEnabled(False)
-                    l_status.setText("Awaiting Selection.")
+                    l_status.setText("Loading " + str(total_usb_nsp) + " NSPs. Please Wait.")
             except:
                 pass
-        v_box.addWidget(img_label)
-        v_box.addWidget(btn_nsp)
-        v_box.addWidget(btn_header)
-        v_box.addWidget(l_status)
-        v_box.addWidget(l_switch)
-        v_box.addWidget(progressbar)
-        v_box.addWidget(list_nsp)
-        v_box.addWidget(l_github)
-        layout = QVBoxLayout()
-        window.setLayout(v_box)
-        window.setWindowTitle('Fluffy')
-        btn_nsp.clicked.connect(get_nsps)
-        btn_header.clicked.connect(send_header_cmd)
-        window.setWindowIcon(QIcon('icon.ico'))
-        window.show()       
-        threading.Thread(target = switch_connected_thread).start()
-        while True:
-            if is_installing == False:
-                dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-                if dev is None:
-                    l_switch.setText("<font color='red'>Switch Not Detected!</font>")
-                else:
-                    l_switch.setText("<font color='green'>Switch Detected!</font>")
-            if not window.isVisible():
-                close_program()
-                exit()
-            QApplication.processEvents()
-            if pyqt_sent:
-                last_c = 1
-                try:
-                    if is_loading == False:
-                        c = cur_progress
-                        e = end_progress
-                        v = (int(c) / int(e)) * 100
-                        progressbar.setValue(v)
-                        cur_c = cur_nsp_count
-                        if is_done:
-                            l_status.setText("<font color='blue'>Successfully Installed " + str(total_nsp) + " NSPs!</font>")
-                            sc = 10
-                            while True:
-                                if sc == 0:
-                                    l_switch.setText("<font color='blue'>Closing in " + str(sc) + " seconds.")
-                                    exit()
-                                else:
-                                    l_switch.setText("<font color='blue'>Closing in " + str(sc) + " seconds.")
-                                    QApplication.processEvents()
-                                    time.sleep(1)
-                                    sc -= 1
-                        else:
-                            l_switch.setText("<font color='green'>Progress: " + str(round(v, 2)) + "%</font>")
-                            QApplication.processEvents()
-                        l_status.setText("Installing " + str(cur_c) + " of " + str(total_nsp) + " NSPs.")
-                        QApplication.processEvents()
-                    else:
-                        l_status.setText("Loading " + str(total_nsp) + " NSPs. Please Wait.")
-                        QApplication.processEvents()
-                except Exception as e:
-                    logging.error(e, exc_info=True)
-                    pass
-    except Exception as e:
-        logging.error(e, exc_info=True)
-        exit()
+except Exception as e:
+    logging.error(e, exc_info=True)
+    exit()
