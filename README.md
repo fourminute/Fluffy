@@ -1,10 +1,11 @@
 # Fluffy
 ![intro](intro.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.5.1">Latest Release v1.5.1</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.6">Latest Release v1.6</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
+* Network Install with transfer rate and progress.
 * Display current install rate in MB/s.
 * Transfer modes between "Normal" and "Safe".
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
@@ -51,6 +52,10 @@ Complete beginner? No problem.
 * On your Switch, select and install the NSPs.
 
 ## Troubleshooting Tips
+<b>Why does network install fail?</b>
+
+Answer: Try changing the port. Usually when network install fails it is due to the port being blocked by the router, the computer, or something else.
+
 <b>PyUSB Not Found and I've followed all the steps!</b>
 
 Answer: Ensure no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error. Using a 64-bit version of Python 3 can also throw this error.
