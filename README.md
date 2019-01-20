@@ -28,18 +28,16 @@
 * Click "Install Driver"
 * Done!
 
-## Install Python and PyUSB
+## Install Python
 * Download and Install Python 3 from https://www.python.org/downloads/. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
-* Open Terminal/CMD
-* Run "pip3 install pyusb"
+
+## Install PyUSB, PyQt and QDarkStyle
+* <b>Please note: This is optional on v1.4.1 and below but required for v1.5 and up.</b>
+* Open Terminal/Command-line/CMD
+* Run "pip3 install qdarkstyle" and "pip3 install pyqt5" and "pip3 install pyusb"
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
 
-## Install PyQt and QDarkStyle
-* <b>Please note: This is optional on v1.4.1 and below but required for v1.5 and up.</b>
-* Open Terminal/CMD
-* Run "pip3 install qdarkstyle" and "pip3 install pyqt5"
-
-## Install TinFoil
+## Install TinFoil on your Switch
 * <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
 * Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
 * Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
