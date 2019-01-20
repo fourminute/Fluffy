@@ -498,7 +498,7 @@ try:
     btn_header = QtWidgets.QPushButton("Send Header")
     btn_header.setEnabled(False)
     l_rate = QtWidgets.QLabel("Transfer Rate")
-    l_github = QtWidgets.QLabel("v1.6 | github.com/fourminute/fluffy")
+    l_github = QtWidgets.QLabel("v1.6.1 | github.com/fourminute/fluffy")
     l_status = QtWidgets.QLabel("Awaiting Selection.")
     l_switch = QtWidgets.QLabel("<font color='red'>Switch Not Detected!</font>")
     list_nsp = QtWidgets.QListWidget()
