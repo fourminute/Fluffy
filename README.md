@@ -29,7 +29,7 @@
 * Done!
 
 ## Install Python and PyUSB
-* Download and Install Python 3 from https://www.python.org/downloads/. <b>Ensure no previous version of Python is installed. This may cause an error "PyUSB not found".</b>
+* Download and Install Python 3 from https://www.python.org/downloads/. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
 * Open Terminal/CMD
 * Run "pip3 install pyusb"
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
@@ -56,7 +56,7 @@ Complete beginner? No problem.
 ## Troubleshooting Tips
 <b>PyUSB Not Found and I've followed all the steps!</b>
 
-Answer: Ensure no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error.
+Answer: Ensure no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error. Using a 64-bit version of Python 3 can also throw this error.
 
 <b>What kind of cable does the Switch use?</b>
 
