@@ -581,6 +581,13 @@ try:
     window.show()       
     while True:
         QApplication.processEvents()
+        if is_installing == False:
+            if is_network == False:
+                dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+                if dev is None:
+                    l_switch.setText("<font color='red'>Switch Not Detected!</font>")
+                else:
+                    l_switch.setText("<font color='green'>Switch Detected!</font>")
         if sent_net_header:
             try:
                 if is_done:
@@ -598,13 +605,6 @@ try:
                     else:
                         l_status.setText("Headers Sent.")
                         l_switch.setText("<font color='yellow'>Awaiting Connection Request.</font>")
-                if is_installing == False:
-                    if is_network == False:
-                        dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-                        if dev is None:
-                            l_switch.setText("<font color='red'>Switch Not Detected!</font>")
-                        else:
-                            l_switch.setText("<font color='green'>Switch Detected!</font>")
             except:
                 pass
         if not window.isVisible():
