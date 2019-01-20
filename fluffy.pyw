@@ -303,14 +303,25 @@ try:
     img_label.setAlignment(Qt.AlignCenter)
     pixmap = QPixmap('inlay.png')
     screen = app.primaryScreen()
-    if screen.size().width() <= 1920:
-        if screen.size().width() <= 1366:
-            lowresfix = pixmap.scaled(190, 202, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    if screen.size().width() <= 2560:
+        if screen.size().width() <= 1920:
+            if screen.size().width() <= 1366:
+                lowresfix = pixmap.scaled(170, 170, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                img_label.setPixmap(lowresfix)
+                list_nsp.setMinimumHeight(3)
+            else:
+                lowresfix = pixmap.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                img_label.setPixmap(lowresfix)
+                list_nsp.setMinimumHeight(10)
         else:
-            lowresfix = pixmap.scaled(280, 298, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        img_label.setPixmap(lowresfix)
+            lowresfix = pixmap.scaled(245, 245, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            img_label.setPixmap(lowresfix)
+            list_nsp.setMinimumHeight(10)
     else:
         img_label.setPixmap(pixmap)
+        list_nsp.setMinimumHeight(25)
+
+        
     def get_nsps():
         try:
             d = filedialog.askopenfilenames(parent=root,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
@@ -348,10 +359,8 @@ try:
     v_box.addWidget(progressbar)
     v_box.addWidget(list_nsp)
     v_box.addWidget(l_github)
-    list_nsp.setMinimumHeight(225)
     layout = QVBoxLayout()
     window.setLayout(v_box)
-    window.setGeometry((screen.size().width()-window.size().width())/2,(screen.size().height()-window.size().height())/4,window.size().width()-100,window.size().height())
     window.setWindowTitle('Fluffy')
     btn_nsp.clicked.connect(get_nsps)
     btn_header.clicked.connect(send_header_cmd)
