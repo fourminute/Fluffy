@@ -7,8 +7,8 @@
 ## Features
 * Display current install rate in MB/s.
 * Transfer modes between "Normal" and "Safe".
-* Smart User-Interface, switches between Tkinter and PyQt depending on modules installed.
-* Support for UI scaling on 4K and 1080P resolutions.
+* Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
+* Support for UI scaling on 4K, 1080P, and 720P displays.
 * Show current NSP being installed.
 * Individual NSP selection (suggest by: <b>Shadowhand</b>, thanks!).
 * Progress bar.
@@ -16,17 +16,8 @@
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
 # Screenshot (PyQt version)
-![screenshot](screenshot.png)
+![screenshot](screenshot1dot5b.PNG)
 
-<i>Disclaimer: In order for Fluffy to look like this, Fluffy requires pyqt5 and qdarkstyle modules. Install them with "<b>pip3 install qdarkstyle</b>" and "<b>pip3 install pyqt5</b>". <b>This is 100% optional, Fluffy will still run without these modules!</b></i>
-
-
-## Coming soon
-<b>High-priority</b>
-* GoldLeaf Support (<i>on top</i> of existing TinFoil support)
-
-<b>Low/Medium-priority:</b>
-* Network Installs for TinFoil
 
 # Instructions For Use
 ## Install and Setup Zadig Driver (Windows 10)
@@ -43,8 +34,8 @@
 * Run "pip3 install pyusb"
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
 
-## (Optional) Install PyQt and QDarkStyle
-* <b>Please note: While 100% optional, not doing this step may make Fluffy look outdated.</b>
+## Install PyQt and QDarkStyle
+* <b>Please note: This is optional on v1.4.1 and below but required for v1.5 and up.</b>
 * Open Terminal/CMD
 * Run "pip3 install qdarkstyle" and "pip3 install pyqt5"
 
@@ -75,10 +66,13 @@ Answer: USB type C cable.
 
 Answer: Absolutely! Python is cross-platform and so Fluffy should work on both operating systems.
 
-<b>Which Custom Firmware works best with Fluffy and TinFoil</b>
+<b>Which Custom Firmware works best with Fluffy and TinFoil?</b>
 
 Answer: All of them will work the same. That is up to you.
 
+<b>Why does my install keeps hanging and/or crashing?</b>
+
+Answer: Switch Transfer Mode to "Safe".
 
 <b>Still having problems? Consider making a bug report on this GitHub page to request assistance.</b>
 
