@@ -5,7 +5,7 @@
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
-* Network Install with transfer rate and progress.
+* USB and Network Install with transfer rate and progress.
 * Display current install rate in MB/s.
 * Transfer modes between "Normal" and "Safe".
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
