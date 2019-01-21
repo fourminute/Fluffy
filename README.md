@@ -1,11 +1,11 @@
 # Fluffy
 ![intro](intro.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.5.1">Latest Release v1.5.1</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.6.2">Latest Release v1.6.2</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
-* Network Install with transfer rate and progress. (WIP, master branch only at the moment)
+* Network Install with transfer rate and progress.
 * Display current install rate in MB/s.
 * Transfer modes between "Normal" and "Safe".
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
