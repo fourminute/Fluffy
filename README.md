@@ -1,12 +1,12 @@
 # Fluffy
 ![intro](intro2.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.6.3">Latest Release v1.6.3</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.6.4">Latest Release v1.6.4</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
-* USB and Network Install with transfer rate and progress.
-* Display current install rate in MB/s.
+* USB and Network Install, display transfer rate in MB/s and progress percentage.
+* USB and Network Install, display current NSP being installed.
 * Transfer modes between "Normal" and "Safe".
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
 * Support for UI scaling on 4K, 1080P, and 720P displays.
