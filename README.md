@@ -17,7 +17,7 @@
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
 # Screenshot (PyQt version)
-![screenshot](screenshot1dot5b.PNG)
+![screenshot](screenshot6d1d3.png)
 
 
 # Instructions For Use
