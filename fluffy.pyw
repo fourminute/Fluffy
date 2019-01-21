@@ -73,14 +73,14 @@ selected_dir = None
 selected_files = None
 sent_usb_header = False
 sent_net_header = False
-last_name_len = 0
-last_data_size = 0
+cur_nsp_name = "NA"
 start_time = None
 cur_usb_rate = 0
 last_usb_rate = 0
 cur_progress = 0
 end_progress = 0
 cur_nsp_count = 1
+cur_nsp_name = "NA"
 switch_ip = None
 net_port = 2000
 total_nsp = 0
@@ -131,11 +131,11 @@ def set_dir(d):
     global selected_dir
     selected_dir = d
     
-def set_selected(f):
+def set_selected_files(f):
     global selected_files
     selected_files = f
 
-def give_up_usb():
+def set_installing():
     global is_installing
     is_installing = True
     
@@ -145,23 +145,17 @@ def set_progress(c, e):
     end_progress = e
     cur_progress = c
 
-def set_count(n, d):
-    global last_name_len
-    global last_data_size
+def set_cur_nsp(nsp):
+    global cur_nsp_name
     global cur_nsp_count
-    global last_progress
-    if last_name_len != n:
-        if last_data_size != d:
-            if not last_data_size == 0:
-                cur_nsp_count += 1
-                last_data_size = d
-                last_name_len = n
-                set_start_time()
-                last_progress = 0
-            else:
-                last_data_size = d
-                last_name_len = n
-                
+    if cur_nsp_name != nsp:
+        if cur_nsp_name == "NA":
+            cur_nsp_name = nsp
+        else:
+            cur_nsp_count += 1
+            cur_nsp_name = nsp
+            set_start_time()
+            last_progress = 0
 
 def set_total_nsp(n):
     global total_nsp
@@ -245,7 +239,7 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
         if 'Range' not in self.headers:
             SimpleHTTPRequestHandler.copyfile(self, infile, outfile)
             return
-
+        set_cur_nsp(str(os.path.basename(infile.name)))
         start, end = self.range
         infile.seek(start)
         bufsize = 64 * 1024  # 64KB
@@ -323,7 +317,7 @@ def init_net_install():
     complete_install()
     
 def send_response_header(out_ep, cmd_id, data_size):
-    out_ep.write(b'TUC0') # Tinfoil USB Command 0
+    out_ep.write(b'TUC0')
     out_ep.write(struct.pack('<B', CMD_TYPE_RESPONSE))
     out_ep.write(b'\x00' * 3)
     out_ep.write(struct.pack('<I', cmd_id))
@@ -335,9 +329,8 @@ def file_range_cmd(nsp_dir, in_ep, out_ep, data_size):
     range_size = struct.unpack('<Q', file_range_header[:8])[0]
     range_offset = struct.unpack('<Q', file_range_header[8:16])[0]
     nsp_name_len = struct.unpack('<Q', file_range_header[16:24])[0]
-    set_count(int(nsp_name_len), int(data_size))
     nsp_name = bytes(in_ep.read(nsp_name_len)).decode('utf-8')
-    #print('Range Size: {}, Range Offset: {}, Name len: {}, Name: {}'.format(range_size, range_offset, nsp_name_len, nsp_name))
+    set_cur_nsp(str(os.path.basename(nsp_name)))
     send_response_header(out_ep, CMD_ID_FILE_RANGE, range_size)
     with open(nsp_name, 'rb') as f:
         f.seek(range_offset)
@@ -372,13 +365,11 @@ def poll_commands(nsp_dir, in_ep, out_ep):
             exit()
         cmd_header = bytes(in_ep.read(0x20, timeout=0))
         magic = cmd_header[:4]
-        #print('Magic: {}'.format(magic), flush=True)
-        if magic != b'TUC0': # Tinfoil USB Command 0
+        if magic != b'TUC0': 
             continue
         cmd_type = struct.unpack('<B', cmd_header[4:5])[0]
         cmd_id = struct.unpack('<I', cmd_header[8:12])[0]
         data_size = struct.unpack('<Q', cmd_header[12:20])[0]
-        #print('Cmd Type: {}, Command id: {}, Data size: {}'.format(cmd_type, cmd_id, data_size), flush=True)
         if cmd_id == CMD_ID_EXIT:
             complete_install()
             while True:
@@ -395,17 +386,15 @@ def send_nsp_list(s_f, nsp_dir, out_ep):
             if str(nsp_path).find(os.path.basename(y)) != -1:
                 nsp_path_list.append(nsp_path.__str__() + '\n')
                 nsp_path_list_len += len(nsp_path.__str__()) + 1
-    #print('Sending header...')
-    out_ep.write(b'TUL0') # Tinfoil USB List 0
+    out_ep.write(b'TUL0')
     out_ep.write(struct.pack('<I', nsp_path_list_len))
-    out_ep.write(b'\x00' * 0x8) # Padding
-    #print('Sending NSP list: {}'.format(nsp_path_list))
+    out_ep.write(b'\x00' * 0x8) 
     complete_loading()
     for nsp_path in nsp_path_list:
         out_ep.write(nsp_path)
         
-def init_usb_install(args, s_f):
-    nsp_dir = Path(args)
+def init_usb_install():
+    nsp_dir = Path(selected_dir)
     if not nsp_dir.is_dir():
         raise ValueError('1st argument must be a directory')
     dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
@@ -420,17 +409,9 @@ def init_usb_install(args, s_f):
     in_ep = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_in_ep)
     assert out_ep is not None
     assert in_ep is not None
-    send_nsp_list(s_f, nsp_dir, out_ep)
+    send_nsp_list(selected_files, nsp_dir, out_ep)
     poll_commands(nsp_dir, in_ep, out_ep)
 
-def usb_thread():
-    try:
-        give_up_usb()
-        set_start_time()
-        init_usb_install(selected_dir, selected_files)
-    except Exception as e:
-        logging.error(e, exc_info=True)
-        exit()
 
 def send_header_cmd():
     try:
@@ -450,7 +431,9 @@ def send_header_cmd():
         else:
             set_transfer_rate(combo.currentIndex())
             set_sent_usb_header()
-            threading.Thread(target = usb_thread).start()
+            set_installing()
+            set_start_time()
+            threading.Thread(target = init_usb_install).start()
     except Exception as e:
         logging.error(e, exc_info=True)
         exit()
@@ -477,6 +460,7 @@ try:
         combo.setEnabled(False)
         set_network(True)
         txt_port.setEnabled(True)
+    l_nsp = QtWidgets.QLabel("")
     l_ip = QtWidgets.QLabel("Switch IP:")
     l_port = QtWidgets.QLabel("Port:")
     txt_ip = QtWidgets.QLineEdit("0.0.0.0")
@@ -490,13 +474,12 @@ try:
     h_box.addWidget(usb_radio)
     net_radio = QtWidgets.QRadioButton("Network")
     net_radio.toggled.connect(net_radio_cmd)
-    h_box.addWidget(net_radio)
-    
+    h_box.addWidget(net_radio)    
     btn_nsp = QtWidgets.QPushButton("Select NSPs")
     btn_header = QtWidgets.QPushButton("Send Header")
     btn_header.setEnabled(False)
     l_rate = QtWidgets.QLabel("USB Transfer Mode")
-    l_github = QtWidgets.QLabel("v1.6.3 | github.com/fourminute/fluffy")
+    l_github = QtWidgets.QLabel("v1.6.4 | github.com/fourminute/fluffy")
     l_status = QtWidgets.QLabel("Awaiting Selection.")
     l_switch = QtWidgets.QLabel("<font color='red'>Switch Not Detected!</font>")
     list_nsp = QtWidgets.QListWidget()
@@ -543,7 +526,7 @@ try:
             if i > 0:
                 btn_header.setEnabled(True)
                 set_total_nsp(i)
-                set_selected(tmp)
+                set_selected_files(tmp)
                 l_status.setText(str(total_nsp) + " NSPs Selected.")
             else:
                 btn_header.setEnabled(False)
@@ -566,6 +549,7 @@ try:
     v_box.addWidget(combo)
     v_box.addWidget(btn_nsp)
     v_box.addWidget(btn_header)
+    v_box.addWidget(l_nsp)
     v_box.addWidget(l_status)
     v_box.addWidget(l_switch)
     v_box.addWidget(progressbar)
@@ -589,17 +573,22 @@ try:
         if sent_net_header:
             try:
                 if is_done:
+                    l_nsp.setText("")
                     l_status.setText("<font color='green'>Successfully Installed " + str(total_nsp) + " NSPs!</font>")
                     l_switch.setText("<font color='green'>You may close Fluffy.</font>")
                 else:
                     if is_installing:
                         v = (int(cur_progress) / int(end_progress)) * 100
                         progressbar.setValue(v)
-                        l_status.setText("Now Hosting NSPs!")
                         n_rate = round((cur_usb_rate /1000000),2)
                         if n_rate < 0:
                             n_rate = 0.0
+                        l_status.setText("Installing " + str(cur_nsp_count) + " of " + str(total_nsp) + " NSPs.")
                         l_switch.setText("<font color='green'>Transfer Rate: " + str(n_rate) + "MB/s.</font>")
+                        if len(cur_nsp_name) > 13:
+                            l_nsp.setText("Current NSP: \"" + cur_nsp_name[:13] + "...\"")
+                        else:
+                            l_nsp.setText("Current NSP: \"" + cur_nsp_name + "\"")
                     else:
                         l_status.setText("Headers Sent.")
                         l_switch.setText("<font color='yellow'>Awaiting Connection Request.</font>")
@@ -614,6 +603,7 @@ try:
                     v = (int(cur_progress) / int(end_progress)) * 100
                     progressbar.setValue(v)
                     if is_done:
+                        l_nsp.setText("")
                         l_status.setText("<font color='green'>Successfully Installed " + str(total_nsp) + " NSPs!</font>")
                         l_switch.setText("<font color='green'>You may close Fluffy.</font>")
                     else:
@@ -621,7 +611,11 @@ try:
                         if n_rate < 0:
                             n_rate = 0.0
                         l_status.setText("Installing " + str(cur_nsp_count) + " of " + str(total_nsp) + " NSPs.")
-                        l_switch.setText("<font color='green'>Transfer Rate: " + str(n_rate) + "MB/s.</font>")                       
+                        l_switch.setText("<font color='green'>Transfer Rate: " + str(n_rate) + "MB/s.</font>")
+                        if len(cur_nsp_name) > 13:
+                            l_nsp.setText("Current NSP: \"" + cur_nsp_name[:13] + "...\"")
+                        else:
+                            l_nsp.setText("Current NSP: \"" + cur_nsp_name + "\"")
                 else:
                     l_status.setText("Loading " + str(total_usb_nsp) + " NSPs. Please Wait.")
             except:
