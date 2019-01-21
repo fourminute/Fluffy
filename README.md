@@ -16,7 +16,7 @@
 * Switch connected indicator.
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
-# Screenshot (PyQt version)
+# Screenshot
 ![screenshot](https://github.com/fourminute/Fluffy/blob/master/screenshot1d6d4b.png?raw=true)
 
 
