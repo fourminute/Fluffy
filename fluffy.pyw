@@ -57,10 +57,13 @@ root.withdraw()
 try:
     import usb.core
     import usb.util
+    usb_success = True
 except ImportError:
-    messagebox.showinfo("Error","PyUSB not found. Please install with 'pip3 install pyusb'\nIf you are on MacOS, also install LibUSB with 'brew install libusb'. For more info on brew, head to https://brew.sh/.\n\nAlso ensure you have only the latest Python 3(32-bit version) installed on your machine. Having previous versions of Python 3 installed can cause this error to occur.\n\nDo not use Fluffy with the 64-bit version of Python.")
-    exit()
-# Variables
+    #messagebox.showinfo("Error","PyUSB and/or LibUSB not found. Please install with 'pip3 install pyusb' and 'pip3 install libusb'\n\nIf you are on MacOS, install LibUSB with 'brew install libusb'. For more info on brew, head to https://brew.sh/.\n\nAlso ensure you have only the latest Python 3(32-bit version) installed on your machine. Having previous versions of Python 3 installed can cause this error to occur.\n\nDo not use Fluffy with the 64-bit version of Python.")
+    usb_success = False
+    pass
+   
+# Variables    
 CMD_ID_EXIT = 0
 CMD_ID_FILE_RANGE = 1
 CMD_TYPE_RESPONSE = 1
@@ -69,6 +72,7 @@ is_installing = False
 is_done = False
 is_loading = True
 is_network = False
+sub_success = False
 selected_dir = None
 selected_files = None
 sent_usb_header = False
@@ -119,8 +123,12 @@ def set_last_usb_rate(v):
     last_usb_rate = v
 
 def close_program():
-    with open(initial_dir + '/tmp_fluffy_0', 'w') as w:
+    with open(initial_dir + '/tmp_fluffy_0', 'w') as w: # Hacky temp fix for major issue.
         w.write(initial_dir + '/tmp_fluffy_0')
+    if os.path.isfile(initial_dir + '/inlay.png'): 
+        os.remove(initial_dir + '/inlay.png')
+    if os.path.isfile(initial_dir + '/icon.ico'): 
+        os.remove(initial_dir + '/icon.ico')
     exit()
                 
 def set_transfer_rate(v):
@@ -299,7 +307,7 @@ def init_net_install():
     thread = threading.Thread(target=server.serve_forever)
     thread.start()
     try:
-        print('Sending URL(s) to ' + target_ip + ' on port 2000...')
+        print('Sending URL(s) to ' + target_ip + ' on port ' + str(net_port))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((target_ip, net_port))
         sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
@@ -479,9 +487,9 @@ try:
     btn_header = QtWidgets.QPushButton("Send Header")
     btn_header.setEnabled(False)
     l_rate = QtWidgets.QLabel("USB Transfer Mode")
-    l_github = QtWidgets.QLabel("v1.6.4 | github.com/fourminute/fluffy")
+    l_github = QtWidgets.QLabel("v1.6.5 | github.com/fourminute/fluffy")
     l_status = QtWidgets.QLabel("Awaiting Selection.")
-    l_switch = QtWidgets.QLabel("<font color='red'>Switch Not Detected!</font>")
+    l_switch = QtWidgets.QLabel("<font color='red'>LibUSB and/or PyUSB not found.</font>")
     list_nsp = QtWidgets.QListWidget()
     progressbar = QProgressBar()
     progressbar.setAlignment(Qt.AlignVCenter)
@@ -543,8 +551,8 @@ try:
     v_box.addLayout(h_box)
     v_box.addWidget(l_ip)
     v_box.addWidget(txt_ip)
-    v_box.addWidget(l_port)
-    v_box.addWidget(txt_port)
+    #v_box.addWidget(l_port)
+    #v_box.addWidget(txt_port)
     v_box.addWidget(l_rate)
     v_box.addWidget(combo)
     v_box.addWidget(btn_nsp)
@@ -560,11 +568,18 @@ try:
     btn_nsp.clicked.connect(get_nsps)
     btn_header.clicked.connect(send_header_cmd)
     window.setWindowIcon(QIcon('icon.ico'))
-    window.show()       
+    window.show()
+    if not usb_success:
+        net_radio_cmd()
+        net_radio.setChecked(True)
+        usb_radio.setVisible(False)
+        l_rate.setVisible(False)
+        combo.setVisible(False)
+    
     while True:
         QApplication.processEvents()
         if is_installing == False:
-            if is_network == False:
+            if is_network == False and usb_success:
                 dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
                 if dev is None:
                     l_switch.setText("<font color='red'>Switch Not Detected!</font>")
