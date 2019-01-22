@@ -1,5 +1,5 @@
 # Fluffy
-![intro](intro2.png)
+![intro](intro3.png)
 
 ### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.7.0">Latest Release v1.7.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
