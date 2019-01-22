@@ -49,7 +49,7 @@ try:
     app = QtWidgets.QApplication([])
     window = QWidget()
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-except ImportError:
+except:
     messagebox.showinfo("Error","PyQt5 and QDarkStyle not found. Please install with 'pip3 install pyqt5' and 'pip3 install qdarkstyle'. If you cannot install these modules, please use Fluffy v1.4.1.")
     exit()
 root = tk.Tk()
@@ -58,12 +58,11 @@ try:
     import usb.core
     import usb.util
     usb_success = True
-except ImportError:
-    #messagebox.showinfo("Error","PyUSB and/or LibUSB not found. Please install with 'pip3 install pyusb' and 'pip3 install libusb'\n\nIf you are on MacOS, install LibUSB with 'brew install libusb'. For more info on brew, head to https://brew.sh/.\n\nAlso ensure you have only the latest Python 3(32-bit version) installed on your machine. Having previous versions of Python 3 installed can cause this error to occur.\n\nDo not use Fluffy with the 64-bit version of Python.")
+except:
+    #messagebox.showinfo("Error","PyUSB not found. Please install with 'pip3 install pyusb'\nIf you are on MacOS, also install LibUSB with 'brew install libusb'. For more info on brew, head to https://brew.sh/.\n\nAlso ensure you have only the latest Python 3(32-bit version) installed on your machine. Having previous versions of Python 3 installed can cause this error to occur.\n\nDo not use Fluffy with the 64-bit version of Python.")
     usb_success = False
     pass
-   
-# Variables    
+# Variables
 CMD_ID_EXIT = 0
 CMD_ID_FILE_RANGE = 1
 CMD_TYPE_RESPONSE = 1
@@ -72,20 +71,24 @@ is_installing = False
 is_done = False
 is_loading = True
 is_network = False
-sub_success = False
+is_goldleaf = False
 selected_dir = None
 selected_files = None
-sent_usb_header = False
+sent_header = False
 sent_net_header = False
 cur_nsp_name = "NA"
 start_time = None
-cur_usb_rate = 0
-last_usb_rate = 0
+cur_transfer_rate = 0
+last_transfer_rate = 0
 cur_progress = 0
 end_progress = 0
 cur_nsp_count = 1
 cur_nsp_name = "NA"
+max_nca_count = 0
+cur_nca_count = 1
 switch_ip = None
+gold_in = None
+gold_out = None
 net_port = 2000
 total_nsp = 0
 initial_dir = os.getcwd()
@@ -106,24 +109,20 @@ def set_start_time():
     global start_time
     start_time = time.time()
     
-def set_cur_usb_rate(v):
-    global cur_usb_rate
-    cur_usb_rate = v
+def set_cur_transfer_rate(v):
+    global cur_transfer_rate
+    cur_transfer_rate = v
 
-def set_sent_usb_header():
-    global sent_usb_header
-    sent_usb_header = True
+def set_sent_header():
+    global sent_header
+    sent_header = True
 
-def set_sent_net_header():
-    global sent_net_header
-    sent_net_header = True
-
-def set_last_usb_rate(v):
-    global last_usb_rate
-    last_usb_rate = v
+def set_last_transfer_rate(v):
+    global last_transfer_rate
+    last_transfer_rate = v
 
 def close_program():
-    with open(initial_dir + '/tmp_fluffy_0', 'w') as w: # Hacky temp fix for major issue.
+    with open(initial_dir + '/tmp_fluffy_0', 'w') as w:
         w.write(initial_dir + '/tmp_fluffy_0')
     if os.path.isfile(initial_dir + '/inlay.png'): 
         os.remove(initial_dir + '/inlay.png')
@@ -178,8 +177,164 @@ def complete_loading():
     global is_installing
     is_loading = False
     is_installing = True
+    
+# Goldleaf. A work of magic done by https://github.com/friedkeenan. Thank you!
+# Modified by fourminute.
+class CommandId:
+    ConnectionRequest=0
+    ConnectionResponse=1
+    NSPName=2
+    Start=3
+    NSPData=4
+    NSPContent=5
+    NSPTicket=6
+    Finish=7
+def set_nca_count(c, m):
+    global cur_nca_count
+    global max_nca_count
+    cur_nca_count = c
+    max_nca_count = m
+    
+def set_goldleaf(v):
+    global is_goldleaf
+    is_goldleaf = v
 
-# Network
+class PFS0:
+    class FileEntry:
+        def __init__(self,data):
+            self.file_offset=struct.unpack("<Q",data[:0x8])[0]
+            self.file_size=struct.unpack("<Q",data[0x8:0x10])[0]
+            self.name_offset=struct.unpack("<I",data[0x10:0x14])[0]
+            self.name=None
+    def __init__(self,filename):
+        self.f=open(filename,"rb")
+        if self.read_raw(0x0,0x4)!=b"PFS0":
+            raise ValueError("File is not a PFS0")
+        num_files=struct.unpack("<I",self.read_raw(0x4,0x4))[0]
+        len_strings=struct.unpack("<I",self.read_raw(0x8,0x4))[0]
+        self.files=[PFS0.FileEntry(self.read_raw(0x10+0x18*x,0x18)) for x in range(num_files)]
+        self.header_size=0x10+0x18*num_files
+        file_names=self.read_raw(self.header_size,len_strings).split(b"\0")[:num_files]
+        for i in range(num_files):
+            self.files[i].name=file_names[i].decode()
+        self.header_size+=len_strings
+    def read_raw(self,offset,size):
+        self.f.seek(offset)
+        return self.f.read(size)
+    def __del__(self):
+        self.f.close()
+    def read_file(self,idx):
+        file_entry=self.files[idx]
+        return self.read_raw(self.header_size+file_entry.file_offset,file_entry.file_size)
+    def read_chunks(self,idx,chunk_size=0x1F4): # Experiment here
+        file_entry=self.files[idx]
+        to_read=file_entry.file_size
+        cur_offset=self.header_size+file_entry.file_offset
+        while to_read>0:
+            tor=min(chunk_size,to_read)
+            yield self.read_raw(cur_offset,tor)
+            cur_offset+=tor
+            to_read-=tor
+
+class Command:
+    GLUC = 0x43554c47
+    def __init__(self,cmd_id=0,raw=None):
+        if raw is None:
+            self.cmd_id=cmd_id
+            self.magic=self.GLUC
+        else:
+            self.magic,self.cmd_id=struct.unpack("<II",raw)
+    def magic_ok(self):
+        return self.magic==self.GLUC
+    def has_id(self,cmd_id):
+        return self.cmd_id==cmd_id
+    def __bytes__(self):
+        return struct.pack("<II",self.magic,self.cmd_id)
+    
+def write(buffer):
+    gold_out.write(buffer)
+    
+def read(length):
+    return gold_in.read(length).tobytes()
+
+def init_goldleaf_usb_install():
+    global gold_in
+    global gold_out
+    for file in selected_files:
+        try:
+            dev.set_configuration()
+            intf=dev.get_active_configuration()[(0,0)]
+            gold_out = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_OUT)
+            gold_in = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_IN)
+            goldleaf_usb(str(file))
+            dev.reset()
+        except Exception as e:
+            logging.error(e, exc_info=True)
+            exit()
+        usb.util.dispose_resources(dev)
+        dev.reset()
+
+def goldleaf_usb(nsp_path):
+    c=Command()
+    write(bytes(c))
+    start_recv = False
+    while True:
+        try:
+            if os.path.isfile(initial_dir + '/tmp_fluffy_0'):
+                exit()
+            c=Command(raw=read(8))
+            if c.has_id(CommandId.ConnectionResponse) and c.magic_ok():
+                print("Connection was established with Goldleaf.")
+                c=Command(CommandId.NSPName)
+                write(bytes(c))
+                base_name=os.path.basename(nsp_path)
+                write(struct.pack("<I",len(base_name)))
+                write(base_name.encode())
+                print("NSP name sent to Goldleaf")
+                
+            elif c.has_id(CommandId.Start)and c.magic_ok():
+                start_recv = True
+                c=Command(CommandId.NSPData)
+                write(bytes(c))
+                print("Goldleaf is ready for the installation. Preparing everything...")
+                pnsp=PFS0(nsp_path)
+                write(struct.pack("<I",len(pnsp.files)))
+                tik_idx=-1
+                tmp_idx=0
+                for file in pnsp.files:
+                    write(struct.pack("<I",len(file.name)))
+                    write(file.name.encode())
+                    write(struct.pack("<Q",pnsp.header_size+file.file_offset))
+                    write(struct.pack("<Q",file.file_size))
+                    if os.path.splitext(file.name)[1][1:].lower()=="tik":
+                        tik_idx=tmp_idx
+                    tmp_idx+=1
+                    complete_loading()
+
+            elif c.has_id(CommandId.NSPContent)and c.magic_ok():
+                idx=struct.unpack("<I", read(4))[0]
+                print("Sending content '"+pnsp.files[idx].name+"'... ("+str(idx+1)+" of "+str(len(pnsp.files))+")")
+                for buf in pnsp.read_chunks(idx):
+                    if os.path.isfile(initial_dir + '/tmp_fluffy_0'):
+                        exit()
+                    write(buf)
+                    try:
+                        set_nca_count(idx+1, len(pnsp.files))
+                        set_progress(idx+1, len(pnsp.files))
+                    except Exception as e:
+                        print(str(e))
+
+            elif c.has_id(CommandId.NSPTicket)and c.magic_ok():
+                write(pnsp.read_file(tik_idx))
+
+            elif c.has_id(CommandId.Finish)and c.magic_ok():
+                set_progress(100,100)
+                complete_install()
+        except:
+            pass
+    return 0
+
+# Tinfoil Network
 def set_network(v):
     global is_network
     is_network = v
@@ -263,11 +418,11 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
                     set_progress(int(infile.tell()), int(end))
                     elapsed_time = time.time() - start_time
                     if elapsed_time >= 1:
-                        set_cur_usb_rate(int(infile.tell()) - last_usb_rate)
-                        set_last_usb_rate(int(infile.tell()))
+                        set_cur_transfer_rate(int(infile.tell()) - last_transfer_rate)
+                        set_last_transfer_rate(int(infile.tell()))
                         set_start_time()
                 except Exception as e:
-                    print(str(e))
+                    #print(str(e))
                     pass
             except BrokenPipeError:
                 pass
@@ -287,7 +442,7 @@ class MyServer(TCPServer):
         self.server_close()
         self.stopped = True
         
-def init_net_install():
+def init_tinfoil_net_install():
     accepted_extension = ('.nsp')
     hostPort = net_port
     target_ip = switch_ip
@@ -307,7 +462,6 @@ def init_net_install():
     thread = threading.Thread(target=server.serve_forever)
     thread.start()
     try:
-        print('Sending URL(s) to ' + target_ip + ' on port ' + str(net_port))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((target_ip, net_port))
         sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
@@ -318,12 +472,13 @@ def init_net_install():
             time.sleep(0.05)
         sock.close()
     except Exception as e:
-        print('An error occurred: ' + str(e))
+        logging.error(e, exc_info=True)
         server.force_stop()
         sys.exit(1)
     server.force_stop()
     complete_install()
-    
+
+# Tinfoil USB
 def send_response_header(out_ep, cmd_id, data_size):
     out_ep.write(b'TUC0')
     out_ep.write(struct.pack('<B', CMD_TYPE_RESPONSE))
@@ -361,8 +516,8 @@ def file_range_cmd(nsp_dir, in_ep, out_ep, data_size):
                 set_progress(int(curr_off), int(end_off))
                 elapsed_time = time.time() - start_time
                 if elapsed_time >= 1:
-                    set_cur_usb_rate(curr_off - last_usb_rate)
-                    set_last_usb_rate(curr_off)
+                    set_cur_transfer_rate(curr_off - last_transfer_rate)
+                    set_last_transfer_rate(curr_off)
                     set_start_time()
             except:
                 pass
@@ -401,7 +556,7 @@ def send_nsp_list(s_f, nsp_dir, out_ep):
     for nsp_path in nsp_path_list:
         out_ep.write(nsp_path)
         
-def init_usb_install():
+def init_tinfoil_usb_install():
     nsp_dir = Path(selected_dir)
     if not nsp_dir.is_dir():
         raise ValueError('1st argument must be a directory')
@@ -430,18 +585,26 @@ def send_header_cmd():
         net_radio.setEnabled(False)
         usb_radio.setEnabled(False)
         txt_port.setEnabled(False)
+        tin_radio.setEnabled(False)
+        gold_radio.setEnabled(False)
         if is_network:
             set_ip(txt_ip.text())
             set_port(txt_port.text())
-            set_sent_net_header()
+            set_sent_header()
             set_start_time()
-            threading.Thread(target = init_net_install).start()
+            threading.Thread(target = init_tinfoil_net_install).start()
         else:
-            set_transfer_rate(combo.currentIndex())
-            set_sent_usb_header()
-            set_installing()
-            set_start_time()
-            threading.Thread(target = init_usb_install).start()
+            if is_goldleaf:
+                set_sent_header()
+                set_installing()
+                set_start_time()
+                threading.Thread(target = init_goldleaf_usb_install).start()
+            else:
+                set_transfer_rate(combo.currentIndex())
+                set_sent_header()
+                set_installing()
+                set_start_time()
+                threading.Thread(target = init_tinfoil_usb_install).start()
     except Exception as e:
         logging.error(e, exc_info=True)
         exit()
@@ -455,7 +618,32 @@ try:
     imgdata2 = base64.b64decode(DONUT_DATA)
     with open('inlay.png', 'wb') as f:
         f.write(imgdata2)
-    #Network
+        
+    def tin_radio_cmd():
+        txt_ip.setEnabled(False)
+        txt_port.setEnabled(False)
+        net_radio.setChecked(False)
+        usb_radio.setChecked(True)
+        net_radio.setVisible(True)
+        combo.setEnabled(True)
+        set_goldleaf(False)
+        btn_nsp.setText("Select NSPs")
+        l_nsp.setText("")
+        
+    def gold_radio_cmd():
+        txt_ip.setEnabled(False)
+        txt_port.setEnabled(False)
+        net_radio.setChecked(False)
+        usb_radio.setChecked(True)
+        net_radio.setVisible(False)
+        combo.setEnabled(False)
+        set_network(False)
+        set_goldleaf(True)
+        btn_nsp.setText("Select NSP")
+        l_status.setText("Awaiting Selection.")
+        l_nsp.setText("<font color='red'>Experimental: Use At Your Own Risk</font>")
+        list_nsp.clear()
+        
     def usb_radio_cmd():
         btn_header.setText("Send Header")
         txt_ip.setEnabled(False)
@@ -476,6 +664,21 @@ try:
     txt_port = QtWidgets.QLineEdit("2000")
     txt_port.setEnabled(False)
     h_box = QtWidgets.QHBoxLayout()
+    h2_box = QtWidgets.QHBoxLayout()
+    h_group = QtWidgets.QButtonGroup()
+
+    #Tinfoil/Goldleaf
+    tin_radio = QtWidgets.QRadioButton("Adubbz/Tinfoil")
+    tin_radio.setChecked(True)
+    tin_radio.toggled.connect(tin_radio_cmd)
+    gold_radio = QtWidgets.QRadioButton("XorTroll/Goldleaf")
+    gold_radio.setChecked(False)
+    gold_radio.toggled.connect(gold_radio_cmd)
+    h_group.addButton(tin_radio)
+    h_group.addButton(gold_radio)
+    h2_box.addWidget(tin_radio)
+    h2_box.addWidget(gold_radio)
+    
     usb_radio = QtWidgets.QRadioButton("USB")
     usb_radio.setChecked(True)
     usb_radio.toggled.connect(usb_radio_cmd)
@@ -487,9 +690,9 @@ try:
     btn_header = QtWidgets.QPushButton("Send Header")
     btn_header.setEnabled(False)
     l_rate = QtWidgets.QLabel("USB Transfer Mode")
-    l_github = QtWidgets.QLabel("v1.6.5 | github.com/fourminute/fluffy")
+    l_github = QtWidgets.QLabel("v1.7.0 | github.com/fourminute/fluffy")
     l_status = QtWidgets.QLabel("Awaiting Selection.")
-    l_switch = QtWidgets.QLabel("<font color='red'>LibUSB and/or PyUSB not found.</font>")
+    l_switch = QtWidgets.QLabel("<font color='red'>Switch Not Detected!</font>")
     list_nsp = QtWidgets.QListWidget()
     progressbar = QProgressBar()
     progressbar.setAlignment(Qt.AlignVCenter)
@@ -519,33 +722,40 @@ try:
 
         
     def get_nsps():
-        try:
-            d = filedialog.askopenfilenames(parent=root,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
-            set_dir(os.path.dirname(d[0]))
-            file_list = list(d)
-            tmp = list()
-            list_nsp.clear()
-            i = 0
-            for f in file_list:
-                if str(f).endswith(".nsp"):
-                    i += 1
-                    list_nsp.addItem(os.path.basename(str(f)))
-                    tmp.append(str(f))
-            if i > 0:
-                btn_header.setEnabled(True)
-                set_total_nsp(i)
-                set_selected_files(tmp)
-                l_status.setText(str(total_nsp) + " NSPs Selected.")
-            else:
-                btn_header.setEnabled(False)
-                l_status.setText("Awaiting Selection.")
-        except:
-            pass
+            try:
+                if not is_goldleaf:
+                    d = filedialog.askopenfilenames(parent=root,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
+                    set_dir(os.path.dirname(d[0]))
+                    file_list = list(d)
+                else:
+                    d = filedialog.askopenfilename(parent=root,title='Select NSP',filetypes=[("NSP files", "*.nsp")])
+                    set_dir(os.path.dirname(d))
+                    file_list = list()
+                    file_list.append(str(d))
+                tmp = list()
+                list_nsp.clear()
+                i = 0
+                for f in file_list:
+                    if str(f).endswith(".nsp"):
+                        i += 1
+                        list_nsp.addItem(os.path.basename(str(f)))
+                        tmp.append(str(f))
+                if i > 0:
+                    btn_header.setEnabled(True)
+                    set_total_nsp(i)
+                    set_selected_files(tmp)
+                    l_status.setText(str(total_nsp) + " NSPs Selected.")
+                else:
+                    btn_header.setEnabled(False)
+                    l_status.setText("Awaiting Selection.")
+            except:
+                pass
     combo = QComboBox()
     combo.addItem("Safe Mode")
     combo.addItem("Normal Mode")
     combo.setCurrentIndex(1)
     # Occupy VBOX
+    v_box.addLayout(h2_box)
     v_box.addWidget(img_label)
     v_box.addStretch()
     v_box.addLayout(h_box)
@@ -575,17 +785,16 @@ try:
         usb_radio.setVisible(False)
         l_rate.setVisible(False)
         combo.setVisible(False)
-    
     while True:
         QApplication.processEvents()
-        if is_installing == False:
-            if is_network == False and usb_success:
-                dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-                if dev is None:
-                    l_switch.setText("<font color='red'>Switch Not Detected!</font>")
-                else:
-                    l_switch.setText("<font color='green'>Switch Detected!</font>")
-        if sent_net_header:
+        if is_installing == False and is_network == False and usb_success == True:   
+            dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+            if dev is None:
+                l_switch.setText("<font color='red'>Switch Not Detected!</font>")
+            else:
+                l_switch.setText("<font color='green'>Switch Detected!</font>")
+                
+        if sent_header and is_network:
             try:
                 if is_done:
                     l_nsp.setText("")
@@ -595,7 +804,7 @@ try:
                     if is_installing:
                         v = (int(cur_progress) / int(end_progress)) * 100
                         progressbar.setValue(v)
-                        n_rate = round((cur_usb_rate /1000000),2)
+                        n_rate = round((cur_transfer_rate /1000000),2)
                         if n_rate < 0:
                             n_rate = 0.0
                         l_status.setText("Installing " + str(cur_nsp_count) + " of " + str(total_nsp) + " NSPs.")
@@ -612,7 +821,7 @@ try:
         if not window.isVisible():
             close_program()
             exit()
-        if sent_usb_header:
+        if sent_header and not is_network and is_goldleaf == True:
             try:
                 if is_loading == False:
                     v = (int(cur_progress) / int(end_progress)) * 100
@@ -622,7 +831,32 @@ try:
                         l_status.setText("<font color='green'>Successfully Installed " + str(total_nsp) + " NSPs!</font>")
                         l_switch.setText("<font color='green'>You may close Fluffy.</font>")
                     else:
-                        n_rate = round((cur_usb_rate /1000000),2)
+                        n_rate = round((cur_transfer_rate /1000000),2)
+                        if n_rate < 0:
+                            n_rate = 0.0
+                        l_status.setText("Installing " + str(cur_nca_count) + " of " + str(max_nca_count) + " NCAs.")
+                        l_switch.setText("<font color='gold'>Goldleaf Install In Progress</font>")
+                        '''
+                        if len(cur_nsp_name) > 13:
+                            l_nsp.setText("Current NSP: \"" + cur_nsp_name[:13] + "...\"")
+                        else:
+                            l_nsp.setText("Current NSP: \"" + cur_nsp_name + "\"")
+                            '''
+                else:
+                    l_status.setText("Loading " + str(total_usb_nsp) + " NSPs. Please Wait.")
+            except:
+                pass
+        if sent_header and not is_network and is_goldleaf == False:
+            try:
+                if is_loading == False:
+                    v = (int(cur_progress) / int(end_progress)) * 100
+                    progressbar.setValue(v)
+                    if is_done:
+                        l_nsp.setText("")
+                        l_status.setText("<font color='green'>Successfully Installed " + str(total_nsp) + " NSPs!</font>")
+                        l_switch.setText("<font color='green'>You may close Fluffy.</font>")
+                    else:
+                        n_rate = round((cur_transfer_rate /1000000),2)
                         if n_rate < 0:
                             n_rate = 0.0
                         l_status.setText("Installing " + str(cur_nsp_count) + " of " + str(total_nsp) + " NSPs.")
