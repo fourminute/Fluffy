@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """""
 # Imports
-import signal
+import subprocess
 import time
 import socket
 import base64
@@ -121,14 +121,11 @@ def set_last_transfer_rate(v):
     last_transfer_rate = v
 
 def close_program():
-    os.kill(pid, signal.SIGTERM)
     if os.path.isfile(initial_dir + '/inlay.png'): 
         os.remove(initial_dir + '/inlay.png')
     if os.path.isfile(initial_dir + '/icon.ico'): 
         os.remove(initial_dir + '/icon.ico')
-    pid = os.getpid()
-    os.kill(pid, signal.SIGTERM)
-    exit()
+    sys.exit()
                 
 def set_transfer_rate(v):
     global transfer_rate
