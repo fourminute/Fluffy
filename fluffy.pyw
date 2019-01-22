@@ -226,7 +226,7 @@ class PFS0:
     def read_file(self,idx):
         file_entry=self.files[idx]
         return self.read_raw(self.header_size+file_entry.file_offset,file_entry.file_size)
-    def read_chunks(self,idx,chunk_size=0x1F4): # Experiment here
+    def read_chunks(self,idx,chunk_size=0x7a120): # Experiment here
         file_entry=self.files[idx]
         to_read=file_entry.file_size
         cur_offset=self.header_size+file_entry.file_offset
@@ -317,7 +317,15 @@ def goldleaf_usb(nsp_path):
                 for buf in pnsp.read_chunks(idx):
                     if os.path.isfile(initial_dir + '/tmp_fluffy_0'):
                         exit()
-                    write(buf)
+                    attempts = 0
+                    while True:
+                        try:
+                            write(buf)
+                            break
+                        except:
+                            attempts += 1
+                            print("Failed to write: " + str(attempts) + " time(s).")
+                            pass
                     try:
                         set_nca_count(idx+1, len(pnsp.files))
                         set_progress(idx+1, len(pnsp.files))
