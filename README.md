@@ -75,7 +75,7 @@ Answer: **Fluffy only works with Python 3 32-bit version.** Also be ensure no pr
 
 <b>What kind of cable does the Switch use?</b>
 
-Answer: A USB type C cable. Though, not all USB type C cables are the same. Some will not be compatible with the Switch.
+Answer: USB type C cable. Though, not all USB type C cables are the same. Some will not be compatible with the Switch.
 
 <b>Does Fluffy work on MacOS and Linux?</b>
 
