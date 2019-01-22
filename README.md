@@ -32,9 +32,12 @@
 ## Install Python
 * Download and Install Python 3 from https://www.python.org/downloads/. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
 
-## Install PyUSB, PyQt5 and QDarkStyle
-* Open Terminal/Command-line/CMD
-* Run "pip3 install qdarkstyle" and "pip3 install pyqt5" and "pip3 install pyusb"
+## Install PyUSB, LibUSB, PyQt5 and QDarkStyle
+* Open Terminal/Command-line/CMD and run the following:
+* pip3 install qdarkstyle
+* pip3 install pyqt5 
+* pip3 install pyusb
+* pip3 install libusb
 * <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
 
 ## Install TinFoil on your Switch
@@ -52,17 +55,26 @@ Complete beginner? No problem.
 * On your Switch, select and install the NSPs.
 
 ## Troubleshooting Tips
+<b>Why do I keep getting the error: "USBCore No Backend Available"?</b>
+
+Answer: This can be caused by 1-2 things.
+
+1) **NOT ALL USB TYPE C CABLES ARE THE SAME**. Some simply do not work with the Switch. If your Switch connects then frequently disconnects, then reconnects again, etc. Or if you receive this error, it's highly likely you will need a newer USB type C cable.
+
+2) LibUSB wasn't found. Install it with "pip3 install libusb".
+
+
 <b>Why does network install fail?</b>
 
 Answer: Try changing the port. Usually when network install fails it is due to the port being blocked by the router, the computer, or something else.
 
 <b>PyUSB Not Found and I've followed all the steps!</b>
 
-Answer: Ensure no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error. Using a 64-bit version of Python 3 can also throw this error.
+Answer: **Fluffy only works with Python 3 32-bit version.** Also be ensure no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error.
 
 <b>What kind of cable does the Switch use?</b>
 
-Answer: USB type C cable.
+Answer: A USB type C cable. Though, not all USB type C cables are the same. Some will not be compatible with the Switch.
 
 <b>Does Fluffy work on MacOS and Linux?</b>
 
