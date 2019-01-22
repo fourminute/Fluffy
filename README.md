@@ -1,10 +1,11 @@
 # Fluffy
 ![intro](intro2.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.6.4">Latest Release v1.6.4</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.7.0">Latest Release v1.7.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
+* Support for XorTroll/Goldleaf and Adubbz/Tinfoil
 * USB and Network Install, display transfer rate in MB/s and progress percentage.
 * USB and Network Install, display current NSP being installed.
 * Transfer modes between "Normal" and "Safe".
