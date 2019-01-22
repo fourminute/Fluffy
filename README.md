@@ -67,7 +67,7 @@ Answer: This can be caused by 1-2 things.
 
 <b>Why does network install fail?</b>
 
-Answer: Try changing the port. Usually when network install fails it is due to the port being blocked by the router, the computer, or something else.
+Answer: Network install is a hit or miss depending on your setup. Try forwarding port 2000 in your router and disabling your firewall. Ensure your Switch and PC are on the same network.
 
 <b>PyUSB Not Found and I've followed all the steps!</b>
 
