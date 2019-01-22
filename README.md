@@ -18,7 +18,7 @@
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
 # Screenshot
-![screenshot](https://github.com/fourminute/Fluffy/blob/master/screenshot1d6d4b.png?raw=true)
+![screenshot](https://github.com/fourminute/Fluffy/blob/master/screenshot170.png?raw=true)
 
 
 # Instructions For Use
