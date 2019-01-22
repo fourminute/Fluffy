@@ -1,7 +1,7 @@
 # Fluffy
 ![intro](intro3.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.7.0">Latest Release v1.7.0</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.8.0">Latest Release v1.8.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
@@ -18,7 +18,7 @@
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
 # Screenshot
-![screenshot](https://github.com/fourminute/Fluffy/blob/master/screenshot170b.png?raw=true)
+![screenshot](https://github.com/fourminute/Fluffy/blob/master/screenshot1d8.png?raw=true)
 
 
 # Instructions For Use
