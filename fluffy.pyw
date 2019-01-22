@@ -330,6 +330,9 @@ def goldleaf_usb(nsp_path):
             elif c.has_id(CommandId.Finish)and c.magic_ok():
                 set_progress(100,100)
                 complete_install()
+                while True:
+                    if os.path.isfile(initial_dir + '/tmp_fluffy_0'):
+                        exit()
         except:
             pass
     return 0
