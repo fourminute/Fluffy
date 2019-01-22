@@ -785,6 +785,7 @@ try:
         usb_radio.setVisible(False)
         l_rate.setVisible(False)
         combo.setVisible(False)
+        gold_radio.setVisible(False)
     while True:
         QApplication.processEvents()
         if is_installing == False and is_network == False and usb_success == True:   
