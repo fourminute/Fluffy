@@ -787,7 +787,7 @@ try:
     btn_nsp = QtWidgets.QPushButton("Select NSPs")
     btn_header = QtWidgets.QPushButton("Begin Transfer")
     l_rate = QtWidgets.QLabel("USB Transfer Mode")
-    l_github = QtWidgets.QLabel("v2.0.0 | github.com/fourminute/fluffy")
+    l_github = QtWidgets.QLabel("v2.1.0 | github.com/fourminute/fluffy")
     l_status = QtWidgets.QLabel("Awaiting Selection.")
     l_switch = QtWidgets.QLabel("<font color='pink'>Switch Not Detected!</font>")
     combo = QComboBox()
