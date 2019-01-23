@@ -284,6 +284,7 @@ class CommandId:
     Finish=7
     
 class Goldleaf:
+    ticket_idx = 0
     class Command:
         GLUC = 0x43554c47
         def __init__(self,cmd_id=0,raw=None):
@@ -305,7 +306,9 @@ class Goldleaf:
         
     @staticmethod
     def read(length):
-        return gold_in.read(length).tobytes()
+        a = gold_in.read(length)
+        print(str(a) + "\n")
+        return a.tobytes()
     
     @staticmethod
     def Goldleaf_USB(nsp_path):
@@ -329,7 +332,6 @@ class Goldleaf:
                     Goldleaf.write(bytes(c))
                     pnsp=PFS0(nsp_path)
                     Goldleaf.write(struct.pack("<I",len(pnsp.files)))
-                    tik_idx=-1
                     tmp_idx=0
                     for file in pnsp.files:
                         Goldleaf.write(struct.pack("<I",len(file.name)))
@@ -337,7 +339,7 @@ class Goldleaf:
                         Goldleaf.write(struct.pack("<Q",pnsp.header_size+file.file_offset))
                         Goldleaf.write(struct.pack("<Q",file.file_size))
                         if os.path.splitext(file.name)[1][1:].lower()=="tik":
-                            tik_idx=tmp_idx
+                            Goldleaf.ticket_idx = tmp_idx
                         tmp_idx+=1
                         complete_loading()
 
@@ -361,7 +363,7 @@ class Goldleaf:
                 elif c.has_id(CommandId.NSPTicket)and c.magic_ok():
                     while True:
                         try:
-                            Goldleaf.write(pnsp.read_file(tik_idx))
+                            Goldleaf.write(pnsp.read_file(Goldleaf.ticket_idx))
                             break
                         except:
                             pass
