@@ -245,7 +245,9 @@ class PFS0:
     def read_file(self,idx):
         file_entry=self.files[idx]
         return self.read_raw(self.header_size+file_entry.file_offset,file_entry.file_size)
-    def read_chunks(self,idx,chunk_size=0x100000): # Experiment here bb8
+    def read_chunks(self,idx,chunk_size=0xbb8): # Experiment here bb8
+        global transfer_rate
+        chunk_size = transfer_rate
         file_entry=self.files[idx]
         to_read=int(file_entry.file_size)
         cur_offset=self.header_size+file_entry.file_offset
@@ -638,6 +640,7 @@ def send_header_cmd():
             threading.Thread(target = init_tinfoil_net_install).start()
         else:
             if is_goldleaf:
+                set_transfer_rate(combo.currentIndex())
                 set_sent_header()
                 set_installing()
                 set_start_time()
@@ -671,20 +674,18 @@ try:
         net_radio.setChecked(False)
         usb_radio.setChecked(True)
         net_radio.setVisible(True)
-        combo.setEnabled(True)
         set_goldleaf(False)
         split_check.setEnabled(True)
         
     def gold_radio_cmd():
         l_status.setText("Awaiting Selection.")
         btn_nsp.setText("Select NSP")
-        l_nsp.setText("<font color='red'>Experimental: Use at your own risk.</font>")
+        #l_nsp.setText("<font color='red'>Experimental: Use at your own risk.</font>")
         txt_ip.setEnabled(False)
         txt_port.setEnabled(False)
         net_radio.setChecked(False)
         usb_radio.setChecked(True)
         net_radio.setVisible(False)
-        combo.setEnabled(False)
         set_network(False)
         set_goldleaf(True)
         split_check.setCheckState(False)
@@ -756,7 +757,7 @@ try:
     btn_header = QtWidgets.QPushButton("Begin Transfer")
     btn_header.setEnabled(False)
     l_rate = QtWidgets.QLabel("USB Transfer Mode")
-    l_github = QtWidgets.QLabel("v1.9.0 | github.com/fourminute/fluffy")
+    l_github = QtWidgets.QLabel("v2.0.0 | github.com/fourminute/fluffy")
     l_status = QtWidgets.QLabel("Awaiting Selection.")
     l_switch = QtWidgets.QLabel("<font color='pink'>Switch Not Detected!</font>")
     list_nsp = QtWidgets.QListWidget()
@@ -878,7 +879,7 @@ try:
                 l_switch.setText("<font color='pink'>Switch Not Detected!</font>")
                 btn_header.setEnabled(False)
             else:
-                l_switch.setText("<font color='green'>Switch Detected!</font>")
+                l_switch.setText("<font color='aqua'>Switch Detected!</font>")
                 if list_nsp.count() > 0:
                     btn_header.setEnabled(True)
                 else:
