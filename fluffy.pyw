@@ -27,15 +27,11 @@ import sys
 import threading
 import struct
 from binascii import hexlify as hx, unhexlify as uhx
-from tkinter import messagebox
-import tkinter as tk
-from tkinter import filedialog
 import logging
 try:
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     from SocketServer import TCPServer
     from urllib import quote
-    input = raw_input
 except ImportError:
     from http.server import SimpleHTTPRequestHandler
     from socketserver import TCPServer
@@ -47,8 +43,9 @@ try:
     from PyQt5.QtGui import QIcon, QPixmap, QColor
     app = QtWidgets.QApplication([])
     window = QWidget()
-except:
-    messagebox.showinfo("Error","PyQt5 not found. Please install with 'pip3 install pyqt5'. If you cannot install this module, please use Fluffy v1.4.1.")
+except Exception as e:
+    logging.error(e, exc_info=True)
+    #messagebox.showinfo("Error","PyQt5 not found. Please install with 'pip3 install pyqt5'. If you cannot install this module, please use Fluffy v1.4.1.")
     exit()
 try:
     import qdarkstyle
@@ -62,9 +59,6 @@ except:
     p.setColor(window.backgroundRole(), background_color)
     window.setPalette(p)
     pass
-
-root = tk.Tk()
-root.withdraw()
 try:
     import usb.core
     import usb.util
@@ -796,18 +790,19 @@ try:
     def nsp_file_dialog():
             try:
                 if not is_goldleaf:
-                    d = filedialog.askopenfilenames(parent=root,title='Select NSPs',filetypes=[("NSP files", "*.nsp")])
-                    set_dir(os.path.dirname(d[0]))
-                    file_list = list(d)
+                    d = QFileDialog.getOpenFileNames(window, 'Open file', initial_dir, "NSP Files (*.nsp)")
                 else:
-                    d = filedialog.askopenfilename(parent=root,title='Select NSP',filetypes=[("NSP files", "*.nsp")])
-                    set_dir(os.path.dirname(d))
-                    file_list = list()
-                    file_list.append(str(d))
+                    d = QFileDialog.getOpenFileName(window, 'Open file', initial_dir, "NSP Files (*.nsp)")
                 tmp = list()
                 list_nsp.clear()
                 i = 0
-                for f in file_list:
+                spl = str(d).split(',')
+                fil = list()
+                for a in spl:
+                    st = a.split("'")
+                    fil.append(st[1])
+                fil.pop()
+                for f in fil:
                     if str(f).endswith(".nsp"):
                         i += 1
                         list_nsp.addItem(os.path.basename(str(f)))
@@ -816,6 +811,7 @@ try:
                     btn_header.setEnabled(True)
                     set_total_nsp(i)
                     set_selected_files(tmp)
+                    set_dir(os.path.dirname(tmp[0]))
                     l_status.setText(str(total_nsp) + " NSPs Selected.")
                 else:
                     btn_header.setEnabled(False)
