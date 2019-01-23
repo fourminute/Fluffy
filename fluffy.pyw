@@ -306,9 +306,7 @@ class Goldleaf:
         
     @staticmethod
     def read(length):
-        a = gold_in.read(length)
-        print(str(a) + "\n")
-        return a.tobytes()
+        return gold_in.read(length).tobytes()
     
     @staticmethod
     def Goldleaf_USB(nsp_path):
