@@ -254,8 +254,6 @@ class PFS0:
                 pid = os.getpid()
                 os.kill(pid, signal.SIGTERM)
             tor=int(min(chunk_size,to_read))
-            print("Tor:" + str(tor))
-            print("To_read:" + str(to_read))
             yield self.read_raw(cur_offset,tor)
             cur_offset+=tor
             to_read-=tor
