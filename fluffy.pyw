@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """""
 "Pink Donut" design was designed by fourminute exclusively for 
 Fluffy and does not infringe on any copyright.
@@ -41,7 +42,7 @@ try:
     from PyQt5.QtCore import Qt, QThread
     from PyQt5.QtWidgets import *
     from PyQt5.QtGui import QIcon, QPixmap, QColor
-    app = QtWidgets.QApplication([])
+    app = QtWidgets.QApplication(sys.argv)
     window = QWidget()
 except Exception as e:
     logging.error(e, exc_info=True)
