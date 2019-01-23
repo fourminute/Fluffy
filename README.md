@@ -41,19 +41,7 @@
 * pip3 install libusb
 ## Additional MacOS instructions
 * brew install libusb <i>(For more info on brew, head to https://brew.sh/)</i>
-* pip3 install pathlib
 
-## Additional Linux instructions
-<b>Arch/Manjaro</b>
-* sudo pacman -S tk
-
-<b>Ubuntu/Debian</b>
-* sudo apt-get install python-tk
-
-<b>OpenSUSE</b>
-* sudo zypper in python-tk
-
-<i>Special thanks: linuxares from gbatemp for linux instructions</i>
 ## Install TinFoil on your Switch
 * <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
 * Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
