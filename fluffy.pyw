@@ -244,15 +244,17 @@ class PFS0:
     def read_file(self,idx):
         file_entry=self.files[idx]
         return self.read_raw(self.header_size+file_entry.file_offset,file_entry.file_size)
-    def read_chunks(self,idx,chunk_size=0xbb8): # Experiment here
+    def read_chunks(self,idx,chunk_size=0x100000): # Experiment here bb8
         file_entry=self.files[idx]
-        to_read=file_entry.file_size
+        to_read=int(file_entry.file_size)
         cur_offset=self.header_size+file_entry.file_offset
         while to_read>0:
             if is_exiting:
                 pid = os.getpid()
                 os.kill(pid, signal.SIGTERM)
-            tor=min(chunk_size,to_read)
+            tor=int(min(chunk_size,to_read))
+            print("Tor:" + str(tor))
+            print("To_read:" + str(to_read))
             yield self.read_raw(cur_offset,tor)
             cur_offset+=tor
             to_read-=tor
