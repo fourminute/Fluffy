@@ -65,6 +65,12 @@ Complete beginner? No problem.
 * If "Switch Detected!" is visible. Click "Begin Transfer".
 * On your Switch, select and install the NSPs.
 
+## Install Instructions (Linux)
+* Right-click this link and click "Save link as..." https://raw.githubusercontent.com/fourminute/Fluffy/master/fluffy.desktop
+* Save the file to ~./local/share/applications (it's a hidden folder, you'll need to enable viewing of hidden folders to see it).
+* Open the file and change the directories to match your system(the location of fluffy.pyw and icon.ico).
+* You may need to logout and back in again to see Fluffy in your Applications menu.
+
 ## Troubleshooting Tips
 <b>Why do I keep getting the error: "USBCore No Backend Available"?</b>
 
