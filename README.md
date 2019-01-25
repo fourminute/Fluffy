@@ -1,10 +1,11 @@
 # Fluffy
-![intro](intro2.png)
+![intro](intro3.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v1.6.4">Latest Release v1.6.4</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v2.1.0">Latest Release v2.1.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
+* Support for XorTroll/Goldleaf and Adubbz/Tinfoil
 * USB and Network Install, display transfer rate in MB/s and progress percentage.
 * USB and Network Install, display current NSP being installed.
 * Transfer modes between "Normal" and "Safe".
@@ -17,7 +18,7 @@
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
 # Screenshot
-![screenshot](https://github.com/fourminute/Fluffy/blob/master/screenshot1d6d4b.png?raw=true)
+![screenshot](https://github.com/fourminute/Fluffy/blob/master/screenshot1d8.png?raw=true)
 
 
 # Instructions For Use
@@ -38,7 +39,8 @@
 * pip3 install pyqt5 
 * pip3 install pyusb
 * pip3 install libusb
-* <i>MacOS users must also run "brew install libusb". For more info on brew, head to https://brew.sh/.</i>
+## Additional MacOS instructions
+* brew install libusb <i>(For more info on brew, head to https://brew.sh/)</i>
 
 ## Install TinFoil on your Switch
 * <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
@@ -66,7 +68,7 @@ Answer: This can be caused by 1-2 things.
 
 <b>Why does network install fail?</b>
 
-Answer: Try changing the port. Usually when network install fails it is due to the port being blocked by the router, the computer, or something else.
+Answer: Network install is a hit or miss depending on your setup. Try forwarding port 2000 in your router and disabling your firewall. Ensure your Switch and PC are on the same network.
 
 <b>PyUSB Not Found and I've followed all the steps!</b>
 
@@ -74,7 +76,7 @@ Answer: **Fluffy only works with Python 3 32-bit version.** Also be ensure no pr
 
 <b>What kind of cable does the Switch use?</b>
 
-Answer: A USB type C cable. Though, not all USB type C cables are the same. Some will not be compatible with the Switch.
+Answer: USB type C cable. Though, not all USB type C cables are the same. Some will not be compatible with the Switch.
 
 <b>Does Fluffy work on MacOS and Linux?</b>
 
@@ -87,6 +89,10 @@ Answer: All of them will work the same. That is up to you.
 <b>Why does my install keeps hanging and/or crashing?</b>
 
 Answer: Switch Transfer Mode to "Safe".
+
+<b>Why do I have unsufficient permission error (usb)(linux)?</b>
+
+Answer: You need to make a <a href=https://github.com/fourminute/Fluffy/blob/master/80-fluffy-switch.rules>udev rule</a> to modify the switch usb device owner or group in /etc/udev/rules.d/
 
 <b>Still having problems? Consider making a bug report on this GitHub page to request assistance.</b>
 
