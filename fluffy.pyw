@@ -225,155 +225,181 @@ def set_goldleaf(v):
 
 
 
-# PFS0 by https://github.com/friedkeenan.
+# PFS0 & Goldleaf by fourminute.
 class PFS0:
-    class FileEntry:
-        def __init__(self,data):
-            self.file_offset=struct.unpack("<Q",data[:0x8])[0]
-            self.file_size=struct.unpack("<Q",data[0x8:0x10])[0]
-            self.name_offset=struct.unpack("<I",data[0x10:0x14])[0]
-            self.name=None
-    def __init__(self,filename):
-        self.f=open(filename,"rb")
-        if self.read_raw(0x0,0x4)!=b"PFS0":
-            raise ValueError("File is not a PFS0")
-        num_files=struct.unpack("<I",self.read_raw(0x4,0x4))[0]
-        len_strings=struct.unpack("<I",self.read_raw(0x8,0x4))[0]
-        self.files=[PFS0.FileEntry(self.read_raw(0x10+0x18*x,0x18)) for x in range(num_files)]
-        self.header_size=0x10+0x18*num_files
-        file_names=self.read_raw(self.header_size,len_strings).split(b"\0")[:num_files]
-        for i in range(num_files):
-            self.files[i].name=file_names[i].decode()
-        self.header_size+=len_strings
-    def read_raw(self,offset,size):
-        self.f.seek(offset)
-        return self.f.read(size)
-    def __del__(self):
-        self.f.close()
-    def read_file(self,idx):
-        file_entry=self.files[idx]
-        return self.read_raw(self.header_size+file_entry.file_offset,file_entry.file_size)
-    def read_chunks(self,idx,chunk_size=0xbb8): # Experiment here bb8
+    magic            = None
+    total_files      = None
+    string_table     = None
+    header_remainder = None
+    body_length      = None
+    file_array       = []
+    f                = None
+    file_names       = []
+    
+    @staticmethod
+    def open(fn):
+        PFS0.f = open(fn, 'rb')
+        PFS0.f.seek(0)
+        PFS0.magic = PFS0.f.read(4).decode()
+        if PFS0.magic != 'PFS0':
+            print("PFS0 didn't check out. Possible NSP corruption.")
+        PFS0.total_files = struct.unpack("<I",PFS0.f.read(4))[0]
+        PFS0.header_remainder = struct.unpack("<I",PFS0.f.read(4))[0]
+        PFS0.string_table = 0x10 + 0x18 * PFS0.total_files
+        PFS0.f.read(4)
+        PFS0.file_array = []
+        for i in range(PFS0.total_files):
+            nca_offset = struct.unpack("<Q",PFS0.f.read(8))[0]
+            nca_size   = struct.unpack("<Q",PFS0.f.read(8))[0]
+            name_offset= struct.unpack("<I",PFS0.f.read(4))[0]
+            PFS0.file_array.append((nca_offset,nca_size,name_offset))
+            PFS0.f.read(4)
+        PFS0.body_length = PFS0.f.tell() + PFS0.header_remainder
+        for i in range(PFS0.total_files):
+            PFS0.f.seek(PFS0.string_table+PFS0.file_array[i][2])
+            fn = b''
+            while True:
+                b = PFS0.f.read(1)
+                if b == b'\x00': break
+                fn += b
+            PFS0.file_names.append(fn.decode())    
+   
+    @staticmethod
+    def read_chunks(index):
         global transfer_rate
+        global last_transfer_rate
         chunk_size = transfer_rate
-        file_entry=self.files[idx]
-        to_read=int(file_entry.file_size)
-        cur_offset=self.header_size+file_entry.file_offset
-        while to_read>0:
+        abs_sz = int(PFS0.file_array[index][1])
+        abs_off = int(PFS0.body_length+PFS0.file_array[index][0])
+        PFS0.f.seek(abs_off)
+        end = abs_off + abs_sz
+        while True:
             if is_exiting:
                 pid = os.getpid()
                 os.kill(pid, signal.SIGTERM)
-            tor=int(min(chunk_size,to_read))
-            yield self.read_raw(cur_offset,tor)
-            cur_offset+=tor
-            to_read-=tor
-            set_progress(cur_offset, int(file_entry.file_size))
+            to_read = end - PFS0.f.tell()
+            if to_read < chunk_size:
+                yield PFS0.f.read(to_read)
+                break
+            else:
+                yield PFS0.f.read(chunk_size)
+            set_progress(int(PFS0.f.tell()), abs_sz)
             elapsed_time = time.time() - start_time
             if elapsed_time >= 1:
-                set_cur_transfer_rate(int(cur_offset) - last_transfer_rate)
-                set_last_transfer_rate(int(cur_offset))
+                set_cur_transfer_rate(int(PFS0.f.tell()) - last_transfer_rate)
+                set_last_transfer_rate(int(PFS0.f.tell()))
                 set_start_time()
-class CommandId:
-    ConnectionRequest=0
-    ConnectionResponse=1
-    NSPName=2
-    Start=3
-    NSPData=4
-    NSPContent=5
-    NSPTicket=6
-    Finish=7
-    
-class Goldleaf:
-    ticket_idx = 0
-    class Command:
-        GLUC = 0x43554c47
-        def __init__(self,cmd_id=0,raw=None):
-            if raw is None:
-                self.cmd_id=cmd_id
-                self.magic=self.GLUC
-            else:
-                self.magic,self.cmd_id=struct.unpack("<II",raw)
-        def magic_ok(self):
-            return self.magic==self.GLUC
-        def has_id(self,cmd_id):
-            return self.cmd_id==cmd_id
-        def __bytes__(self):
-            return struct.pack("<II",self.magic,self.cmd_id)
+   
+    @staticmethod
+    def read_nca(index):
+        PFS0.f.seek(PFS0.body_length+PFS0.file_array[index][0])
+        return PFS0.f.read(PFS0.file_array[index][1])
         
+        
+            
+class CommandId:
+    ConnectionRequest = 0
+    ConnectionResponse= 1
+    NSPName=            2
+    Start=              3
+    NSPData=            4
+    NSPContent=         5
+    NSPTicket=          6
+    Finish=             7
+  
+class Goldleaf:
+    GLUC         = 0x43554c47
+    magic        = 0x43554c47
+    ticket_index = 0
+    cmd_id       = 0
+    started      = False
+
     @staticmethod
     def write(buffer):
         gold_out.write(buffer)
-        
+
+    @staticmethod
+    def magic_ok():
+        return Goldleaf.GLUC == Goldleaf.magic
+    
+    @staticmethod
+    def is_id(a_cmd):
+        return a_cmd == Goldleaf.cmd_id
+    
     @staticmethod
     def read(length):
         return gold_in.read(length).tobytes()
     
     @staticmethod
+    def read_cmd(data):
+        Goldleaf.magic,Goldleaf.cmd_id = struct.unpack("<II",data)        
+
+    @staticmethod
+    def write_cmd(a_cmd):
+        packed = struct.pack("<II",Goldleaf.magic,a_cmd)
+        gold_out.write(bytes(packed))
+    
+    @staticmethod
     def Goldleaf_USB(nsp_path):
-        c=Goldleaf.Command()
-        Goldleaf.write(bytes(c))
+        Goldleaf.write_cmd(CommandId.ConnectionRequest)
         while True:
             if is_exiting:
                 pid = os.getpid()
                 os.kill(pid, signal.SIGTERM)
             try:
-                c=Goldleaf.Command(raw=Goldleaf.read(8))
-                if c.has_id(CommandId.ConnectionResponse) and c.magic_ok():
-                    c=Goldleaf.Command(CommandId.NSPName)
-                    Goldleaf.write(bytes(c))
-                    base_name=os.path.basename(nsp_path)
+                
+                Goldleaf.read_cmd(Goldleaf.read(8))
+                
+                if Goldleaf.is_id(CommandId.ConnectionResponse) and Goldleaf.magic_ok():
+                    Goldleaf.write_cmd(CommandId.NSPName)
+                    base_name = os.path.basename(nsp_path)
                     Goldleaf.write(struct.pack("<I",len(base_name)))
                     Goldleaf.write(base_name.encode())
                 
-                elif c.has_id(CommandId.Start)and c.magic_ok():
-                    c=Goldleaf.Command(CommandId.NSPData)
-                    Goldleaf.write(bytes(c))
-                    pnsp=PFS0(nsp_path)
-                    Goldleaf.write(struct.pack("<I",len(pnsp.files)))
-                    tmp_idx=0
-                    for file in pnsp.files:
-                        Goldleaf.write(struct.pack("<I",len(file.name)))
-                        Goldleaf.write(file.name.encode())
-                        Goldleaf.write(struct.pack("<Q",pnsp.header_size+file.file_offset))
-                        Goldleaf.write(struct.pack("<Q",file.file_size))
-                        if os.path.splitext(file.name)[1][1:].lower()=="tik":
-                            Goldleaf.ticket_idx = tmp_idx
-                        tmp_idx+=1
-                        complete_loading()
+                elif Goldleaf.is_id(CommandId.Start) and Goldleaf.magic_ok():
+                    Goldleaf.write_cmd(CommandId.NSPData)
+                    PFS0.open(nsp_path)
+                    Goldleaf.write(struct.pack("<I",len(PFS0.file_array)))
+                    for i in range(len(PFS0.file_array)):
+                        Goldleaf.write(struct.pack("<I",len(PFS0.file_names[i])))
+                        Goldleaf.write(PFS0.file_names[i].encode())
+                        Goldleaf.write(struct.pack("<Q",PFS0.body_length+PFS0.file_array[i][0]))
+                        Goldleaf.write(struct.pack("<Q",PFS0.file_array[i][1]))
+                        if '.tik' in PFS0.file_names[i].lower():
+                            Goldleaf.ticket_index = i
+                    complete_loading()
 
-                elif c.has_id(CommandId.NSPContent)and c.magic_ok():
-                    idx=struct.unpack("<I", Goldleaf.read(4))[0]
-                    for buf in pnsp.read_chunks(idx):
+                elif Goldleaf.is_id(CommandId.NSPContent) and Goldleaf.magic_ok():
+                    index = struct.unpack("<I", Goldleaf.read(4))[0]
+                    for buffer in PFS0.read_chunks(index):
                         while True:
                             if is_exiting:
                                 pid = os.getpid()
                                 os.kill(pid, signal.SIGTERM)
                             try:
-                                Goldleaf.write(buf)
+                                Goldleaf.write(buffer)
                                 break
                             except:
                                 pass
-                        try:
-                            set_nca_count(idx+1, len(pnsp.files))
-                        except:
-                            pass
+                            try:
+                                
+                                set_nca_count(index+1, len(PFS0.file_array))
+                            except:
+                                pass
 
-                elif c.has_id(CommandId.NSPTicket)and c.magic_ok():
-                    while True:
-                        try:
-                            Goldleaf.write(pnsp.read_file(Goldleaf.ticket_idx))
-                            break
-                        except:
-                            pass
+                elif Goldleaf.is_id(CommandId.NSPTicket) and Goldleaf.magic_ok():
+                    Goldleaf.write(PFS0.read_nca(Goldleaf.ticket_index))
+ 
 
-                elif c.has_id(CommandId.Finish)and c.magic_ok():
+                elif Goldleaf.is_id(CommandId.Finish) and Goldleaf.magic_ok():
                     set_progress(100,100)
                     complete_install()
                     while True:
                         if is_exiting:
                             pid = os.getpid()
                             os.kill(pid, signal.SIGTERM)
-            except:
+            except Exception as e:
+                print(str(e))
                 pass
         return 0
 
@@ -382,13 +408,18 @@ def init_goldleaf_usb_install():
     global gold_out
     for file in selected_files:
         try:
+            dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+            dev.reset()
             dev.set_configuration()
-            intf=dev.get_active_configuration()[(0,0)]
-            gold_out = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_OUT)
-            gold_in = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_IN)
+            cfg = dev.get_active_configuration()
+            is_out_ep = lambda ep: usb.util.endpoint_direction(ep.bEndpointAddress) == usb.util.ENDPOINT_OUT
+            is_in_ep = lambda ep: usb.util.endpoint_direction(ep.bEndpointAddress) == usb.util.ENDPOINT_IN
+            gold_out = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_out_ep)
+            gold_in = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_in_ep)
+            assert gold_out is not None
+            assert gold_in is not None
             set_cur_nsp(os.path.basename(file))
             Goldleaf.Goldleaf_USB(str(file))
-            dev.reset()
         except Exception as e:
             logging.error(e, exc_info=True)
             exit()
@@ -787,7 +818,7 @@ try:
     btn_nsp = QtWidgets.QPushButton("Select NSPs")
     btn_header = QtWidgets.QPushButton("Begin Transfer")
     l_rate = QtWidgets.QLabel("USB Transfer Mode")
-    l_github = QtWidgets.QLabel("v2.1.0 | github.com/fourminute/fluffy")
+    l_github = QtWidgets.QLabel("v2.2.0 | github.com/fourminute/fluffy")
     l_status = QtWidgets.QLabel("Awaiting Selection.")
     l_switch = QtWidgets.QLabel("<font color='pink'>Switch Not Detected!</font>")
     combo = QComboBox()
