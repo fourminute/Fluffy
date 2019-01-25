@@ -39,6 +39,15 @@
 * pip3 install pyqt5 
 * pip3 install pyusb
 * pip3 install libusb
+
+## Additional Linux instructions
+By default, Linux imposes restrictions on USB devices. Without setting a **rule** for the Switch, Fluffy won't be able to communicate.
+* Right-click this link and click "Save link as..." https://raw.githubusercontent.com/fourminute/Fluffy/master/80-fluffy-switch.rules
+* Save the file to your HOME directory.
+* Open terminal and type "ls -l", do you see the file? If not make sure you saved it in the correct location.
+* In terminal enter "sudo mv 80-fluffy-switch.rules /etc/udev/rules.d/"
+* Restart your computer
+
 ## Additional MacOS instructions
 * brew install libusb <i>(For more info on brew, head to https://brew.sh/)</i>
 
