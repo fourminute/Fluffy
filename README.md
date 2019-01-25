@@ -61,7 +61,7 @@ Complete beginner? No problem.
 
 Answer: This can be caused by 1-2 things.
 
-1) **NOT ALL USB TYPE C CABLES ARE THE SAME**. Some simply do not work with the Switch. If your Switch connects then frequently disconnects, then reconnects again, etc. Or if you receive this error, it's highly likely you will need a newer USB type C cable.
+1) Not all USB type C cables will work with the Switch. If your Switch connects then frequently disconnects, then reconnects again, etc. Or if you receive this error, it's highly likely you will need a newer USB type C cable. Yes, there are differences despite being visually similar.
 
 2) LibUSB wasn't found. Install it with "pip3 install libusb".
 
@@ -90,7 +90,7 @@ Answer: All of them will work the same. That is up to you.
 
 Answer: Switch Transfer Mode to "Safe".
 
-<b>Why do I have unsufficient permission error (usb)(linux)?</b>
+<b>Why do I have unsufficient permission error (usb)(linux)? (credit: YoyPa)</b>
 
 Answer: You need to make a <a href=https://github.com/fourminute/Fluffy/blob/master/80-fluffy-switch.rules>udev rule</a> to modify the switch usb device owner or group in /etc/udev/rules.d/
 
