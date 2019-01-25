@@ -62,7 +62,7 @@ Complete beginner? No problem.
 * On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
 * Double-click on Fluffy.pyw to start it (**Linux users: Open Terminal and type "python3 fluffy.pyw".**)
 * Click "Select NSPs" and select as many NSPs as you want to install.
-* If "Switch Detected!" is visible. Click "Send Header".
+* If "Switch Detected!" is visible. Click "Begin Transfer".
 * On your Switch, select and install the NSPs.
 
 ## Troubleshooting Tips
