@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """""
 "Pink Donut" design was designed by fourminute exclusively for 
 Fluffy and does not infringe on any copyright.
