@@ -60,7 +60,7 @@ By default, Linux imposes restrictions on USB devices. Without setting a **rule*
 Complete beginner? No problem. 
 * <b>First follow the installation steps above. Done? Let's continue!</b>
 * On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
-* Double-click on Fluffy.pyw to start it
+* Double-click on Fluffy.pyw to start it (**Linux users: Open Terminal and type "python3 fluffy.pyw".**)
 * Click "Select NSPs" and select as many NSPs as you want to install.
 * If "Switch Detected!" is visible. Click "Send Header".
 * On your Switch, select and install the NSPs.
