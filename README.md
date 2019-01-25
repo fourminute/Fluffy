@@ -39,6 +39,8 @@
 * pip3 install pyqt5 
 * pip3 install pyusb
 * pip3 install libusb
+* pip3 install libusb1
+
 
 ## Additional Linux instructions
 By default, Linux imposes restrictions on USB devices. Without setting a **rule** for the Switch, Fluffy won't be able to communicate.
