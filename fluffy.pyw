@@ -136,10 +136,6 @@ def set_last_transfer_rate(v):
 
 def close_program():
     global is_exiting
-    if os.path.isfile(initial_dir + '/inlay.png'): 
-        os.remove(initial_dir + '/inlay.png')
-    if os.path.isfile(initial_dir + '/icon.ico'): 
-        os.remove(initial_dir + '/icon.ico')
     if is_network and sent_header:
         with open(initial_dir + '/fluffy_config.py', 'w') as w:
             w.write('switch_ip = \"' + str(switch_ip) + "\"")
