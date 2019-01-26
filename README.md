@@ -27,6 +27,7 @@
 * Open Terminal and type "cd /path/to/fluffy"
 * Run "sudo ./install.sh"
 * This script will automate installation of all dependencies and also create an application launcher for Fluffy.
+![example](https://i.imgur.com/vqHfLSp.png)
 
 # Setup Fluffy Manually (Windows 10, MacOS, Linux)
 ## Install and Setup Zadig Driver (Windows 10)
