@@ -48,12 +48,20 @@ Some users may receive the error "USB.Core No Backend Available". If you do, dow
 If you still receive this error, you can try installing LibUSB: https://github.com/fourminute/Fluffy/blob/master/libusb-win32-devel-filter-1.2.6.0.exe.
 
 ## Additional Linux instructions
+### Switch Rules.d Config
 By default, Linux imposes restrictions on USB devices. Without setting a <b>rule</b> for the Switch, Fluffy won't be able to communicate.
 * Right-click this link and click "Save link as..." https://raw.githubusercontent.com/fourminute/Fluffy/master/linux/80-fluffy-switch.rules
 * Save the file to your HOME directory.
 * Open terminal and type "ls -l", do you see the file? If not make sure you saved it in the correct location.
 * In terminal enter "sudo mv 80-fluffy-switch.rules /etc/udev/rules.d/"
 * Restart your computer
+
+### " Error: Permission Denied"
+If running Fluffy results in "Permission Denied" error. You may need to set Fluffy.pyw as executable. Run the following command: "sudo chmod +x /path/to/fluffy.pyw"
+
+If doing the above step didn't work, you may need to run Fluffy as root. Run Fluffy with the following command: "sudo python3 /path/to/fluffy.pyw".
+
+This is due to the fact that Fluffy generates an icon(.ico), inlay(.png) and log file. Some Linux distributions have strict permissions set in place that restrict these types of actions without root priviledges. 
 
 ## Additional MacOS instructions
 * brew install libusb <i>(For more info on brew, head to https://brew.sh/)</i>
