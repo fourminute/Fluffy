@@ -22,7 +22,7 @@
 
 
 # Instructions For Use
-## Install Fluffy on Linux
+## Install Fluffy on Ubuntu/Debian
 * Download and Extract https://github.com/fourminute/Fluffy/blob/master/Fluffy-Install.zip
 * Open Terminal and type "cd /path/to/fluffy"
 * Run "sudo ./install.sh"
