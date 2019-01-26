@@ -66,7 +66,7 @@ except:
     pass
 
 # Variables
-VERSION = "2.3.0"
+VERSION = "2.3.1"
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
