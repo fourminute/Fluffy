@@ -53,6 +53,9 @@ try:
     from PyQt5.QtGui import QIcon, QPixmap, QColor, QImage
     app = QtWidgets.QApplication(sys.argv)
     window = QWidget()
+    p = window.palette()
+    p.setColor(window.backgroundRole(), QColor.fromCmyk(0,0,0,4))
+    window.setPalette(p)
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
