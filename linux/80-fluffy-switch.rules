@@ -1,5 +1,4 @@
 # This file is related to https://github.com/fourminute/Fluffy.
 # ATTR{manufacturer} and ATTR{product} are not usable as they change when tinfoil usb mode is launched.
-# wheel group is used as it seems vastly useb by linux distros, it grant access to all sudoers.
-# use "OWNER" instead of "GROUP" if you perfer to bind permission to your user.
+# This rule is required for Switch connectivity.
 SUBSYSTEMS=="usb", ATTR{idVendor}=="057e", MODE="0666"
