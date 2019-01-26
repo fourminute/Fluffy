@@ -22,6 +22,13 @@
 
 
 # Instructions For Use
+## Install Fluffy on Linux
+* Download and Extract https://github.com/fourminute/Fluffy/blob/master/Fluffy-Install.zip
+* Open Terminal and type "cd /path/to/fluffy"
+* Run "sudo ./install.sh"
+* This script will automate installation of all dependencies and also create an application launcher for Fluffy.
+
+# Setup Fluffy Manually (Windows 10, MacOS, Linux)
 ## Install and Setup Zadig Driver (Windows 10)
 * Download Zadig: https://zadig.akeo.ie.
 * With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
@@ -66,12 +73,6 @@ Complete beginner? No problem.
 * Click "Select NSPs" and select as many NSPs as you want to install.
 * If "Switch Detected!" is visible. Click "Begin Transfer".
 * On your Switch, select and install the NSPs.
-
-## Install Instructions (Linux)
-* Right-click this link and click "Save link as..." https://raw.githubusercontent.com/fourminute/Fluffy/master/fluffy.desktop
-* Save the file to ~./local/share/applications (it's a hidden folder, you'll need to enable viewing of hidden folders to see it).
-* Open the file and change the directories to match your system(the location of fluffy.pyw and icon.ico).
-* You may need to logout and back in again to see Fluffy in your Applications menu.
 
 ## Troubleshooting Tips
 <b>Why do I keep getting the error: "USBCore No Backend Available"?</b>
