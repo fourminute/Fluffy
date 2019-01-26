@@ -22,16 +22,6 @@
 
 
 # Instructions For Use
-## Install Fluffy on Ubuntu/Debian
-* Download and Extract https://github.com/fourminute/Fluffy/blob/master/Fluffy-Install.zip
-* Open Terminal and type "cd /path/to/fluffy"
-* Run "sudo ./install.sh"
-* This script will automate installation of all dependencies and also create an application launcher for Fluffy.
-![example](https://i.imgur.com/vqHfLSp.png)
-* *To uninstall:*
-* *sudo rm /usr/share/applications/fluffy-desktop.desktop*
-* *sudo rm /etc/udev/rules.d/80-fluffy-switch.rules*
-
 # Setup Fluffy Manually (Windows 10, MacOS, Linux)
 ## Install and Setup Zadig Driver (Windows 10)
 * Download Zadig: https://zadig.akeo.ie.
