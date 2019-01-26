@@ -114,7 +114,7 @@ Answer: Switch Transfer Mode to "Safe".
 
 <b>Why do I have unsufficient permission error (usb)(linux)? (credit: YoyPa)</b>
 
-Answer: You need to make a <a href=https://github.com/fourminute/Fluffy/blob/master/80-fluffy-switch.rules>udev rule</a> to modify the switch usb device owner or group in /etc/udev/rules.d/
+Answer: You need to make a <a href=https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules>udev rule</a> to modify the switch usb device owner or group in /etc/udev/rules.d/
 
 <b>Still having problems? Consider making a bug report on this GitHub page to request assistance.</b>
 

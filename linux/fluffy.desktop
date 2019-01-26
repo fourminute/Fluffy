@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Fluffy
+Comment[fr]=Installez vos NSP sur switch via USB
+Comment[es]=Instale sus NSP en la switch vîa USB
+Comment=Install your NSP on switch via USB
+Categories=Game;
+Keywords=Game;Switch;Tinfoil;Goldleaf;Goldtree;Nintendo;
+Exec=fluffy
+Icon=fluffy
+Terminal=false
+Type=Application
+StartupWMClass=Fluffy
+Path=/tmp

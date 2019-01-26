@@ -1,0 +1,22 @@
+#! /usr/bin/bash
+magick convert fluffy-src.png \
+	\( -clone 0 -resize 16x16 \) \
+	\( -clone 0 -resize 24x24 \) \
+	\( -clone 0 -resize 32x32 \) \
+	\( -clone 0 -resize 48x48 \) \
+	\( -clone 0 -resize 64x64 \) \
+	\( -clone 0 -resize 128x128 \) \
+	-colors 256 fluffy.png
+mkdir 16x16
+mkdir 24x24
+mkdir 32x32
+mkdir 48x48
+mkdir 64x64
+mkdir 128x128
+mv fluffy-1.png 16x16/fluffy.png
+mv fluffy-2.png 24x24/fluffy.png
+mv fluffy-3.png 32x32/fluffy.png
+mv fluffy-4.png 48x48/fluffy.png
+mv fluffy-5.png 64x64/fluffy.png
+mv fluffy-6.png 128x128/fluffy.png
+rm fluffy-0.png
