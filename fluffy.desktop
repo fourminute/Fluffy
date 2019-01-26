@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Application
-Terminal=false
-Name=Fluffy
-Exec=python3 /path/to/fluffy.pyw
-Icon=/path/to/icon.ico
-StartupWMClass=Fluffy
