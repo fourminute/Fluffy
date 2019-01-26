@@ -1,13 +1,15 @@
 # Fluffy
 ![intro](intro4.png)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v2.2">Latest Release v2.2.1</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v2.3">Latest Release v2.3.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
-* Support for XorTroll/Goldleaf and Adubbz/Tinfoil
+* Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
 * USB and Network Install, display transfer rate in MB/s and progress percentage.
 * USB and Network Install, display current NSP being installed.
+* Goldleaf: Display current NCA being installed.
+* Goldleaf: Display current NCA queue. 
 * Transfer modes between "Normal" and "Safe".
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
 * Support for UI scaling on 4K, 1080P, and 720P displays.
@@ -22,7 +24,6 @@
 
 
 # Instructions For Use
-# Setup Fluffy Manually (Windows 10, MacOS, Linux)
 ## Install and Setup Zadig Driver (Windows 10)
 * Download Zadig: https://zadig.akeo.ie.
 * With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
@@ -32,19 +33,22 @@
 * Done!
 
 ## Install Python
-* Download and Install Python 3 from https://www.python.org/downloads/. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
+* Download and Install Python 3 from https://www.python.org/downloads/. Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
 
-## Install PyUSB, LibUSB, PyQt5 and QDarkStyle
+## Install PyUSB, LibUSB, PyQt5
 * Open Terminal/Command-line/CMD and run the following:
-* pip3 install qdarkstyle
 * pip3 install pyqt5 
 * pip3 install pyusb
 * pip3 install libusb
 * pip3 install libusb1
 
+## Additional Windows Instructions
+Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file https://github.com/fourminute/Fluffy/blob/master/libusb-1.0.dll and place it in the same directory as *Fluffy.pyw*
+
+If you still receive this error, you can try installing LibUSB: https://github.com/fourminute/Fluffy/blob/master/libusb-win32-devel-filter-1.2.6.0.exe.
 
 ## Additional Linux instructions
-By default, Linux imposes restrictions on USB devices. Without setting a **rule** for the Switch, Fluffy won't be able to communicate.
+By default, Linux imposes restrictions on USB devices. Without setting a <b>rule</b> for the Switch, Fluffy won't be able to communicate.
 * Right-click this link and click "Save link as..." https://raw.githubusercontent.com/fourminute/Fluffy/master/linux/80-fluffy-switch.rules
 * Save the file to your HOME directory.
 * Open terminal and type "ls -l", do you see the file? If not make sure you saved it in the correct location.
@@ -63,7 +67,7 @@ By default, Linux imposes restrictions on USB devices. Without setting a **rule*
 Complete beginner? No problem. 
 * <b>First follow the installation steps above. Done? Let's continue!</b>
 * On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
-* Double-click on Fluffy.pyw to start it (**Linux users: Open Terminal and type "python3 fluffy.pyw".**)
+* Double-click on Fluffy.pyw to start it (<b>Linux users: Open Terminal and type "python3 fluffy.pyw".</b>)
 * Click "Select NSPs" and select as many NSPs as you want to install.
 * If "Switch Detected!" is visible. Click "Begin Transfer".
 * On your Switch, select and install the NSPs.
@@ -75,7 +79,7 @@ Answer: This can be caused by 1-2 things.
 
 1) Not all USB type C cables will work with the Switch. If your Switch connects then frequently disconnects, then reconnects again, etc. Or if you receive this error, it's highly likely you will need a newer USB type C cable. Yes, there are differences despite being visually similar.
 
-2) LibUSB wasn't found. Install it with "pip3 install libusb".
+2) LibUSB wasn't found. Install it with "pip3 install libusb" and "pip3 install libusb1". Also following the above steps labeled "Additional Windows Instructions".
 
 
 <b>Why does network install fail?</b>
