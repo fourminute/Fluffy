@@ -43,7 +43,7 @@
 * pip3 install libusb1
 
 ## Additional Windows Instructions
-Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file https://github.com/fourminute/Fluffy/blob/master/libusb-1.0.dll and place it in the same directory as *Fluffy.pyw*
+Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file https://github.com/fourminute/Fluffy/blob/master/libusb-1.0.dll and place it in the same directory as *Fluffy.pyw*.
 
 If you still receive this error, you can try installing LibUSB: https://github.com/fourminute/Fluffy/blob/master/libusb-win32-devel-filter-1.2.6.0.exe.
 
@@ -79,7 +79,7 @@ Answer: This can be caused by 1-2 things.
 
 1) Not all USB type C cables will work with the Switch. If your Switch connects then frequently disconnects, then reconnects again, etc. Or if you receive this error, it's highly likely you will need a newer USB type C cable. Yes, there are differences despite being visually similar.
 
-2) LibUSB wasn't found. Install it with "pip3 install libusb" and "pip3 install libusb1". Also following the above steps labeled "Additional Windows Instructions".
+2) LibUSB wasn't found. Install it with "pip3 install libusb" and "pip3 install libusb1". Also follow the above steps labeled "Additional Windows Instructions".
 
 
 <b>Why does network install fail?</b>
