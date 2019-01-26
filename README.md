@@ -59,10 +59,6 @@ By default, Linux imposes restrictions on USB devices. Without setting a <b>rule
 ### " Error: Permission Denied"
 If running Fluffy results in "Permission Denied" error. You may need to set Fluffy.pyw as executable. Run the following command: "sudo chmod +x /path/to/fluffy.pyw"
 
-If doing the above step didn't work, you may need to run Fluffy as root. Run Fluffy with the following command: "sudo python3 /path/to/fluffy.pyw".
-
-This is due to the fact that Fluffy generates an icon(.ico), inlay(.png) and log file. Some Linux distributions have strict permissions set in place that restrict these types of actions without root priviledges. 
-
 ## Additional MacOS instructions
 * brew install libusb <i>(For more info on brew, head to https://brew.sh/)</i>
 
