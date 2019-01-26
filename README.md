@@ -15,7 +15,7 @@
 * Support for UI scaling on 4K, 1080P, and 720P displays.
 * Show current NSP being installed.
 * Individual NSP selection (suggest by: <b>Shadowhand</b>, thanks!).
-* Progress bar.
+* Tasty donut.
 * Switch connected indicator.
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
