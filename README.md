@@ -20,7 +20,7 @@
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
 # Screenshot
-![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/screenshot-fluffy-v240b.png?raw=true)
+![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/screenshot-fluffy-v240c.png?raw=true)
 
 
 # Instructions For Use
