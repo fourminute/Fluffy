@@ -82,6 +82,10 @@ Answer: This can be caused by 1-2 things.
 
 2) LibUSB wasn't found. Install it with "pip3 install libusb" and "pip3 install libusb1". Also follow the above steps labeled "Additional Windows Instructions".
 
+<b>Why do I keep getting the error: "No module named 'PyQt5'"?</b>
+
+Python by default *wants* to run in 64-bit mode, however, when this happens Fluffy won't work. As you may already know, Fluffy does not, will not, and cannot run in 64-bit Python. To bypass this behavior you can alternative open Fluffy.pyw in IDLE(32-bit mode) and click Run > Run Module.
+
 
 <b>Why does network install fail?</b>
 
