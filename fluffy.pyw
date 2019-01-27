@@ -27,7 +27,6 @@ import os
 import sys
 import threading
 import struct
-import requests
 from binascii import hexlify as hx, unhexlify as uhx
 import logging
 try:
@@ -68,7 +67,7 @@ except:
     pass
 
 # Variables
-VERSION = "2.3.2"
+VERSION = "2.3.3"
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
@@ -82,7 +81,7 @@ dinlaypixmap = QPixmap()
 transfer_rate = 0
 is_installing = False
 is_done = False
-is_dark_mode = False
+is_dark_mode = True
 is_network = False
 is_goldleaf = False
 is_exiting = False 
@@ -183,11 +182,6 @@ def turn_off_logging():
 def set_nca_name(v):
     global cur_nca_name
     cur_nca_name = v
-    
-def check_for_update():
-    url = "https://raw.githubusercontent.com/fourminute/Fluffy/master/version"
-    r = requests.get(url)
-    return VERSION in r.content.decode()
 
 def set_start_time():
     global start_time
@@ -207,14 +201,17 @@ def set_last_transfer_rate(v):
 
 def close_program():
     global is_exiting
-    if is_dark_mode:
-        with open(initial_dir + '/fluffy_config.py', 'w') as w:
-            w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
-            w.write('dark_mode = True')
-    else:
-        with open(initial_dir + '/fluffy_config.py', 'w') as w:
-            w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
-            w.write('dark_mode = False')
+    try:
+        if is_dark_mode:
+            with open(initial_dir + '/fluffy_config.py', 'w') as w:
+                w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
+                w.write('dark_mode = True')
+        else:
+            with open(initial_dir + '/fluffy_config.py', 'w') as w:
+                w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
+                w.write('dark_mode = False')
+    except:
+        pass
     is_exiting = True
     sys.exit()
                 
@@ -809,7 +806,11 @@ try:
         
     def dark_mode_cmd():
         if dark_check.isChecked():
-            set_dark_mode(True)
+            try:
+                set_dark_mode(True)
+            except:
+                dark_check.setChecked(False)
+                pass
         else:
             set_dark_mode(False)
         
@@ -1030,8 +1031,13 @@ try:
         l_switch.setText("Network mode.")
         l_switch.setStyleSheet(BLUE)
     if is_dark_mode:
-        set_dark_mode(True)
-        dark_check.setChecked(True)
+        try:
+            set_dark_mode(True)
+            dark_check.setChecked(True)
+        except:
+            set_dark_mode(False)
+            dark_check.setChecked(False)
+            pass
     else:
         set_dark_mode(False)
         dark_check.setChecked(False)
