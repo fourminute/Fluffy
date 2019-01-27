@@ -248,17 +248,6 @@ def complete_install():
     global is_done
     is_done = True
 
-def check_done():
-    try:
-        if is_done:
-            return True
-        v = (int(cur_progress) / int(end_progress)) * 100
-        if v == 100:
-            if cur_nsp_count == total_nsp:
-                return True
-    except:
-        pass
-    return False
 
 def reset_install():
     global is_installing
