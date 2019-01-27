@@ -25,7 +25,7 @@
 
 # Instructions For Use
 ## Install and Setup Zadig Driver (Windows 10)
-* Download Zadig: https://zadig.akeo.ie.
+* Download Zadig: https://zadig.akeo.ie or [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) in case the website goes down.
 * With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
 * Open Zadig > Options > List All Devices.
 * In the scroll box above the button "Install Driver", tap the arrow until arriving at "libusbK".
@@ -33,21 +33,21 @@
 * Done!
 
 ## Install Python
-* Download and Install Python 3 from https://www.python.org/downloads/. Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
+* Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
 
 ## Install PyUSB, LibUSB, PyQt5, QDarkStyle
 * Open Terminal/Command-line/CMD and run the following:
 * pip3 install pyqt5 pyusb libusb libusb1 qdarkstyle
 
 ## Additional Windows Instructions
-Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll and place it in the same directory as *Fluffy.pyw*.
+Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file [libusb.dll](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll) and place it in the same directory as Fluffy.pyw.
 
-If you still receive this error, you can try installing LibUSB: https://github.com/fourminute/Fluffy/blob/master/windows/libusb-win32-devel-filter-1.2.6.0.exe.
+If you still receive this error, you can try installing LibUSB: [libusb installer](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-win32-devel-filter-1.2.6.0.exe).
 
 ## Additional Linux instructions
 ### Switch Rules.d Config
 By default, Linux imposes restrictions on USB devices. Without setting a <b>rule</b> for the Switch, Fluffy won't be able to communicate.
-* Right-click this link and click "Save link as..." https://raw.githubusercontent.com/fourminute/Fluffy/master/linux/80-fluffy-switch.rules
+* Right-click this link and click "Save link as..." [80-fluffy-switch.rules](https://raw.githubusercontent.com/fourminute/Fluffy/master/linux/80-fluffy-switch.rules)
 * Save the file to your HOME directory.
 * Open terminal and type "ls -l", do you see the file? If not make sure you saved it in the correct location.
 * In terminal enter "sudo mv 80-fluffy-switch.rules /etc/udev/rules.d/"
