@@ -41,6 +41,7 @@
 * pip3 install pyusb
 * pip3 install libusb
 * pip3 install libusb1
+* pip3 install qdarkstyle
 
 ## Additional Windows Instructions
 Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file https://github.com/fourminute/Fluffy/blob/master/libusb-1.0.dll and place it in the same directory as *Fluffy.pyw*.
