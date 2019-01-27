@@ -852,7 +852,7 @@ try:
             list_nsp.clear()
             i = 0
             logging.debug(str(d))
-            spl = str(d).split(',')
+            spl = str(d).split('],')
             fil = list()
             for a in spl:
                 strt = 0
