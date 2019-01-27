@@ -275,7 +275,7 @@ def reset_install():
     txt_port.setEnabled(True)
     tin_radio.setEnabled(True)
     gold_radio.setEnabled(True)
-    l_status.setText("Awaiting Selection")
+    l_status.setText("Awaiting Selection.")
     l_nsp.setText("")
     l_nsp.setStyleSheet("")
     l_switch.setText("")
@@ -854,8 +854,21 @@ try:
             spl = str(d).split(',')
             fil = list()
             for a in spl:
-                st = a.split("'")
-                fil.append(st[1])
+                strt = 0
+                nd = 0
+                ie = 0
+                ae = 0
+                for c in a:
+                    if c == "'" or c == '"':
+                        strt = ie
+                        break
+                    ie+=1
+                for c2 in reversed(a):
+                    if c2 == "'" or c2 == '"':
+                        nd = ae
+                        break
+                    ae+=1
+                fil.append(a[strt+1:len(a)-nd-1])
             fil.pop()
             for f in fil:
                 i += 1
