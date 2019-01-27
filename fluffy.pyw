@@ -27,9 +27,9 @@ import os
 import sys
 import threading
 import struct
-from binascii import hexlify as hx, unhexlify as uhx
-import logging
+import random
 try:
+    import logging
     if os.path.isfile('fluffy.log'):
         os.remove('fluffy.log')
     LOG_FILENAME = 'fluffy.log'
@@ -67,7 +67,7 @@ except:
     pass
 
 # Variables
-VERSION = "2.3.3"
+VERSION = "2.4.0"
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
@@ -80,8 +80,8 @@ inlaypixmap = QPixmap()
 dinlaypixmap = QPixmap()
 transfer_rate = 0
 is_installing = False
+last_error = "NA"
 is_done = False
-is_dark_mode = True
 is_network = False
 is_goldleaf = False
 is_exiting = False 
@@ -109,9 +109,12 @@ if os.path.isfile(initial_dir + '/fluffy_config.py'):
         is_dark_mode = fluffy_config.dark_mode
     except:
         switch_ip = "0.0.0.0"
+        is_dark_mode = False
         pass
 else:
     switch_ip = "0.0.0.0"
+    is_dark_mode = False
+    
 gold_in = None
 gold_out = None
 net_port = 2000 #Unused, saved for future reference (Ie. Goldleaf Network)
@@ -139,18 +142,14 @@ def set_dark_mode(v):
                 if screen.size().width() <= 1366:
                     lowresfix = pixmap.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
-                    list_nsp.setMinimumHeight(3)
                 else:
                     lowresfix = pixmap.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
-                    list_nsp.setMinimumHeight(10)
             else:
                 lowresfix = pixmap.scaled(350, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 img_label.setPixmap(lowresfix)
-                list_nsp.setMinimumHeight(10)
         else:
             img_label.setPixmap(pixmap)
-            list_nsp.setMinimumHeight(10)
     else:
         is_dark_mode = False
         pixmap = QPixmap(inlaypixmap)
@@ -162,18 +161,14 @@ def set_dark_mode(v):
                 if screen.size().width() <= 1366:
                     lowresfix = pixmap.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
-                    list_nsp.setMinimumHeight(3)
                 else:
                     lowresfix = pixmap.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
-                    list_nsp.setMinimumHeight(10)
             else:
                 lowresfix = pixmap.scaled(350, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 img_label.setPixmap(lowresfix)
-                list_nsp.setMinimumHeight(10)
         else:
             img_label.setPixmap(pixmap)
-            list_nsp.setMinimumHeight(10)
 
 def turn_off_logging():
     global is_logging
@@ -252,6 +247,80 @@ def set_total_nsp(n):
 def complete_install():
     global is_done
     is_done = True
+
+def check_done():
+    try:
+        if is_done:
+            return True
+        v = (int(cur_progress) / int(end_progress)) * 100
+        if v == 100:
+            if cur_nsp_count == total_nsp:
+                return True
+    except:
+        pass
+    return False
+
+def reset_install():
+    global is_installing
+    global sent_header
+    global is_done
+    global cur_progress
+    global end_progress
+    global cur_nsp_name
+    global cur_nca_name
+    global cur_transfer_rate
+    global last_transfer_rate
+    global max_nca_count
+    global selected_files
+    global selected_dir
+    global total_nsp
+    global cur_nsp_count
+    list_nsp.clear()
+    btn_header.setEnabled(True)
+    btn_nsp.setEnabled(True)
+    combo.setEnabled(True)
+    txt_ip.setEnabled(True)
+    txt_ip2.setEnabled(True)
+    net_radio.setEnabled(True)
+    usb_radio.setEnabled(True)
+    txt_port.setEnabled(True)
+    tin_radio.setEnabled(True)
+    gold_radio.setEnabled(True)
+    l_status.setText("Awaiting Selection")
+    l_nsp.setText("")
+    l_nsp.setStyleSheet("")
+    l_switch.setText("")
+    l_switch.setStyleSheet("")
+    l_status.setStyleSheet("")
+    progressbar.setValue(0)
+    cur_nsp_count = 1
+    total_nsp = 0
+    selected_files = None
+    selected_dir = None
+    cur_nca_count = 0
+    max_nca_count = 0
+    cur_nsp_name = "NA"
+    cur_nca_name = "NA"
+    cur_transfer_rate = 0
+    last_transfer_rate = 0
+    is_done = False
+    is_installing = False
+    sent_header = False
+    cur_progress = 0
+    end_progress = 100
+
+def throw_error(_type):
+    global last_error
+    if _type == 0:
+        last_error = "Error: Goldleaf USB threw an exception."
+    elif _type == 1:
+        last_error = "Error: Tinfoil Network threw an exception."
+    elif _type == 2:
+        last_error = "Error: Tinfoil USB threw an exception."
+
+def reset_last_error():
+    global last_error
+    last_error = "NA"
     
 def complete_loading():
     global is_installing
@@ -456,10 +525,7 @@ class Goldleaf:
                 elif Goldleaf.is_id(CommandId.Finish) and Goldleaf.magic_ok():
                     set_progress(100,100)
                     complete_install()
-                    while True:
-                        if is_exiting:
-                            pid = os.getpid()
-                            os.kill(pid, signal.SIGTERM)
+                    sys.exit()
             except:
                 pass
         return 0
@@ -484,9 +550,16 @@ def init_goldleaf_usb_install():
         except Exception as e:
             if is_logging:
                 logging.error(e, exc_info=True)
-            exit()
+            throw_error(0)
+            try:
+                usb.util.dispose_resources(dev)
+                dev.reset()
+            except:
+                pass
+            sys.exit()
         usb.util.dispose_resources(dev)
         dev.reset()
+        sys.exit()
 
 # Tinfoil Network
 class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
@@ -587,10 +660,11 @@ class MyServer(TCPServer):
     def force_stop(self):
         self.server_close()
         self.stopped = True
+        sys.exit()
         
 def init_tinfoil_net_install():
     accepted_extension = ('.nsp')
-    hostPort = 2000
+    hostPort = random.randint(26490,26999)
     target_ip = switch_ip
     hostIp = host_ip
     target_path = str(selected_dir).strip()
@@ -602,7 +676,7 @@ def init_tinfoil_net_install():
             if str(file).find(os.path.basename(y)) != -1:
                 file_list_payload += baseUrl + quote(file) + '\n'
     file_list_payloadBytes = file_list_payload.encode('ascii')
-    if directory and directory != '.':  # doesn't need to move if it's already the current working directory
+    if directory and directory != '.':
         os.chdir(directory)
     server = MyServer((host_ip, hostPort), RangeHTTPRequestHandler)
     thread = threading.Thread(target=server.serve_forever)
@@ -621,14 +695,16 @@ def init_tinfoil_net_install():
         if is_logging:
             logging.error(e, exc_info=True)
         server.force_stop()
+        throw_error(1)
         sys.exit(1)
-    server.force_stop()
     complete_install()
-    while True:
-        if is_exiting:
-            pid = os.getpid()
-            os.kill(pid, signal.SIGTERM)
-
+    server.force_stop()
+    try:
+        server.shutdown()
+    except:
+        pass
+    sys.exit()
+    
 # Tinfoil USB
 class Tinfoil:
     @staticmethod
@@ -691,10 +767,7 @@ class Tinfoil:
             data_size = struct.unpack('<Q', cmd_header[12:20])[0]
             if cmd_id == CMD_ID_EXIT:
                 complete_install()
-                while True:
-                    if is_exiting:
-                        pid = os.getpid()
-                        os.kill(pid, signal.SIGTERM)
+                sys.exit()
             elif cmd_id == CMD_ID_FILE_RANGE:
                 Tinfoil.file_range_cmd(nsp_dir, in_ep, out_ep, data_size)
     @staticmethod
@@ -715,22 +788,31 @@ class Tinfoil:
             out_ep.write(nsp_path)
         
 def init_tinfoil_usb_install():
-    nsp_dir = selected_dir
-    dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-    if dev is None:
-        raise ValueError('Switch is not found!')
-    dev.reset()
-    dev.set_configuration()
-    cfg = dev.get_active_configuration()
-    is_out_ep = lambda ep: usb.util.endpoint_direction(ep.bEndpointAddress) == usb.util.ENDPOINT_OUT
-    is_in_ep = lambda ep: usb.util.endpoint_direction(ep.bEndpointAddress) == usb.util.ENDPOINT_IN
-    out_ep = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_out_ep)
-    in_ep = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_in_ep)
-    assert out_ep is not None
-    assert in_ep is not None
-    Tinfoil.send_nsp_list(selected_files, nsp_dir, out_ep)
-    complete_loading()
-    Tinfoil.poll_commands(nsp_dir, in_ep, out_ep)
+    try:
+        nsp_dir = selected_dir
+        dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+        if dev is None:
+            raise ValueError('Switch is not found!')
+        dev.reset()
+        dev.set_configuration()
+        cfg = dev.get_active_configuration()
+        is_out_ep = lambda ep: usb.util.endpoint_direction(ep.bEndpointAddress) == usb.util.ENDPOINT_OUT
+        is_in_ep = lambda ep: usb.util.endpoint_direction(ep.bEndpointAddress) == usb.util.ENDPOINT_IN
+        out_ep = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_out_ep)
+        in_ep = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_in_ep)
+        assert out_ep is not None
+        assert in_ep is not None
+        Tinfoil.send_nsp_list(selected_files, nsp_dir, out_ep)
+        complete_loading()
+        Tinfoil.poll_commands(nsp_dir, in_ep, out_ep)
+        complete_install()
+        sys.exit()
+    except Exception as e:
+        if is_logging:
+            logging.error(e, exc_info=True)
+        throw_error(2)
+        sys.exit()
+        pass
 
 
 # Main
@@ -868,12 +950,10 @@ try:
             btn_nsp.setText("NSP Selection")
             
     def set_done_text():
-        l_nsp.setText("")
-        l_status.setText("Successfully Installed " + str(total_nsp) + " NSPs!")
-        l_switch.setText("You may close Fluffy.")
-        l_switch.setStyleSheet(GREEN)
-        l_status.setStyleSheet(GREEN)
-        progressbar.setValue(100)
+        tmp_string = str(total_nsp)
+        reset_install()
+        l_nsp.setText("Successfully Installed " + tmp_string + " NSPs!")
+        
 
     def set_loading_text():
         l_nsp.setText("")
@@ -940,12 +1020,11 @@ try:
     btn_nsp = QtWidgets.QPushButton("Select NSPs")
     btn_header = QtWidgets.QPushButton("Begin Transfer")
     l_rate = QtWidgets.QLabel("USB Transfer Mode")
-    l_github = QtWidgets.QLabel("v" + VERSION + " // ")
-    l_github.setStyleSheet("QLabel { color: rgba(0, 0, 0, 50%) }")
+    l_github = QtWidgets.QLabel("v" + VERSION)
     l_status = QtWidgets.QLabel("Awaiting Selection.")
     l_switch = QtWidgets.QLabel("Switch Not Detected!")
-    combo = QComboBox()
     list_nsp = QtWidgets.QListWidget()
+    combo = QComboBox()
     
     #Set Widgets
     try:
@@ -960,8 +1039,9 @@ try:
     h_box = QtWidgets.QHBoxLayout()
     h2_box = QtWidgets.QHBoxLayout()
     h3_box = QtWidgets.QHBoxLayout()
-    h3_box.addWidget(l_github)
     h3_box.addWidget(dark_check)
+    h3_box.addStretch()
+    h3_box.addWidget(l_github)
     h_group = QtWidgets.QButtonGroup()
     combo.addItem("Safe Mode")
     combo.addItem("Normal Mode")
@@ -988,7 +1068,7 @@ try:
     v_box = QtWidgets.QVBoxLayout()
     img_label = QLabel()
     img_label.setAlignment(Qt.AlignCenter)
-
+    
     # Occupy VBOX
     v_box.addLayout(h2_box)
     v_box.addWidget(img_label)
@@ -1011,14 +1091,12 @@ try:
     v_box.addWidget(progressbar)
     v_box.addWidget(list_nsp)
     v_box.addLayout(h3_box)
-    h3_box.addStretch()
     window.setLayout(v_box)
     window.setWindowTitle('Fluffy')
     btn_nsp.clicked.connect(nsp_file_dialog)
     btn_header.clicked.connect(send_header_cmd)
     window.setWindowIcon(QIcon(iconpixmap))
     window.show()
-
 
     # Revert to network mode
     if not usb_success:
@@ -1041,8 +1119,13 @@ try:
     else:
         set_dark_mode(False)
         dark_check.setChecked(False)
+    
     # Main loop
     while True:
+        if last_error != "NA":
+            msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
+            reset_last_error()
+            reset_install()
         if is_logging:
             if os.path.isfile(initial_dir + '/fluffy.log'):
                 if os.path.getsize(initial_dir + '/fluffy.log') > 250000:
@@ -1052,10 +1135,14 @@ try:
                 if os.path.getsize('fluffy.log') > 250000:
                     logging.debug("Fluffy Log: Logging size reached, turning off logging.")
                     turn_off_logging()
+                    
         QApplication.processEvents()
+        
         if not window.isVisible():
             close_program()
-            sys.exit()
+            pid = os.getpid()
+            os.kill(pid, signal.SIGTERM)
+            
         if is_exiting:
             pid = os.getpid()
             os.kill(pid, signal.SIGTERM)
@@ -1101,4 +1188,6 @@ try:
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
-    exit()
+    close_program()
+    pid = os.getpid()
+    os.kill(pid, signal.SIGTERM)
