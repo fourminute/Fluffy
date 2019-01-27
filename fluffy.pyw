@@ -275,7 +275,7 @@ def reset_install():
     txt_port.setEnabled(True)
     tin_radio.setEnabled(True)
     gold_radio.setEnabled(True)
-    l_status.setText("Awaiting Selection")
+    l_status.setText("Awaiting Selection.")
     l_nsp.setText("")
     l_nsp.setStyleSheet("")
     l_switch.setText("")
@@ -851,6 +851,8 @@ try:
             tmp = list()
             list_nsp.clear()
             i = 0
+            print(str(d))
+            logging.debug("Dialog output: " + str(d))
             spl = str(d).split(',')
             fil = list()
             for a in spl:
