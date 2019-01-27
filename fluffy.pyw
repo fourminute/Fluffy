@@ -67,7 +67,7 @@ except:
     pass
 
 # Variables
-VERSION = "2.4.0"
+VERSION = "2.4.1"
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
@@ -851,13 +851,25 @@ try:
             tmp = list()
             list_nsp.clear()
             i = 0
-            print(str(d))
-            logging.debug("Dialog output: " + str(d))
+            logging.debug(str(d))
             spl = str(d).split(',')
             fil = list()
             for a in spl:
-                st = a.split("'")
-                fil.append(st[1])
+                strt = 0
+                nd = 0
+                ie = 0
+                ae = 0
+                for c in a:
+                    if c == "'" or c == '"':
+                        strt = ie
+                        break
+                    ie+=1
+                for c2 in reversed(a):
+                    if c2 == "'" or c2 == '"':
+                        nd = ae
+                        break
+                    ae+=1
+                fil.append(a[strt+1:len(a)-nd-1])
             fil.pop()
             for f in fil:
                 i += 1
