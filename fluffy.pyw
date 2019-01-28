@@ -54,7 +54,7 @@ try:
     from PyQt5.QtWidgets import *
     from PyQt5.QtGui import QIcon, QPixmap, QColor, QImage
     app = QtWidgets.QApplication(sys.argv)
-    window = QWidget()
+    window = QMainWindow()
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
@@ -127,6 +127,65 @@ class TransferRates:
     Normal = 0x100000
 TransferRateDict  = {0: TransferRates.Safe,
                      1: TransferRates.Normal}
+
+# "Language!" -Cap, May 1st 2015
+class Language:
+    CurrentDict = None
+    EnglishDict = {0: "Fluffy",
+                  1: "Begin Transfer",
+                  2: "Switch IP",
+                  3: "This Computer's IP",
+                  4: "USB Transfer Mode",
+                  5: "Normal Mode",
+                  6: "Safe Mode",
+                  7: "Current NSP",
+                  8: "Successfully Installed",
+                  9: "Awaiting Selection",
+                  10: "Switch Not Detected",
+                  11: "Switch Detected",
+                  12: "Network Mode",
+                  13: "NSP Selection",
+                  14: "NSP Selected",
+                  15: "Awaiting Connection",
+                  16: "Cancel",
+                  17: "Error: Goldleaf threw an exception.",
+                  18: "Error: Tinfoil threw an exception.",
+                  19: "Error: Network threw an exception.",
+                  20: "Dark Mode",
+                  21: "NSP Selection",
+                  22: "NSP Selected",
+                  23: "Options",
+                  24: "Language",
+                  25: "Github",
+                  }
+    ChineseDict = {0: "Fluffy",
+                  1: "Begin Transfer",
+                  2: "Switch IP",
+                  3: "This Computer's IP",
+                  4: "USB Transfer Mode",
+                  5: "Normal Mode",
+                  6: "Safe Mode",
+                  7: "Current NSP",
+                  8: "Successfully Installed",
+                  9: "Awaiting Selection",
+                  10: "Switch Not Detected",
+                  11: "Switch Detected",
+                  12: "Network Mode",
+                  13: "NSP Selection",
+                  14: "NSP Selected",
+                  15: "Awaiting Connection",
+                  16: "Cancel",
+                  17: "Error: Goldleaf threw an exception.",
+                  18: "Error: Tinfoil threw an exception.",
+                  19: "Error: Network threw an exception.",
+                  20: "Dark Mode",
+                  21: "NSP Selection",
+                  22: "NSP Selected",
+                  23: "Options",
+                  24: "Language",
+                  25: "Github",
+                  }
+
 
 # Setters
 def set_dark_mode(v):
@@ -852,6 +911,9 @@ try:
             tmp = list()
             list_nsp.clear()
             i = 0
+            nameys = d.selectedFiles()
+            for items in nameys:
+                print(items)
             df = None
             if '\', \'' in str(d): df = re.split('\', \'',str(d))
             if '\", \"' in str(d): df = re.split('\", \"',str(d))
@@ -1069,6 +1131,31 @@ try:
     v_box = QtWidgets.QVBoxLayout()
     img_label = QLabel()
     img_label.setAlignment(Qt.AlignCenter)
+
+    #Menu Bar
+    def lang_menu_cmd(): 
+        lang_checked = list()
+        for action in lang_menu.actions():
+            if action.isChecked():
+                lang_checked.append(action.text())
+                print(action.text())
+                
+    lang_menu = window.menuBar().addMenu('Language')
+    opt_menu = window.menuBar().addMenu('Options')
+    git_menu = window.menuBar().addMenu('Github')
+    lang_menu.addAction(QAction('English',lang_menu,checkable=True))
+    lang_menu.addAction(QAction('Korean',lang_menu,checkable=True))
+    lang_menu.addAction(QAction('Chinese',lang_menu,checkable=True))
+    lang_menu.addAction(QAction('Vietnamese',lang_menu,checkable=True))
+    lang_menu.addAction(QAction('Japanese',lang_menu,checkable=True))
+    lang_menu.triggered.connect(lang_menu_cmd)
+    #opt_menu.triggered.connect(opt_menu_cmd)
+    #git_menu.triggered.connect(git_menu_cmd)
+
+    
+
+        
+                
     
     # Occupy VBOX
     v_box.addLayout(h2_box)
@@ -1092,7 +1179,8 @@ try:
     v_box.addWidget(progressbar)
     v_box.addWidget(list_nsp)
     v_box.addLayout(h3_box)
-    window.setLayout(v_box)
+    window.setCentralWidget(QWidget(window))
+    window.centralWidget().setLayout(v_box)
     window.setWindowTitle('Fluffy')
     btn_nsp.clicked.connect(nsp_file_dialog)
     btn_header.clicked.connect(send_header_cmd)
