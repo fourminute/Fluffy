@@ -108,13 +108,16 @@ if os.path.isfile(initial_dir + '/fluffy_config.py'):
         import fluffy_config
         switch_ip = fluffy_config.switch_ip
         is_dark_mode = fluffy_config.dark_mode
+        language = fluffy_config.language
     except:
         switch_ip = "0.0.0.0"
         is_dark_mode = False
+        language = "English"
         pass
 else:
     switch_ip = "0.0.0.0"
     is_dark_mode = False
+    language = "English"
     
 gold_in = None
 gold_out = None
@@ -129,6 +132,16 @@ TransferRateDict  = {0: TransferRates.Safe,
                      1: TransferRates.Normal}
 
 # "Language!" -Cap, May 1st 2015
+def set_language(v):
+    global language
+    language = v
+    if v == "English":
+        Language.CurrentDict = Language.EnglishDict
+    elif v == "Chinese":
+        Language.CurrentDict = Language.ChineseDict
+    
+    
+    
 class Language:
     CurrentDict = None
     EnglishDict = {0: "Fluffy",
@@ -157,7 +170,10 @@ class Language:
                   23: "Options",
                   24: "Language",
                   25: "Github",
-                  }
+                  26: "Network",
+                  27: "Headers Sent",
+                  28: "NSP(s) in Queue",
+                   }
     ChineseDict = {0: "卷卷",
                   1: "开始传输",
                   2: "思维奇的IP地址",
@@ -184,8 +200,12 @@ class Language:
                   23: "选项",
                   24: "语言切换",
                   25: "Github主页地址",
-                  }
+                  26: "Network",
+                  27: "Headers Sent",
+                  28: "NSP(s) in Queue",
+                   }
 
+set_language("Chinese")
 
 # Setters
 def set_dark_mode(v):
@@ -260,11 +280,13 @@ def close_program():
         if is_dark_mode:
             with open(initial_dir + '/fluffy_config.py', 'w') as w:
                 w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
-                w.write('dark_mode = True')
+                w.write('dark_mode = True\n')
+                w.write('language = \"' + language + "\"\n")
         else:
             with open(initial_dir + '/fluffy_config.py', 'w') as w:
                 w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
-                w.write('dark_mode = False')
+                w.write('dark_mode = False\n')
+                w.write('language = \"' + language + "\"\n")
     except:
         pass
     is_exiting = True
@@ -1051,11 +1073,11 @@ try:
     def set_switch_text():
         dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
         if dev is None:
-            l_switch.setText("Switch Not Detected!")
+            l_switch.setText(Language.CurrentDict[10]+"!")
             btn_header.setEnabled(False)
             l_switch.setStyleSheet(RED)
         else:
-            l_switch.setText("Switch Detected!")
+            l_switch.setText(Language.CurrentDict[11]+"!")
             l_switch.setStyleSheet(GREEN)
             if list_nsp.count() > 0:
                 btn_header.setEnabled(True)
@@ -1063,7 +1085,7 @@ try:
                 btn_header.setEnabled(False)
                     
     #Init Widgets
-    l_host = QtWidgets.QLabel("This Computers IP:")
+    l_host = QtWidgets.QLabel(Language.CurrentDict[3]+":")
     txt_ip2 = QtWidgets.QLineEdit("0.0.0.0")
     try:
         fill = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
@@ -1071,21 +1093,21 @@ try:
     except:
         pass
     l_nsp = QtWidgets.QLabel("")
-    l_ip = QtWidgets.QLabel("Switch IP:")
+    l_ip = QtWidgets.QLabel(Language.CurrentDict[2]+":")
     l_port = QtWidgets.QLabel("Port:")
     txt_ip = QtWidgets.QLineEdit("0.0.0.0")
     tin_radio = QtWidgets.QRadioButton("Adubbz/Tinfoil")
     gold_radio = QtWidgets.QRadioButton("XorTroll/Goldleaf")
     split_check = QtWidgets.QCheckBox("Use Split NSP")
-    dark_check = QtWidgets.QCheckBox("Dark Mode")
+    dark_check = QtWidgets.QCheckBox(Language.CurrentDict[20])
     usb_radio = QtWidgets.QRadioButton("USB")
     net_radio = QtWidgets.QRadioButton("Network")
-    btn_nsp = QtWidgets.QPushButton("Select NSPs")
-    btn_header = QtWidgets.QPushButton("Begin Transfer")
-    l_rate = QtWidgets.QLabel("USB Transfer Mode")
+    btn_nsp = QtWidgets.QPushButton(Language.CurrentDict[7])
+    btn_header = QtWidgets.QPushButton(Language.CurrentDict[1])
+    l_rate = QtWidgets.QLabel(Language.CurrentDict[4])
     l_github = QtWidgets.QLabel("v" + VERSION)
-    l_status = QtWidgets.QLabel("Awaiting Selection.")
-    l_switch = QtWidgets.QLabel("Switch Not Detected!")
+    l_status = QtWidgets.QLabel(Language.CurrentDict[9]+".")
+    l_switch = QtWidgets.QLabel(Language.CurrentDict[10]+"!")
     list_nsp = QtWidgets.QListWidget()
     combo = QComboBox()
     
@@ -1106,8 +1128,8 @@ try:
     h3_box.addStretch()
     h3_box.addWidget(l_github)
     h_group = QtWidgets.QButtonGroup()
-    combo.addItem("Safe Mode")
-    combo.addItem("Normal Mode")
+    combo.addItem(Language.CurrentDict[6])
+    combo.addItem(Language.CurrentDict[5])
     combo.setCurrentIndex(1)
     tin_radio.setChecked(True)
     tin_radio.toggled.connect(tin_radio_cmd)
@@ -1181,7 +1203,7 @@ try:
     v_box.addLayout(h3_box)
     window.setCentralWidget(QWidget(window))
     window.centralWidget().setLayout(v_box)
-    window.setWindowTitle('Fluffy')
+    window.setWindowTitle(Language.CurrentDict[0])
     btn_nsp.clicked.connect(nsp_file_dialog)
     btn_header.clicked.connect(send_header_cmd)
     window.setWindowIcon(QIcon(iconpixmap))
@@ -1195,7 +1217,7 @@ try:
         l_rate.setVisible(False)
         combo.setVisible(False)
         gold_radio.setVisible(False)
-        l_switch.setText("Network mode.")
+        l_switch.setText(Language.CurrentDict[12])
         l_switch.setStyleSheet(BLUE)
     if is_dark_mode:
         try:
@@ -1237,7 +1259,7 @@ try:
             os.kill(pid, signal.SIGTERM)
             
         if not sent_header and not is_installing and is_network:
-            l_switch.setText("Network mode.")
+            l_switch.setText(Language.CurrentDict[12])
             l_switch.setStyleSheet(BLUE)
             if list_nsp.count() > 0:
                 btn_header.setEnabled(True)
