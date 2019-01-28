@@ -1,7 +1,7 @@
 # Fluffy
 ![intro](https://github.com/fourminute/Fluffy/blob/master/misc/fluffy-intro.png?raw=true)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/tag/v2.4">Latest Release v2.4.1</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.4.1</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
@@ -24,7 +24,15 @@
 
 
 # Instructions For Use
-## Install and Setup Zadig Driver (Windows 10)
+
+## Install TinFoil on your Switch
+* <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
+* Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
+* Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
+
+## Windows instructions
+
+### 1/3) Install and Setup Zadig Driver
 * Download Zadig: https://zadig.akeo.ie or [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) in case the website goes down.
 * With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
 * Open Zadig > Options > List All Devices.
@@ -32,43 +40,76 @@
 * Click "Install Driver"
 * Done!
 
-## Install Python
+### 2/3) Install Python
 * Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
 
-## Install PyUSB, LibUSB, PyQt5, QDarkStyle
+### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
 * Open Terminal/Command-line/CMD and run the following:
 * pip3 install pyqt5 pyusb libusb libusb1 qdarkstyle
 
-## Additional Windows Instructions
+### Additional Windows Instructions
 Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file [libusb.dll](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll) and place it in the same directory as Fluffy.pyw.
 
 If you still receive this error, you can try installing LibUSB: [libusb installer](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-win32-devel-filter-1.2.6.0.exe).
 
-## Additional Linux instructions
-### Switch Rules.d Config
-By default, Linux imposes restrictions on USB devices. Without setting a <b>rule</b> for the Switch, Fluffy won't be able to communicate.
-* Right-click this link and click "Save link as..." [80-fluffy-switch.rules](https://raw.githubusercontent.com/fourminute/Fluffy/master/linux/80-fluffy-switch.rules)
-* Save the file to your HOME directory.
-* Open terminal and type "ls -l", do you see the file? If not make sure you saved it in the correct location.
-* In terminal enter "sudo mv 80-fluffy-switch.rules /etc/udev/rules.d/"
-* Restart your computer
+## Linux instructions
 
-### " Error: Permission Denied"
-If running Fluffy results in "Permission Denied" error. You may need to set Fluffy.pyw as executable. Run the following command: "sudo chmod +x /path/to/fluffy.pyw"
+### Arch/Manjaro/Antergos
+Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
 
-## Additional MacOS instructions
+### Other distributions
+
+#### 1/2) install dependencies
+* Required: ```python3 python3-pyusb python3-pyqt5 libusb libusb1```.
+* Optional: ```python3-qdarkstyle```.
+* If they are not available via your package manager, install ```python3-pip``` and launch install with it:
+* ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
+
+#### 2/2) download and install fluffy
+Download latest <a href="https://github.com/fourminute/Fluffy/releases/latest">archive</a> and extract, then move files according to instructions below:
+
+This is the bare minimum to use fluffy, fluffy itself and a udev rules to change permission on the usb device corresponding to the switch (you might need to reboot to apply udev rule, or at least unplug/plug the switch):
+```
+mv linux/80-fluffy-switch.rules /etc/udev/rules.d/80-fluffy-switch.rules
+mv fluffy.pyw /usr/bin/fluffy
+```
+Permission are 644 for 80-fluffy-switch.rules and 755 for fluffy:
+```
+chmod 644 /etc/udev/rules.d/80-fluffy-switch.rules
+chmod 755 /usr/bin/fluffy
+```
+
+If you want an entry in your launcher and an icon move those files:
+```
+mv linux/fluffy.desktop /usr/share/applications/fluffy.desktop
+mv icons/16x16/fluffy.png /usr/share/icons/hicolor/16x16/apps/fluffy.png
+mv icons/24x24/fluffy.png /usr/share/icons/hicolor/24x24/apps/fluffy.png
+mv icons/32x32/fluffy.png /usr/share/icons/hicolor/32x32/apps/fluffy.png
+mv icons/48x48/fluffy.png /usr/share/icons/hicolor/48x48/apps/fluffy.png
+mv icons/64x64/fluffy.png /usr/share/icons/hicolor/64x64/apps/fluffy.png
+mv icons/128x128/fluffy.png /usr/share/icons/hicolor/128x128/apps/fluffy.png
+```
+Permission are 644 for all:
+```
+chmod 644 /usr/share/applications/fluffy.desktop
+chmod 644 /usr/share/icons/hicolor/16x16/apps/fluffy.png
+chmod 644 /usr/share/icons/hicolor/24x24/apps/fluffy.png
+chmod 644 /usr/share/icons/hicolor/32x32/apps/fluffy.png
+chmod 644 /usr/share/icons/hicolor/48x48/apps/fluffy.png
+chmod 644 /usr/share/icons/hicolor/64x64/apps/fluffy.png
+chmod 644 /usr/share/icons/hicolor/128x128/apps/fluffy.png
+```
+
+## MacOS instructions
 * brew install libusb <i>(For more info on brew, head to https://brew.sh/)</i>
 
-## Install TinFoil on your Switch
-* <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
-* Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
-* Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
+/!\ This section need to be done /!\
 
 ## How-To-Use
 Complete beginner? No problem. 
 * <b>First follow the installation steps above. Done? Let's continue!</b>
-* On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP
-* Double-click on Fluffy.pyw to start it (<b>Linux users: Open Terminal and type "python3 fluffy.pyw".</b>)
+* On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP.
+* Double-click on Fluffy.pyw to start it (Linux users: type ```fluffy``` in your start menu or terminal).
 * Click "Select NSPs" and select as many NSPs as you want to install.
 * If "Switch Detected!" is visible. Click "Begin Transfer".
 * On your Switch, select and install the NSPs.
@@ -113,7 +154,7 @@ Answer: Switch Transfer Mode to "Safe".
 
 <b>Why do I have unsufficient permission error (usb)(linux)? (credit: YoyPa)</b>
 
-Answer: You need to make a <a href=https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules>udev rule</a> to modify the switch usb device owner or group in /etc/udev/rules.d/
+Answer: You need to make a <a href=https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules>udev rule</a> to modify the switch usb device permission in /etc/udev/rules.d/
 
 <b>Still having problems? Consider making a bug report on this GitHub page to request assistance.</b>
 
