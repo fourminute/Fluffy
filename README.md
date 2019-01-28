@@ -1,7 +1,7 @@
 # Fluffy
 ![intro](https://github.com/fourminute/Fluffy/blob/master/misc/fluffy-intro.png?raw=true)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.4.1</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.4.2b</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
