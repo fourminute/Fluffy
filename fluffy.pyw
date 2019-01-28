@@ -28,6 +28,7 @@ import sys
 import threading
 import struct
 import random
+import re
 try:
     import logging
     if os.path.isfile('fluffy.log'):
@@ -851,25 +852,23 @@ try:
             tmp = list()
             list_nsp.clear()
             i = 0
-            spl = str(d).split('],')
+            df = None
+            if '\', \'' in str(d): df = re.split('\', \'',str(d))
+            if '\", \"' in str(d): df = re.split('\", \"',str(d))
             fil = list()
-            for a in spl:
-                strt = 0
-                nd = 0
-                ie = 0
-                ae = 0
-                for c in a:
-                    if c == "'" or c == '"':
-                        strt = ie
-                        break
-                    ie+=1
-                for c2 in reversed(a):
-                    if c2 == "'" or c2 == '"':
-                        nd = ae
-                        break
-                    ae+=1
-                fil.append(a[strt+1:len(a)-nd-1])
-            fil.pop()
+            if df != None:
+                for a in df:
+                    if '],' in a:
+                        a = a.replace('],','')
+                        a = a[:-1]
+                    if '([' in a:
+                        a = a.replace('([','')
+                        a = a[1:]
+                    if '*.nsp' in a:
+                        a = a[:-21]
+                    fil.append(a)
+            else:
+                fil.append(str(d)[3:-24])
             for f in fil:
                 i += 1
                 list_nsp.addItem(os.path.basename(str(f)))
