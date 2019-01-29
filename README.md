@@ -1,11 +1,13 @@
 # Fluffy
 ![intro](https://github.com/fourminute/Fluffy/blob/master/misc/fluffy-intro.png?raw=true)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.4.2b</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.5.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
 * Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
+* Support for languages: <b>English, Chinese, and Vietnamese</b>!
+* Ability to abort an installation in queue.
 * USB and Network Install, display transfer rate in MB/s and progress percentage.
 * USB and Network Install, display current NSP being installed.
 * Goldleaf: Display current NCA being installed.
@@ -101,9 +103,10 @@ chmod 644 /usr/share/icons/hicolor/128x128/apps/fluffy.png
 ```
 
 ## MacOS instructions
-* brew install libusb <i>(For more info on brew, head to https://brew.sh/)</i>
+* brew install libusb 
+* brew reinstall python --with-tcl-tk
 
-/!\ This section need to be done /!\
+<i>(For more info on brew, head to https://brew.sh/)</i>
 
 ## How-To-Use
 Complete beginner? No problem. 
