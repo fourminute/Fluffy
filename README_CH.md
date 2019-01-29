@@ -1,23 +1,23 @@
 # Fluffy 安装器
 ![intro](https://github.com/fourminute/Fluffy/blob/master/misc/fluffy-intro.png?raw=true)
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">下载最新版 Fluffy</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">下载最新版 Fluffy 安装器</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">下载推荐版本的 TinFoil.nro</a></b>
 
-## Features
-* Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
-* USB and Network Install, display transfer rate in MB/s and progress percentage.
-* USB and Network Install, display current NSP being installed.
-* Goldleaf: Display current NCA being installed.
-* Goldleaf: Display current NCA queue. 
-* Transfer modes between "Normal" and "Safe".
-* Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
-* Support for UI scaling on 4K, 1080P, and 720P displays.
-* Show current NSP being installed.
-* Individual NSP selection (suggest by: <b>Shadowhand</b>, thanks!).
-* Tasty donut.
-* Switch connected indicator.
-* 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
+## 功能
+* 支持 <b>XorTroll/Goldleaf</b> 和 <b>Adubbz/Tinfoil</b> 两种NSP游戏文件安装方式。
+* 支持USB和网络安装，同时显示传输速率（MB/s）和百分比进程。
+* USB和网络安装时，实时显示当前安装的NSP游戏文件。
+* 支持Goldleaf（金叶安装器）：显示当前安装的NSP游戏文件。
+* 支持Goldleaf（金叶安装器）：显示当前NCA游戏队列。
+* 拥有两种传输模式“正常”和“安全”
+* 智能生成用户界面，根据安装的模块不同而切换 Tkinter 或者 PyQt(<b>仅支持v1.4.1以上</b>)
+* 支持高清显示 4K, 1080P, 和 720P 分辨率。
+* 显示当前已经安装的NSP游戏文件。
+* 单据NSP游戏文件选择。 (感谢: <b>Shadowhand</b>, thanks!).
+* 尝尝甜甜圈（图标）。
+* 显示Switch连接状态。
+* 5.x USB 修复 (感谢： <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
 # Screenshot
 ![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/screenshot-fluffy-v240c.png?raw=true)
