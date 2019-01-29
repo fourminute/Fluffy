@@ -29,10 +29,7 @@ import threading
 import struct
 import random
 import re
-from tkinter import filedialog
-import tkinter as tk
-root = tk.Tk()
-root.withdraw()
+    
 try:
     import logging
     if os.path.isfile('fluffy.log'):
@@ -44,6 +41,17 @@ try:
 except:
     is_logging = False
     pass
+try:
+    from tkinter import filedialog
+    import tkinter as tk
+    root = tk.Tk()
+    root.withdraw()
+except Exception as e:
+    if is_logging:
+        logging.error(e, exc_info=True)
+    else:
+        print(str(e))
+    exit()
 try:
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     from SocketServer import TCPServer
@@ -62,6 +70,8 @@ try:
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
+    else:
+        print(str(e))
     exit()
 try:
     import usb.core
@@ -118,12 +128,12 @@ if os.path.isfile(initial_dir + '/fluffy_config.py'):
         language = fluffy_config.language
     except:
         switch_ip = "0.0.0.0"
-        is_dark_mode = False
+        is_dark_mode = True
         language = 0
         pass
 else:
     switch_ip = "0.0.0.0"
-    is_dark_mode = False
+    is_dark_mode = True
     language = 0
    
 gold_in = None
@@ -146,6 +156,12 @@ def set_language(v):
         Language.CurrentDict = Language.EnglishDict
     elif v == 1:
         Language.CurrentDict = Language.ChineseDict
+    elif v == 2:
+        Language.CurrentDict = Language.VietDict
+    #elif v == 3:
+        #Language.CurrentDict = Language.JapaneseDict
+    #elif v == 4:
+        #Language.CurrentDict = Language.KoreanDict
     
 class Language:
     CurrentDict = None
@@ -213,7 +229,40 @@ class Language:
                   29: "当前的NCA游戏文件包",
                    }
 
+    VietDict = {  0: "Fluffy",
+                  1: "Bắt Đầu Chuyển",
+                  2: "IP Của Switch",
+                  3: "IP Của Máy Vi Tính",
+                  4: "Tốc Độ USB",
+                  5: "Tốc Độ Bình Thường",
+                  6: "Tốc Độ Chậm",
+                  7: "Đang Chuyển NSP",
+                  8: "Tải Xông",
+                  9: "Hãy Chọn NSP Của Bạn",
+                  10: "Không Thể Tìm Thấy Switch Của Bạn",
+                  11: "Tìm Được Switch Của Bạn",
+                  12: "Bạn Đã Chọn Chuyển Bằng Wi-Fi",
+                  13: "Xin Vui Lòng Chọn NSP",
+                  14: "Cái NSP(s) Đã Được Chọn",
+                  15: "Đang Chờ Yêu Cầu Kết Nối",
+                  16: "Hủy Bỏ",
+                  17: "Error: Goldleaf ngừng hoạt động.",
+                  18: "Error: Tinfoil ngừng hoạt động.",
+                  19: "Error: Network ngừng hoạt động.",
+                  20: "Hình Tối",
+                  21: "Sự Lựa Chọn",
+                  22: "Ngôn Ngữ",
+                  23: "Github",
+                  24: "Network",
+                  25: "Danh Sách NSP Đã Gởi Cho Bạn",
+                  26: "Đang Chờ Chuyển NSP(s)",
+                  27: "Đang Tải",
+                  28: "Tốc Độ",
+                  29: "Đang Chuyển NCA",
+                   }
+
 set_language(language)
+# End Language
 
 # Setters
 def set_dark_mode(v):
@@ -700,6 +749,7 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
         if 'Range' not in self.headers:
             SimpleHTTPRequestHandler.copyfile(self, infile, outfile)
             return
+        complete_loading()
         set_cur_nsp(str(os.path.basename(infile.name)))
         start, end = self.range
         infile.seek(start)
@@ -765,7 +815,6 @@ def init_tinfoil_net_install():
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((target_ip, 2000))
         sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
-        complete_loading()
         while len(sock.recv(1)) < 1:
             if is_exiting:
                 pid = os.getpid()
@@ -915,9 +964,9 @@ try:
         tin_radio.setEnabled(False)
         gold_radio.setEnabled(False)
         window.menuBar().setEnabled(False)
-        if combo.currentText == Language.CurrentDict[5]:
+        if combo.currentText() == Language.CurrentDict[5]:
             set_transfer_rate(1)
-        elif combo.currentText == Language.CurrentDict[6]:
+        elif combo.currentText() == Language.CurrentDict[6]:
             set_transfer_rate(0)
         if is_network:
             set_ip(txt_ip.text(), 0)
@@ -944,19 +993,23 @@ try:
                 d = filedialog.askopenfilename(parent=root,title=Language.CurrentDict[13],filetypes=[("NSP files", "*.nsp")])
             tmp = list()
             list_nsp.clear()
-            set_dir(os.path.dirname(d[0]))
-            file_list = list(d)
             i = 0
-            for f in file_list:
-                if f.endswith(".nsp"):
-                    i += 1
-                    list_nsp.addItem(os.path.basename(f))
-                    tmp.append(f)
+            if not is_goldleaf:
+                file_list = list(d)
+                for f in file_list:
+                    if str(f).endswith(".nsp"):
+                        i += 1
+                        list_nsp.addItem(os.path.basename(str(f)))
+                        tmp.append(f)
+            else:
+                tmp.append(str(d))
+                list_nsp.addItem(os.path.basename(str(d)))
+                i+=1
             if i > 0:
                 btn_header.setEnabled(True)
                 set_total_nsp(i)
-                set_selected_files(tmp)
                 set_dir(os.path.dirname(tmp[0]))
+                set_selected_files(tmp)
                 l_status.setText(str(total_nsp) + " " + Language.CurrentDict[14])
             else:
                 btn_header.setEnabled(False)
@@ -1145,6 +1198,7 @@ try:
 
     # Language Init
     def init_language():
+        l_nsp.setText("")
         l_status.setText(Language.CurrentDict[9]+".")
         l_switch.setText(Language.CurrentDict[10]+"!")
         l_ip.setText(Language.CurrentDict[2]+":")
@@ -1165,18 +1219,13 @@ try:
     # Menu Bar
     def lang_menu_cmd():
         new_lang = None
+        ai = 0
         for action in lang_menu.actions():
             if action.isChecked():
-                if action.text() != language:
-                    if action.text() == "English":
-                        set_language(0)
-                        init_language()
-                    elif action.text() == "中文":
-                        set_language(1)
-                        init_language()
-                    elif action.text() == "Tiếng Việt":
-                        set_language(2)
-                        init_language()
+                if ai != language:
+                        set_language(ai)
+                        init_language()     
+            ai+=1
     
                 
     lang_menu = window.menuBar().addMenu(Language.CurrentDict[22])
@@ -1192,9 +1241,14 @@ try:
     #opt_menu.triggered.connect(opt_menu_cmd)
     #git_menu.triggered.connect(git_menu_cmd)
 
-    
-
+    # Set Language
+    aix = 0
+    for action in lang_menu.actions():
+        if aix == language:
+            action.setChecked(True)
+        aix+=1
         
+    init_language()
                 
     
     # Occupy VBOX
@@ -1250,7 +1304,7 @@ try:
         dark_check.setChecked(False)
     
     # Main loop
-    init_language()
+    
     while True:
         if last_error != "NA":
             msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
