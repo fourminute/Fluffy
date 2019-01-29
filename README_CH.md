@@ -42,32 +42,33 @@
 
 ### 2/3) 安装 Python
 * 下载并安装好 Python 3  [Python Website](https://www.python.org/downloads/). 安装时候需要勾选 "PATH" option 。
-<b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
+<b>确保之前没有安装过Python 并且不要使用64位的 Python 3. 否则会导致一些错误： "PyUSB not found".</b>
 
-### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
-* Open Terminal/Command-line/CMD and run the following:
+### 3/3) 安装模块库 PyUSB, LibUSB, PyQt5, QDarkStyle
+* 打开 Terminal/Command-line/CMD and 输入以下指令:
 * pip3 install pyqt5 pyusb libusb libusb1 qdarkstyle
+* 无法正常安装请善用百度和谷歌。
 
-### Additional Windows Instructions
-Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file [libusb.dll](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll) and place it in the same directory as Fluffy.pyw.
+### 附加 Windows 安装说明
+一些用户反馈了错误： "USB.Core No Backend Available". 如果你也是这个问题请下载 .DLL file [libusb.dll](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll) 并把它和 Fluffy.pyw 放在同一个目录下。
 
-If you still receive this error, you can try installing LibUSB: [libusb installer](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-win32-devel-filter-1.2.6.0.exe).
+如果你依旧报错, 你可以试试手动安装libusb驱动: [libusb installer](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-win32-devel-filter-1.2.6.0.exe).
 
-## Linux instructions
+## Linux 安装安装说明
 
 ### Arch/Manjaro/Antergos
-Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
+安装 AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
 
-### Other distributions
+### 其他 安装说明
 
-#### 1/2) install dependencies
-* Required: ```python3 python3-pyusb python3-pyqt5 libusb libusb1```.
-* Optional: ```python3-qdarkstyle```.
-* If they are not available via your package manager, install ```python3-pip``` and launch install with it:
+#### 1/2) 安装 依赖的库文件
+* 依赖: ```python3 python3-pyusb python3-pyqt5 libusb libusb1```.
+* 可选: ```python3-qdarkstyle```.
+* 如果你的包管理器无法帮你安装,可以试试 install ```python3-pip``` 请输入下面的命令（或者善用百度和谷歌）:
 * ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
 
-#### 2/2) download and install fluffy
-Download latest <a href="https://github.com/fourminute/Fluffy/releases/latest">archive</a> and extract, then move files according to instructions below:
+#### 2/2) 下载和安装 fluffy 安装器
+下载最新的版本 <a href="https://github.com/fourminute/Fluffy/releases/latest">archive</a> , 然后根据以下提示使用:
 
 This is the bare minimum to use fluffy, fluffy itself and a udev rules to change permission on the usb device corresponding to the switch (you might need to reboot to apply udev rule, or at least unplug/plug the switch):
 ```
