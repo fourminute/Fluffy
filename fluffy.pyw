@@ -182,7 +182,7 @@ class Language:
     
     ChineseDict = {0: "Fluffy 卷卷安装器",
                   1: "开始传输",
-                  2: "switch的IP地址",
+                  2: "Switch的IP地址",
                   3: "此电脑的IP地址",
                   4: "USB传输模式",
                   5: "正常模式",
@@ -205,7 +205,7 @@ class Language:
                   22: "语言切换",
                   23: "Github主页地址",
                   24: "网络",
-                  25: "发送头文件",
+                  25: "发送NSP头文件",
                   26: "个NSP游戏文件 在队列中",
                    }
 
