@@ -162,7 +162,7 @@ class Language:
                   11: "Switch Detected",
                   12: "Network Mode",
                   13: "NSP Selection",
-                  14: "NSP Selected",
+                  14: "NSP(s) Selected",
                   15: "Awaiting Connection Request",
                   16: "Cancel",
                   17: "Error: Goldleaf threw an exception.",
