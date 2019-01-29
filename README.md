@@ -46,8 +46,10 @@
 * Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
 
 ### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
-* Open Terminal/Command-line/CMD and run the following:
-* pip3 install pyqt5 pyusb libusb libusb1 qdarkstyle
+* Open Terminal/Command-line/CMD and run the following as root:
+* `sudo pip3 install -r requirements.txt`
+* Or as a normal user:
+* `pip3 install --user -r requirements.txt`
 
 ### Additional Windows Instructions
 Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file [libusb.dll](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll) and place it in the same directory as Fluffy.pyw.

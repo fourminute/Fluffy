@@ -1,0 +1,4 @@
+qdarkstyle
+pyqt5
+pyusb
+libusb
