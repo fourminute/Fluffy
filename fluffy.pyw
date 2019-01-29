@@ -107,6 +107,9 @@ cur_nca_count = 1
 initial_dir = os.getcwd()
 switch_ip = "0.0.0.0"
 host_ip = "0.0.0.0"
+language = 0
+
+# Load Settings
 if os.path.isfile(initial_dir + '/fluffy_config.py'):
     try:
         import fluffy_config
@@ -122,7 +125,7 @@ else:
     switch_ip = "0.0.0.0"
     is_dark_mode = False
     language = 0
-    
+   
 gold_in = None
 gold_out = None
 net_port = 2000 #Unused, saved for future reference (Ie. Goldleaf Network)
@@ -143,8 +146,6 @@ def set_language(v):
         Language.CurrentDict = Language.EnglishDict
     elif v == 1:
         Language.CurrentDict = Language.ChineseDict
-    
-    
     
 class Language:
     CurrentDict = None
@@ -212,7 +213,7 @@ class Language:
                   29: "当前的NCA游戏文件包",
                    }
 
-set_language(0)
+set_language(language)
 
 # Setters
 def set_dark_mode(v):
@@ -288,12 +289,12 @@ def close_program():
             with open(initial_dir + '/fluffy_config.py', 'w') as w:
                 w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
                 w.write('dark_mode = True\n')
-                w.write('language = \"' + language + "\"\n")
+                w.write('language = ' + str(language) + '\n')
         else:
             with open(initial_dir + '/fluffy_config.py', 'w') as w:
                 w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
                 w.write('dark_mode = False\n')
-                w.write('language = \"' + language + "\"\n")
+                w.write('language = ' + str(language) + '\n')
     except:
         pass
     is_exiting = True
