@@ -19,21 +19,21 @@
 * 显示Switch连接状态。
 * 5.x USB 修复 (感谢： <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
-# Screenshot
+# 屏幕截图
 ![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/screenshot-fluffy-v240c.png?raw=true)
 
 
-# Instructions For Use
+# 使用说明
 
-## Install TinFoil on your Switch
-* <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
-* Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
-* Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
+## 在你的Switch上安装 TinFoil
+* <b>以下的操作需要在破解系统上执行。 类似这些破解系统: Kosmos, ReINX, SXOS, etc.</b>
+* 下载 <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">推荐版本的 TinFoil</a>
+* 复制 "<b>TinFoil.nro</b>" 文件，放到你的SD卡的 "Switch"文件夹中(如果没有需要自己新建)。
 
-## Windows instructions
+## Windows 平台下的使用说明
 
-### 1/3) Install and Setup Zadig Driver
-* Download Zadig: https://zadig.akeo.ie or [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) in case the website goes down.
+### 1/3) 安装驱动： Zadig Driver
+* 下载 Zadig: https://zadig.akeo.ie 或者备用链接： [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) 。
 * With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
 * Open Zadig > Options > List All Devices.
 * In the scroll box above the button "Install Driver", tap the arrow until arriving at "libusbK".
