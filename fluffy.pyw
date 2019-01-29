@@ -207,6 +207,9 @@ class Language:
                   24: "网络",
                   25: "Headers Sent",
                   26: "个NSP游戏文件 在队列中",
+                  27: "个NSP游戏文件 在队列中",
+                  28: "个NSP游戏文件 在队列中",
+                  29: "个NSP游戏文件 在队列中",
                    }
 
 set_language(0)
