@@ -855,6 +855,7 @@ class Tinfoil:
         set_cur_nsp(str(os.path.basename(nsp_name)))
         Tinfoil.send_response_header(out_ep, CMD_ID_FILE_RANGE, range_size)
         with open(nsp_name, 'rb') as f:
+            complete_loading()
             f.seek(range_offset)
             curr_off = 0x0
             end_off = range_size
@@ -932,7 +933,6 @@ def init_tinfoil_usb_install():
         assert out_ep is not None
         assert in_ep is not None
         Tinfoil.send_nsp_list(selected_files, nsp_dir, out_ep)
-        complete_loading()
         Tinfoil.poll_commands(nsp_dir, in_ep, out_ep)
         complete_install()
         sys.exit()
@@ -953,37 +953,40 @@ try:
     
     # Widget Functions
     def send_header_cmd():
-        btn_header.setEnabled(False)
-        btn_nsp.setEnabled(False)
-        combo.setEnabled(False)
-        txt_ip.setEnabled(False)
-        txt_ip2.setEnabled(False)
-        net_radio.setEnabled(False)
-        usb_radio.setEnabled(False)
-        txt_port.setEnabled(False)
-        tin_radio.setEnabled(False)
-        gold_radio.setEnabled(False)
-        window.menuBar().setEnabled(False)
-        if combo.currentText() == Language.CurrentDict[5]:
-            set_transfer_rate(1)
-        elif combo.currentText() == Language.CurrentDict[6]:
-            set_transfer_rate(0)
-        if is_network:
-            set_ip(txt_ip.text(), 0)
-            set_ip(txt_ip2.text(), 1)
-            set_port(txt_port.text())
-            set_sent_header()
-            set_start_time()
-            threading.Thread(target = init_tinfoil_net_install).start()
-        else:
-            if is_goldleaf:
+        if not sent_header:
+            btn_header.setEnabled(False)
+            btn_nsp.setEnabled(False)
+            combo.setEnabled(False)
+            txt_ip.setEnabled(False)
+            txt_ip2.setEnabled(False)
+            net_radio.setEnabled(False)
+            usb_radio.setEnabled(False)
+            txt_port.setEnabled(False)
+            tin_radio.setEnabled(False)
+            gold_radio.setEnabled(False)
+            window.menuBar().setEnabled(False)
+            if combo.currentText() == Language.CurrentDict[5]:
+                set_transfer_rate(1)
+            elif combo.currentText() == Language.CurrentDict[6]:
+                set_transfer_rate(0)
+            if is_network:
+                set_ip(txt_ip.text(), 0)
+                set_ip(txt_ip2.text(), 1)
+                set_port(txt_port.text())
                 set_sent_header()
                 set_start_time()
-                threading.Thread(target = init_goldleaf_usb_install).start()
+                threading.Thread(target = init_tinfoil_net_install).start()
             else:
-                set_sent_header()
-                set_start_time()
-                threading.Thread(target = init_tinfoil_usb_install).start()
+                if is_goldleaf:
+                    set_sent_header()
+                    set_start_time()
+                    threading.Thread(target = init_goldleaf_usb_install).start()
+                else:
+                    set_sent_header()
+                    set_start_time()
+                    threading.Thread(target = init_tinfoil_usb_install).start()
+        else:
+            reset_install()
         
     def nsp_file_dialog():
         try:
@@ -1356,6 +1359,13 @@ try:
                         l_switch.setStyleSheet(PURPLE)
             except:
                 pass
+            
+        if sent_header and not is_installing and not is_done:
+            btn_header.setEnabled(True)
+            btn_header.setText(Language.CurrentDict[16])
+        if sent_header and is_installing and not is_done:
+            btn_header.setEnabled(False)
+            
         # Goldleaf & Tinfoil USB Mode
         if sent_header and not is_network:
             try:
