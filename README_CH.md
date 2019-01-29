@@ -34,14 +34,15 @@
 
 ### 1/3) 安装驱动： Zadig Driver
 * 下载 Zadig: https://zadig.akeo.ie 或者备用链接： [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) 。
-* With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
-* Open Zadig > Options > List All Devices.
-* In the scroll box above the button "Install Driver", tap the arrow until arriving at "libusbK".
-* Click "Install Driver"
-* Done!
+* 使用USB-C 连接线连接你的Switch和电脑, 在Switch上打开Tinfoil，确认你的Switch已连接电脑并且没有熄屏。
+* 打开 Zadig > Options > List All Devices.
+* 在下拉选择菜单里选择 "Install Driver",点击箭头切换至 "libusbK".
+* 点击 "Install Driver"
+* ok啦!
 
-### 2/3) Install Python
-* Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
+### 2/3) 安装 Python
+* 下载并安装好 Python 3  [Python Website](https://www.python.org/downloads/). 安装时候需要勾选 "PATH" option 。
+<b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
 
 ### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
 * Open Terminal/Command-line/CMD and run the following:
