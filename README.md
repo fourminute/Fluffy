@@ -69,7 +69,9 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and <a href="https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules">80-fluffy-switch.rules</a>.
 
 Open Terminal and change into the directory where these files are located using the cd command:
- ```cd /path/to/fluffy/```
+ ```
+ cd /path/to/fluffy/
+ ```
  
 Copy the file <b>80-fluffy-switch.rules</b> to <b>/etc/udev/rules.d/</b> using this command:
 ```
