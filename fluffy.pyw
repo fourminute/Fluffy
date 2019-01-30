@@ -158,12 +158,12 @@ def set_language(v):
         Language.CurrentDict = Language.ChineseDict
     elif v == 2:
         Language.CurrentDict = Language.VietDict
-    elif v == 3:
-        Language.CurrentDict = Language.BrazilDict
     #elif v == 3:
         #Language.CurrentDict = Language.JapaneseDict
     #elif v == 4:
         #Language.CurrentDict = Language.KoreanDict
+    elif v == 5:
+        Language.CurrentDict = Language.BrazilDict
     
 class Language:
     CurrentDict = None
