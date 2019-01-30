@@ -62,8 +62,7 @@ Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switc
 ### Other distributions
 
 #### 1/2) install dependencies
-* Required: ```python3 python3-pyusb python3-pyqt5 libusb libusb1```.
-* Optional: ```python3-qdarkstyle```.
+* Required: ```python3 python3-pyusb python3-pyqt5 libusb libusb1 qdarkstyle```.
 * If they are not available via your package manager, install ```python3-pip``` and launch install with it:
 * ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
 
