@@ -158,6 +158,8 @@ def set_language(v):
         Language.CurrentDict = Language.ChineseDict
     elif v == 2:
         Language.CurrentDict = Language.VietDict
+    elif v == 3:
+        Language.CurrentDict = Language.BrazilianDict
     #elif v == 3:
         #Language.CurrentDict = Language.JapaneseDict
     #elif v == 4:
@@ -259,6 +261,38 @@ class Language:
                   27: "Đang Tải",
                   28: "Tốc Độ",
                   29: "Đang Chuyển NCA",
+                   }
+    
+    BrazilianDict = {0: "Fluffy",
+                  1: "Iniciar transferência",
+                  2: "IP do console",
+                  3: "IP deste computador",
+                  4: "Modo de transferência USB",
+                  5: "Modo normal",
+                  6: "Modo seguro",
+                  7: "NSP atual",
+                  8: "Instalado com sucesso",
+                  9: "Aguardando seleção",
+                  10: "Switch não detectado",
+                  11: "Switch detectado",
+                  12: "Modo de rede",
+                  13: "Seleção de NSP",
+                  14: "NSP(s) selecionados",
+                  15: "Aguardando pedido de conexão",
+                  16: "Cancelar",
+                  17: "Erro: Problema reportado pelo Goldleaf.",
+                  18: "Erro: Problema reportado pelo Tinfoil.",
+                  19: "Erro: Problema reportado pela rede.",
+                  20: "Tema escuro",
+                  21: "Opções",
+                  22: "Língua",
+                  23: "Github",
+                  24: "Rede",
+                  25: "Cabeçalho enviado",
+                  26: "NSP(s) em fila",
+                  27: "Instalando",
+                  28: "Velocidade de transferência",
+                  29: "NCA atual",
                    }
 
 set_language(language)
