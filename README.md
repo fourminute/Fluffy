@@ -96,9 +96,10 @@ cd /path/to/files/
 sudo ./install.sh
 ```
 ## MacOS instructions
-* brew install libusb 
-* brew reinstall python --with-tcl-tk
-
+```
+ brew install libusb 
+ brew reinstall python --with-tcl-tk
+```
 <i>For more info on brew, head to https://brew.sh/</i>
 
 ## How-To-Use
