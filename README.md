@@ -47,7 +47,9 @@
 
 ### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
 * Open Terminal/Command-line/CMD and run the following:
-* pip3 install pyqt5 pyusb libusb libusb1 qdarkstyle
+```
+pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle
+```
 
 ### Additional Windows Instructions
 Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file [libusb.dll](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll) and place it in the same directory as Fluffy.pyw.
