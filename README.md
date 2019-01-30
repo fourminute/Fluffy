@@ -46,7 +46,7 @@
 * Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b> Also be sure to include Tkinter with your installation(it should be a default option).
 
 ### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
-* Open Terminal/Command-line/CMD and run the following:
+* Open Command-line/CMD (Start, search "CMD") and run the following:
 ```
 pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle
 ```
