@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """""
-"Pink Donut" design was designed by fourminute exclusively for 
+"Pink Donut" design was designed by fourminute exclusively for
 Fluffy and does not infringe on any copyright.
 
 Copyright (c) 2019 fourminute (https://github.com/fourminute)
@@ -29,7 +29,7 @@ import threading
 import struct
 import random
 import re
-    
+
 try:
     import logging
     if os.path.isfile('fluffy.log'):
@@ -99,7 +99,7 @@ last_error = "NA"
 is_done = False
 is_network = False
 is_goldleaf = False
-is_exiting = False 
+is_exiting = False
 selected_dir = None
 selected_files = None
 sent_header = False
@@ -135,7 +135,7 @@ else:
     switch_ip = "0.0.0.0"
     is_dark_mode = True
     language = 0
-   
+
 gold_in = None
 gold_out = None
 net_port = 2000 #Unused, saved for future reference (Ie. Goldleaf Network)
@@ -158,11 +158,13 @@ def set_language(v):
         Language.CurrentDict = Language.ChineseDict
     elif v == 2:
         Language.CurrentDict = Language.VietDict
-    #elif v == 3:
-        #Language.CurrentDict = Language.JapaneseDict
+    elif v == 3:
+        Language.CurrentDict = Language.SpanishDict
     #elif v == 4:
+        #Language.CurrentDict = Language.JapaneseDict
+    #elif v == 5:
         #Language.CurrentDict = Language.KoreanDict
-    
+
 class Language:
     CurrentDict = None
     EnglishDict = {0: "Fluffy",
@@ -196,7 +198,7 @@ class Language:
                   28: "Transfer Rate",
                   29: "Current NCA",
                    }
-    
+
     ChineseDict = {0: "Fluffy 卷卷安装器",
                   1: "开始传输",
                   2: "Switch的IP地址",
@@ -261,6 +263,38 @@ class Language:
                   29: "Đang Chuyển NCA",
                    }
 
+    SpanishDict = {0: "Fluffy",
+                  1: "Empezar transferencia",
+                  2: "IP de la Switch",
+                  3: "IP de este ordenador",
+                  4: "Modo de transferencia USB",
+                  5: "Modo normal",
+                  6: "Modo seguro",
+                  7: "NSP actual",
+                  8: "Instalado correctamente",
+                  9: "Esperando selección",
+                  10: "Switch no detectada",
+                  11: "Switch detectada",
+                  12: "Modo de red",
+                  13: "Seleccionar NSP",
+                  14: "NSP(s) seleccionados",
+                  15: "Esperando solicitud de conexion",
+                  16: "Cancelar",
+                  17: "Error: Goldleaf dió un eror.",
+                  18: "Error: Tinfoil dió un eror.",
+                  19: "Error: la red causó un error.",
+                  20: "Modo oscuro",
+                  21: "Opciones",
+                  22: "Idioma",
+                  23: "Github",
+                  24: "Red",
+                  25: "Cabezeras enviadas",
+                  26: "NSP(s) en cola",
+                  27: "Instalando",
+                  28: "Velocidad de transferencia",
+                  29: "NCA actual",
+                   }
+
 set_language(language)
 # End Language
 
@@ -310,7 +344,7 @@ def set_dark_mode(v):
 def turn_off_logging():
     global is_logging
     is_logging = False
-    
+
 def set_nca_name(v):
     global cur_nca_name
     cur_nca_name = v
@@ -318,7 +352,7 @@ def set_nca_name(v):
 def set_start_time():
     global start_time
     start_time = time.time()
-    
+
 def set_cur_transfer_rate(v):
     global cur_transfer_rate
     cur_transfer_rate = v
@@ -348,7 +382,7 @@ def close_program():
         pass
     is_exiting = True
     sys.exit()
-                
+
 def set_transfer_rate(v):
     global transfer_rate
     transfer_rate = TransferRateDict[v]
@@ -356,11 +390,11 @@ def set_transfer_rate(v):
 def set_dir(d):
     global selected_dir
     selected_dir = d
-   
+
 def set_selected_files(f):
     global selected_files
     selected_files = f
-    
+
 def set_progress(c, e):
     global cur_progress
     global end_progress
@@ -382,7 +416,7 @@ def set_cur_nsp(nsp):
 def set_total_nsp(n):
     global total_nsp
     total_nsp = n
-    
+
 def complete_install():
     global is_done
     is_done = True
@@ -450,7 +484,7 @@ def throw_error(_type):
 def reset_last_error():
     global last_error
     last_error = "NA"
-    
+
 def complete_loading():
     global is_installing
     is_installing = True
@@ -458,7 +492,7 @@ def complete_loading():
 def set_network(v):
     global is_network
     is_network = v
-    
+
 def set_ip(v, n):
     global switch_ip
     global host_ip
@@ -466,7 +500,7 @@ def set_ip(v, n):
         switch_ip = v
     else:
         host_ip = v
-    
+
 def set_port(v):
     global net_port
     net_port = int(v)
@@ -476,11 +510,11 @@ def set_nca_count(c, m):
     global max_nca_count
     cur_nca_count = c
     max_nca_count = m
-    
+
 def set_goldleaf(v):
     global is_goldleaf
     is_goldleaf = v
-    
+
 
 
 
@@ -495,7 +529,7 @@ class PFS0:
     file_array       = []
     f                = None
     file_names       = []
-    
+
     @staticmethod
     def open(fn):
         PFS0.f = open(fn, 'rb')
@@ -522,8 +556,8 @@ class PFS0:
                 b = PFS0.f.read(1)
                 if b == b'\x00': break
                 fn += b
-            PFS0.file_names.append(fn.decode())    
-   
+            PFS0.file_names.append(fn.decode())
+
     @staticmethod
     def read_chunks(index):
         global transfer_rate
@@ -549,14 +583,14 @@ class PFS0:
                 set_cur_transfer_rate(int(PFS0.f.tell()) - last_transfer_rate)
                 set_last_transfer_rate(int(PFS0.f.tell()))
                 set_start_time()
-   
+
     @staticmethod
     def read_nca(index):
         PFS0.f.seek(PFS0.body_length+PFS0.file_array[index][0])
         return PFS0.f.read(PFS0.file_array[index][1])
-        
-        
-            
+
+
+
 class CommandId:
     ConnectionRequest = 0
     ConnectionResponse= 1
@@ -566,7 +600,7 @@ class CommandId:
     NSPContent=         5
     NSPTicket=          6
     Finish=             7
-  
+
 class Goldleaf:
     GLUC         = 0x43554c47
     magic        = 0x43554c47
@@ -581,24 +615,24 @@ class Goldleaf:
     @staticmethod
     def magic_ok():
         return Goldleaf.GLUC == Goldleaf.magic
-    
+
     @staticmethod
     def is_id(a_cmd):
         return a_cmd == Goldleaf.cmd_id
-    
+
     @staticmethod
     def read(length):
         return gold_in.read(length).tobytes()
-    
+
     @staticmethod
     def read_cmd(data):
-        Goldleaf.magic,Goldleaf.cmd_id = struct.unpack("<II",data)        
+        Goldleaf.magic,Goldleaf.cmd_id = struct.unpack("<II",data)
 
     @staticmethod
     def write_cmd(a_cmd):
         packed = struct.pack("<II",Goldleaf.magic,a_cmd)
         gold_out.write(bytes(packed))
-    
+
     @staticmethod
     def Goldleaf_USB(nsp_path):
         Goldleaf.write_cmd(CommandId.ConnectionRequest)
@@ -607,15 +641,15 @@ class Goldleaf:
                 pid = os.getpid()
                 os.kill(pid, signal.SIGTERM)
             try:
-                
+
                 Goldleaf.read_cmd(Goldleaf.read(8))
-                
+
                 if Goldleaf.is_id(CommandId.ConnectionResponse) and Goldleaf.magic_ok():
                     Goldleaf.write_cmd(CommandId.NSPName)
                     base_name = os.path.basename(nsp_path)
                     Goldleaf.write(struct.pack("<I",len(base_name)))
                     Goldleaf.write(base_name.encode())
-                
+
                 elif Goldleaf.is_id(CommandId.Start) and Goldleaf.magic_ok():
                     Goldleaf.write_cmd(CommandId.NSPData)
                     PFS0.open(nsp_path)
@@ -649,7 +683,7 @@ class Goldleaf:
 
                 elif Goldleaf.is_id(CommandId.NSPTicket) and Goldleaf.magic_ok():
                     Goldleaf.write(PFS0.read_nca(Goldleaf.ticket_index))
- 
+
 
                 elif Goldleaf.is_id(CommandId.Finish) and Goldleaf.magic_ok():
                     set_progress(100,100)
@@ -774,7 +808,7 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
                     pass
             except BrokenPipeError:
                 pass
-            
+
 class MyServer(TCPServer):
     stopped = False
     def server_bind(self):
@@ -786,12 +820,12 @@ class MyServer(TCPServer):
             if is_exiting:
                 pid = os.getpid()
                 os.kill(pid, signal.SIGTERM)
-            self.handle_request()             
+            self.handle_request()
     def force_stop(self):
         self.server_close()
         self.stopped = True
         sys.exit()
-        
+
 def init_tinfoil_net_install():
     accepted_extension = ('.nsp')
     hostPort = random.randint(26490,26999)
@@ -800,7 +834,7 @@ def init_tinfoil_net_install():
     target_path = str(selected_dir).strip()
     baseUrl = hostIp + ':' + str(hostPort) + '/'
     directory = target_path
-    file_list_payload = ''  
+    file_list_payload = ''
     for file in [file for file in next(os.walk(target_path))[2] if file.endswith(accepted_extension)]:
         for y in selected_files:
             if str(file).find(os.path.basename(y)) != -1:
@@ -833,7 +867,7 @@ def init_tinfoil_net_install():
     except:
         pass
     sys.exit()
-    
+
 # Tinfoil USB
 class Tinfoil:
     @staticmethod
@@ -844,7 +878,7 @@ class Tinfoil:
         out_ep.write(struct.pack('<I', cmd_id))
         out_ep.write(struct.pack('<Q', data_size))
         out_ep.write(b'\x00' * 0xC)
-        
+
     @staticmethod
     def file_range_cmd(nsp_dir, in_ep, out_ep, data_size):
         file_range_header = in_ep.read(0x20)
@@ -890,7 +924,7 @@ class Tinfoil:
                 os.kill(pid, signal.SIGTERM)
             cmd_header = bytes(in_ep.read(0x20, timeout=0))
             magic = cmd_header[:4]
-            if magic != b'TUC0': 
+            if magic != b'TUC0':
                 continue
             cmd_type = struct.unpack('<B', cmd_header[4:5])[0]
             cmd_id = struct.unpack('<I', cmd_header[8:12])[0]
@@ -913,10 +947,10 @@ class Tinfoil:
                         nsp_path_list_len += len(nsp_dir + "/" + nsp_path.__str__()) + 1
         out_ep.write(b'TUL0')
         out_ep.write(struct.pack('<I', nsp_path_list_len))
-        out_ep.write(b'\x00' * 0x8) 
+        out_ep.write(b'\x00' * 0x8)
         for nsp_path in nsp_path_list:
             out_ep.write(nsp_path)
-        
+
 def init_tinfoil_usb_install():
     try:
         nsp_dir = selected_dir
@@ -950,7 +984,7 @@ try:
     iconpixmap.loadFromData(base64.b64decode(ICON_DATA))
     inlaypixmap.loadFromData(base64.b64decode(DONUT_DATA))
     dinlaypixmap.loadFromData(base64.b64decode(DARK_DONUT_DATA))
-    
+
     # Widget Functions
     def send_header_cmd():
         if not sent_header:
@@ -987,7 +1021,7 @@ try:
                     threading.Thread(target = init_tinfoil_usb_install).start()
         else:
             reset_install()
-        
+
     def nsp_file_dialog():
         try:
             if not is_goldleaf:
@@ -1021,7 +1055,7 @@ try:
             if is_logging:
                 logging.error(e, exc_info=True)
             pass
-        
+
     def dark_mode_cmd():
         if dark_check.isChecked():
             try:
@@ -1031,7 +1065,7 @@ try:
                 pass
         else:
             set_dark_mode(False)
-        
+
     def tin_radio_cmd():
         txt_ip.setEnabled(False)
         txt_ip2.setEnabled(False)
@@ -1041,7 +1075,7 @@ try:
         net_radio.setVisible(True)
         set_goldleaf(False)
         split_check.setEnabled(True)
-        
+
     def gold_radio_cmd():
         txt_ip.setEnabled(False)
         txt_ip2.setEnabled(False)
@@ -1054,7 +1088,7 @@ try:
         split_check.setCheckState(False)
         split_check.setEnabled(False)
         list_nsp.clear()
-        
+
     def usb_radio_cmd():
         txt_ip.setEnabled(False)
         txt_ip2.setEnabled(False)
@@ -1062,7 +1096,7 @@ try:
         set_network(False)
         txt_port.setEnabled(False)
         split_check.setEnabled(True)
-        
+
     def net_radio_cmd():
         txt_ip.setEnabled(True)
         txt_ip2.setEnabled(True)
@@ -1071,19 +1105,19 @@ try:
         txt_port.setEnabled(True)
         split_check.setCheckState(False)
         split_check.setEnabled(False)
-        
+
     #Unused
     def split_cmd():
         if split_check.checkState():
             btn_nsp.setText("Select Folder")
         else:
             btn_nsp.setText("NSP Selection")
-            
+
     def set_done_text():
         tmp_string = str(total_nsp)
         reset_install()
         l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
-        
+
 
     def set_loading_text():
         l_nsp.setText("")
@@ -1128,7 +1162,7 @@ try:
                 btn_header.setEnabled(True)
             else:
                 btn_header.setEnabled(False)
-                    
+
     #Init Widgets
     l_host = QtWidgets.QLabel(Language.CurrentDict[3]+":")
     txt_ip2 = QtWidgets.QLineEdit("0.0.0.0")
@@ -1155,7 +1189,7 @@ try:
     l_switch = QtWidgets.QLabel(Language.CurrentDict[10]+"!")
     list_nsp = QtWidgets.QListWidget()
     combo = QComboBox()
-    
+
     #Set Widgets
     try:
         txt_ip.setText(switch_ip)
@@ -1218,7 +1252,7 @@ try:
         lang_menu.setTitle(Language.CurrentDict[22])
         #git_menu.setTitle(Language.CurrentDict[23])
         window.setWindowTitle(Language.CurrentDict[0])
-        
+
     # Menu Bar
     def lang_menu_cmd():
         new_lang = None
@@ -1227,10 +1261,10 @@ try:
             if action.isChecked():
                 if ai != language:
                         set_language(ai)
-                        init_language()     
+                        init_language()
             ai+=1
-    
-                
+
+
     lang_menu = window.menuBar().addMenu(Language.CurrentDict[22])
     #opt_menu = window.menuBar().addMenu(Language.CurrentDict[21])
     #git_menu = window.menuBar().addMenu(Language.CurrentDict[23])
@@ -1239,6 +1273,7 @@ try:
     lang_group.addAction(QAction('English',lang_group,checkable=True))
     lang_group.addAction(QAction('中文',lang_group,checkable=True))
     lang_group.addAction(QAction('Tiếng Việt',lang_group,checkable=True))
+    lang_group.addAction(QAction('Español',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(lang_menu_cmd)
     #opt_menu.triggered.connect(opt_menu_cmd)
@@ -1250,10 +1285,10 @@ try:
         if aix == language:
             action.setChecked(True)
         aix+=1
-        
+
     init_language()
-                
-    
+
+
     # Occupy VBOX
     v_box.addLayout(h2_box)
     v_box.addWidget(img_label)
@@ -1305,9 +1340,9 @@ try:
     else:
         set_dark_mode(False)
         dark_check.setChecked(False)
-    
+
     # Main loop
-    
+
     while True:
         if last_error != "NA":
             msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
@@ -1322,18 +1357,18 @@ try:
                 if os.path.getsize('fluffy.log') > 250000:
                     logging.debug("Fluffy Log: Logging size reached, turning off logging.")
                     turn_off_logging()
-                    
+
         QApplication.processEvents()
-        
+
         if not window.isVisible():
             close_program()
             pid = os.getpid()
             os.kill(pid, signal.SIGTERM)
-            
+
         if is_exiting:
             pid = os.getpid()
             os.kill(pid, signal.SIGTERM)
-            
+
         if not sent_header and not is_installing and is_network:
             l_switch.setText(Language.CurrentDict[12])
             l_switch.setStyleSheet(BLUE)
@@ -1341,11 +1376,11 @@ try:
                 btn_header.setEnabled(True)
             else:
                 btn_header.setEnabled(False)
-            
+
         if not is_installing and not is_network and usb_success and not sent_header:
             set_switch_text()
-                    
-        # Tinfoil Network Mode 
+
+        # Tinfoil Network Mode
         if sent_header and is_network:
             try:
                 if is_done:
@@ -1359,13 +1394,13 @@ try:
                         l_switch.setStyleSheet(PURPLE)
             except:
                 pass
-            
+
         if sent_header and not is_installing and not is_done:
             btn_header.setEnabled(True)
             btn_header.setText(Language.CurrentDict[16])
         if sent_header and is_installing and not is_done:
             btn_header.setEnabled(False)
-            
+
         # Goldleaf & Tinfoil USB Mode
         if sent_header and not is_network:
             try:
@@ -1378,7 +1413,7 @@ try:
                         set_loading_text()
             except:
                 pass
-            
+
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
