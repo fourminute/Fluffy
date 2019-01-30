@@ -162,6 +162,8 @@ def set_language(v):
         #Language.CurrentDict = Language.JapaneseDict
     #elif v == 4:
         #Language.CurrentDict = Language.KoreanDict
+    elif v == 5:
+        Language.CurrentDict = Language.FrenchDict
     
 class Language:
     CurrentDict = None
@@ -259,6 +261,38 @@ class Language:
                   27: "Đang Tải",
                   28: "Tốc Độ",
                   29: "Đang Chuyển NCA",
+                   }
+    
+    FrenchDict = {0: "Fluffy",
+                  1: "Commencer le Transfert",
+                  2: "IP de la Switch",
+                  3: "IP de l'Ordinateur",
+                  4: "Mode de Transfert USB",
+                  5: "Mode Normal",
+                  6: "Mode Sûr",
+                  7: "NSP Actuel",
+                  8: "Installé Avec Succès",
+                  9: "En Attente de Selection",
+                  10: "Switch Non Détecté",
+                  11: "Switch Détecté",
+                  12: "Mode réseau",
+                  13: "Ajouter NSP",
+                  14: "NSP(s) Sélectionné(s)",
+                  15: "En Attente de la Demande de Connection",
+                  16: "Annuler",
+                  17: "Erreur: Goldleaf a généré une exception.",
+                  18: "Erreur: Tinfoil a généré une exception.",
+                  19: "Erreur: Le réseau a généré une exception.",
+                  20: "Mode Sombre",
+                  21: "Options",
+                  22: "Langue",
+                  23: "Github",
+                  24: "Réseau",
+                  25: "En-têtes Envoyées",
+                  26: "NSP(s) en File d'Attente",
+                  27: "En Cours d'Installation",
+                  28: "Débit",
+                  29: "NCA Actuel",
                    }
 
 set_language(language)
