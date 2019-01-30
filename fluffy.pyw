@@ -264,7 +264,7 @@ class Language:
                    }
     
     BrazilianDict = {0: "Fluffy",
-                  1: "Iniciar transferência",
+                  1: "INICIAR TRANSFERÊNCIA",
                   2: "IP do Switch",
                   3: "IP deste computador",
                   4: "Modo de transferência USB",
@@ -276,10 +276,10 @@ class Language:
                   10: "Switch não detectado",
                   11: "Switch detectado",
                   12: "Modo de rede",
-                  13: "Seleção de NSP",
+                  13: "Selecione o NSP",
                   14: "NSP(s) selecionados",
                   15: "Aguardando pedido de conexão",
-                  16: "Cancelar",
+                  16: "CANCELAR",
                   17: "Erro: Problema reportado pelo Goldleaf.",
                   18: "Erro: Problema reportado pelo Tinfoil.",
                   19: "Erro: Problema reportado pela rede.",
