@@ -163,7 +163,7 @@ def set_language(v):
     #elif v == 4:
         #Language.CurrentDict = Language.KoreanDict
     elif v == 3:
-        Language.CurrentDict = Language.BrazilDict
+        Language.CurrentDict = Language.BrazilianDict
     
 class Language:
     CurrentDict = None
@@ -263,9 +263,9 @@ class Language:
                   29: "Đang Chuyển NCA",
                    }
     
-    BrazilDict = {0: "Fluffy",
+    BrazilianDict = {0: "Fluffy",
                   1: "Iniciar transferência",
-                  2: "IP do console",
+                  2: "IP do Switch",
                   3: "IP deste computador",
                   4: "Modo de transferência USB",
                   5: "Modo normal",
