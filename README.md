@@ -62,50 +62,38 @@ Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switc
 ### Other distributions
 
 #### 1/2) install dependencies
-* Required: ```python3 python3-pyusb python3-pyqt5 libusb libusb1 qdarkstyle```.
-* If they are not available via your package manager, install ```python3-pip``` and launch install with it:
+* Required: ```python3 python3-pyusb python3-pyqt5 python3-tk python3.6-tk libusb libusb1 qdarkstyle```.
+* Open Terminal and run this command:
 * ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
 
 #### 2/2) download and install fluffy
-Download latest <a href="https://github.com/fourminute/Fluffy/releases/latest">archive</a> and extract, then move files according to instructions below:
+Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and <a href="https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules">80-fluffy-switch.rules</a>.
 
-This is the bare minimum to use fluffy, fluffy itself and a udev rules to change permission on the usb device corresponding to the switch (you might need to reboot to apply udev rule, or at least unplug/plug the switch):
+Open Terminal and change into the directory where these files are located using the cd command:
+ ```cd /path/to/fluffy/```
+ 
+Copy the file <b>80-fluffy-switch.rules</b> to <b>/etc/udev/rules.d/</b> using this command:
 ```
-mv linux/80-fluffy-switch.rules /etc/udev/rules.d/80-fluffy-switch.rules
-mv fluffy.pyw /usr/bin/fluffy
+cp 80-fluffy-switch.rules /etc/udev/rules.d/80-fluffy-switch.rules
 ```
-Permission are 644 for 80-fluffy-switch.rules and 755 for fluffy:
+Then give both the proper permissions:
 ```
 chmod 644 /etc/udev/rules.d/80-fluffy-switch.rules
-chmod 755 /usr/bin/fluffy
+chmod 755 fluffy.pyw
 ```
 
-If you want an entry in your launcher and an icon move those files:
-```
-mv linux/fluffy.desktop /usr/share/applications/fluffy.desktop
-mv icons/16x16/fluffy.png /usr/share/icons/hicolor/16x16/apps/fluffy.png
-mv icons/24x24/fluffy.png /usr/share/icons/hicolor/24x24/apps/fluffy.png
-mv icons/32x32/fluffy.png /usr/share/icons/hicolor/32x32/apps/fluffy.png
-mv icons/48x48/fluffy.png /usr/share/icons/hicolor/48x48/apps/fluffy.png
-mv icons/64x64/fluffy.png /usr/share/icons/hicolor/64x64/apps/fluffy.png
-mv icons/128x128/fluffy.png /usr/share/icons/hicolor/128x128/apps/fluffy.png
-```
-Permission are 644 for all:
-```
-chmod 644 /usr/share/applications/fluffy.desktop
-chmod 644 /usr/share/icons/hicolor/16x16/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/24x24/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/32x32/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/48x48/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/64x64/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/128x128/apps/fluffy.png
-```
+Optionally, you may wish to Install Fluffy. Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and 'icon.ico' and 'install.sh' from <a href="https://github.com/fourminute/Fluffy/tree/master/linux">here</a>. Extract and move each file into a single folder and then change directory into it.
 
+Installation is then as simple as:
+```
+cd /path/to/files/
+sudo ./install.sh
+```
 ## MacOS instructions
 * brew install libusb 
 * brew reinstall python --with-tcl-tk
 
-<i>(For more info on brew, head to https://brew.sh/)</i>
+<i>For more info on brew, head to https://brew.sh/</i>
 
 ## How-To-Use
 Complete beginner? No problem. 
