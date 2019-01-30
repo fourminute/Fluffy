@@ -56,14 +56,13 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 
 ## Linux instructions
 
-### Arch/Manjaro/Antergos
-Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
+### Ubuntu/Debian based distributions
 
-### Other distributions
-
-#### 1/2) install dependencies
+#### 1/2) Install Python and Dependencies
 * Required: ```python3 python3-pyusb python3-pyqt5 python3-tk python3.6-tk libusb libusb1 qdarkstyle```.
-* Open Terminal and run this command:
+* Install Python3:
+* ```sudo apt install python3 python3-pip python3-tk```.
+* Then open Terminal and run this command:
 * ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
 
 #### 2/2) download and install fluffy
@@ -81,6 +80,9 @@ Then give both the proper permissions:
 chmod 644 /etc/udev/rules.d/80-fluffy-switch.rules
 chmod 755 fluffy.pyw
 ```
+
+### Arch/Manjaro/Antergos
+Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
 
 Optionally, you may wish to Install Fluffy. Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and 'icon.ico' and 'install.sh' from <a href="https://github.com/fourminute/Fluffy/tree/master/linux">here</a>. Extract and move each file into a single folder and then change directory into it.
 
