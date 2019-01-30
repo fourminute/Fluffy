@@ -65,7 +65,7 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 * Then open Terminal and run this command:
 * ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
 
-#### 2/2) download and install fluffy
+#### 2/2) Download Fluffy and Switch Rule
 Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and <a href="https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules">80-fluffy-switch.rules</a>.
 
 Open Terminal and change into the directory where these files are located using the cd command:
