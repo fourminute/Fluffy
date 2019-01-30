@@ -164,6 +164,8 @@ def set_language(v):
         #Language.CurrentDict = Language.KoreanDict
     elif v == 5:
         Language.CurrentDict = Language.FrenchDict
+    elif v == 6:
+        Language.CurrentDict = Language.SpanishDict
     
 class Language:
     CurrentDict = None
@@ -264,7 +266,7 @@ class Language:
                    }
     
     FrenchDict = {0: "Fluffy",
-                  1: "Commencer le Transfert",
+                  1: "Démarrer le Transfert",
                   2: "IP de la Switch",
                   3: "IP de l'Ordinateur",
                   4: "Mode de Transfert USB",
@@ -293,6 +295,38 @@ class Language:
                   27: "En Cours d'Installation",
                   28: "Débit",
                   29: "NCA Actuel",
+                   }
+    
+    SpanishDict = {0: "Fluffy",
+                  1: "Iniciar la Transferencia",
+                  2: "IP de la Switch",
+                  3: "IP del Ordenador",
+                  4: "Modo de Transferencia USB",
+                  5: "Modo Normal",
+                  6: "Modo Seguro",
+                  7: "NSP Actual",
+                  8: "Instalado Con Éxito",
+                  9: "Esperando Selección",
+                  10: "Switch No Detectada",
+                  11: "Switch Detectada",
+                  12: "Modo Red",
+                  13: "Añadir NSP",
+                  14: "NSP(s) Seleccionado(s)",
+                  15: "Esperando la Solicitud de Conexión",
+                  16: "Cancelar",
+                  17: "Error: Goldleaf ha generado una excepción.",
+                  18: "Error: Tinfoil ha generado une excepción.",
+                  19: "Error: El red ha generado une excepción.",
+                  20: "Modo Oscuro",
+                  21: "Opciones",
+                  22: "Idioma",
+                  23: "Github",
+                  24: "Red",
+                  25: "Cabeceras Enviadas",
+                  26: "NSP(s) en la Cola",
+                  27: "Instalando",
+                  28: "Velocidad",
+                  29: "NCA Actual",
                    }
 
 set_language(language)
