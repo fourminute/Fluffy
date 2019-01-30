@@ -162,7 +162,7 @@ def set_language(v):
         #Language.CurrentDict = Language.JapaneseDict
     #elif v == 4:
         #Language.CurrentDict = Language.KoreanDict
-    elif v == 7:
+    elif v == 3:
         Language.CurrentDict = Language.ItalianDict
     
 class Language:
@@ -1273,6 +1273,7 @@ try:
     lang_group.addAction(QAction('English',lang_group,checkable=True))
     lang_group.addAction(QAction('中文',lang_group,checkable=True))
     lang_group.addAction(QAction('Tiếng Việt',lang_group,checkable=True))
+    lang_group.addAction(QAction('Italian',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(lang_menu_cmd)
     #opt_menu.triggered.connect(opt_menu_cmd)
