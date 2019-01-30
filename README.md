@@ -75,7 +75,7 @@ Open Terminal and change into the directory where these files are located using 
  
 Copy the file <b>80-fluffy-switch.rules</b> to <b>/etc/udev/rules.d/</b> using this command:
 ```
-cp 80-fluffy-switch.rules /etc/udev/rules.d/80-fluffy-switch.rules
+cp 80-fluffy-switch.rules /etc/udev/rules.d/
 ```
 Then give both the proper permissions:
 ```
