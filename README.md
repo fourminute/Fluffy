@@ -6,7 +6,7 @@
 
 ## Features
 * Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
-* Support for languages: <b>English, Chinese, and Vietnamese</b>!
+* Support for languages: <b>English, Chinese, Vietnamese and Italian</b>!
 * Ability to abort an installation in queue.
 * USB and Network Install, display transfer rate in MB/s and progress percentage.
 * USB and Network Install, display current NSP being installed.

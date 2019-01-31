@@ -162,6 +162,8 @@ def set_language(v):
         Language.CurrentDict = Language.TurkishDict
     elif v == 4:
         Language.CurrentDict = Language.BrazilianDict
+    elif v == 5:
+        Language.CurrentDict = Language.ItalianDict
     
 class Language:
     CurrentDict = None
@@ -292,6 +294,39 @@ class Language:
                   28: "Velocidade de transferência",
                   29: "NCA atual",
                    }
+    
+    ItalianDict = {0: "Fluffy",
+                  1: "Inizia Trasferimento",
+                  2: "IP della Switch ",
+                  3: "IP di questo Computer",
+                  4: "Trasferimento USB",
+                  5: "Modalità Normale",
+                  6: "Modalità Sicura",
+                  7: "NSP Corrente",
+                  8: "Installazione Avvenuta con Successo",
+                  9: "In attesa di selezione",
+                  10: "Switch Non Rilevata",
+                  11: "Switch Rilevata",
+                  12: "Modalità Network",
+                  13: "Seleziona NSP",
+                  14: "NSP(s) Selezionato(i)",
+                  15: "In Attesa di Richiesta di Connessione",
+                  16: "Annulla",
+                  17: "Errore: Goldleaf ha lanciato una eccezione.",
+                  18: "Errore: Tinfoil ha lanciato una eccezione.",
+                  19: "Errore: eccezione nella Modalità Network.",
+                  20: "Dark Mode",
+                  21: "Opzioni",
+                  22: "Lingua",
+                  23: "Github",
+                  24: "Network",
+                  25: "Headers Inviati",
+                  26: "NSP(s) in Coda",
+                  27: "Installazione in Corso",
+                  28: "Velocità di Trasferimento",
+                  29: "NCA Corrente",
+                  }
+
 
     TurkishDict = {0: "Fluffy",
                   1: "Aktarmaya Başla",
@@ -1305,6 +1340,7 @@ try:
     lang_group.addAction(QAction('Tiếng Việt',lang_group,checkable=True))
     lang_group.addAction(QAction('Türkçe',lang_group,checkable=True))
     lang_group.addAction(QAction('Português Brasileiro',lang_group,checkable=True))
+    lang_group.addAction(QAction('Italian',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(lang_menu_cmd)
     #opt_menu.triggered.connect(opt_menu_cmd)
