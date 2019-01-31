@@ -297,7 +297,7 @@ class Language:
     
     ItalianDict = {0: "Fluffy",
                   1: "Inizia Trasferimento",
-                  2: "IP della Switch ",
+                  2: "IP della Switch",
                   3: "IP di questo Computer",
                   4: "Trasferimento USB",
                   5: "Modalità Normale",
