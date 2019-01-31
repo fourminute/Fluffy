@@ -1307,6 +1307,8 @@ try:
     lang_group.addAction(QAction('English',lang_group,checkable=True))
     lang_group.addAction(QAction('中文',lang_group,checkable=True))
     lang_group.addAction(QAction('Tiếng Việt',lang_group,checkable=True))
+    lang_group.addAction(QAction('Français',lang_group,checkable=True))
+    lang_group.addAction(QAction('Español',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(lang_menu_cmd)
     #opt_menu.triggered.connect(opt_menu_cmd)
