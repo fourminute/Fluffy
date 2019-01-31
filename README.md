@@ -43,11 +43,13 @@
 * Done!
 
 ### 2/3) Install Python
-* Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b>
+* Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b> Also be sure to include Tkinter with your installation(it should be a default option).
 
 ### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
-* Open Terminal/Command-line/CMD and run the following:
-* pip3 install pyqt5 pyusb libusb libusb1 qdarkstyle
+* Open Command-line/CMD (Start, search "CMD") and run the following:
+```
+pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle
+```
 
 ### Additional Windows Instructions
 Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file [libusb.dll](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll) and place it in the same directory as Fluffy.pyw.
@@ -56,56 +58,51 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 
 ## Linux instructions
 
+### Ubuntu/Debian based distributions
+
+#### 1/2) Install Python and Dependencies
+* Required: ```python3 python3-pyusb python3-pyqt5 python3-tk python3.6-tk libusb libusb1 qdarkstyle```.
+* Install Python3:
+* ```sudo apt install python3 python3-pip python3-tk```.
+* Then open Terminal and run this command:
+* ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
+
+#### 2/2) Download Fluffy and Switch Rule
+Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and <a href="https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules">80-fluffy-switch.rules</a>.
+
+Open Terminal and change into the directory where these files are located using the cd command:
+ ```
+ cd /path/to/fluffy/
+ ```
+ 
+Copy the file <b>80-fluffy-switch.rules</b> to <b>/etc/udev/rules.d/</b> using this command:
+```
+sudo cp 80-fluffy-switch.rules /etc/udev/rules.d/
+```
+Then give both the proper permissions:
+```
+sudo chmod 644 /etc/udev/rules.d/80-fluffy-switch.rules
+sudo chmod 755 fluffy.pyw
+```
+
 ### Arch/Manjaro/Antergos
 Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
 
-### Other distributions
 
-#### 1/2) install dependencies
-* Required: ```python3 python3-pyusb python3-pyqt5 libusb libusb1 qdarkstyle```.
-* If they are not available via your package manager, install ```python3-pip``` and launch install with it:
-* ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
+### Installation and Application Launcher (Optional)
+You may wish to Install Fluffy. Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and 'icon.ico' and 'install.sh' from <a href="https://github.com/fourminute/Fluffy/tree/master/linux">here</a>. Extract and move each file into a single folder.
 
-#### 2/2) download and install fluffy
-Download latest <a href="https://github.com/fourminute/Fluffy/releases/latest">archive</a> and extract, then move files according to instructions below:
-
-This is the bare minimum to use fluffy, fluffy itself and a udev rules to change permission on the usb device corresponding to the switch (you might need to reboot to apply udev rule, or at least unplug/plug the switch):
+Installation is then as simple as:
 ```
-mv linux/80-fluffy-switch.rules /etc/udev/rules.d/80-fluffy-switch.rules
-mv fluffy.pyw /usr/bin/fluffy
+cd /path/to/files/
+sudo ./install.sh
 ```
-Permission are 644 for 80-fluffy-switch.rules and 755 for fluffy:
-```
-chmod 644 /etc/udev/rules.d/80-fluffy-switch.rules
-chmod 755 /usr/bin/fluffy
-```
-
-If you want an entry in your launcher and an icon move those files:
-```
-mv linux/fluffy.desktop /usr/share/applications/fluffy.desktop
-mv icons/16x16/fluffy.png /usr/share/icons/hicolor/16x16/apps/fluffy.png
-mv icons/24x24/fluffy.png /usr/share/icons/hicolor/24x24/apps/fluffy.png
-mv icons/32x32/fluffy.png /usr/share/icons/hicolor/32x32/apps/fluffy.png
-mv icons/48x48/fluffy.png /usr/share/icons/hicolor/48x48/apps/fluffy.png
-mv icons/64x64/fluffy.png /usr/share/icons/hicolor/64x64/apps/fluffy.png
-mv icons/128x128/fluffy.png /usr/share/icons/hicolor/128x128/apps/fluffy.png
-```
-Permission are 644 for all:
-```
-chmod 644 /usr/share/applications/fluffy.desktop
-chmod 644 /usr/share/icons/hicolor/16x16/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/24x24/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/32x32/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/48x48/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/64x64/apps/fluffy.png
-chmod 644 /usr/share/icons/hicolor/128x128/apps/fluffy.png
-```
-
 ## MacOS instructions
-* brew install libusb 
-* brew reinstall python --with-tcl-tk
-
-<i>(For more info on brew, head to https://brew.sh/)</i>
+```
+ brew install libusb 
+ brew reinstall python --with-tcl-tk
+```
+<i>For more info on brew, head to https://brew.sh/</i>
 
 ## How-To-Use
 Complete beginner? No problem. 
