@@ -1,5 +1,6 @@
 # Fluffy
 ![intro](https://github.com/fourminute/Fluffy/blob/master/misc/fluffy-intro.png?raw=true)
+<i><a href="https://github.com/fourminute/Fluffy/blob/master/README_CH.md">你是中国人? 中文说明.</a></i>
 
 ### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.5.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
