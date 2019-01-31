@@ -130,35 +130,33 @@ chmod 644 /usr/share/icons/hicolor/128x128/apps/fluffy.png
 首先，Fluffy不支持64位的Python，请使用32位的Python运行.
 
 
-<b>网络安装?</b>
+<b>网络安装出错?</b>
 
-Answer: Network install is a hit or miss depending on your setup. Try forwarding port 2000 in your router and disabling your firewall. Ensure your Switch and PC are on the same network.
+检查或关闭防火墙，特别是 2000 端口要打开. 确保你的Switch和电脑在同一个局域网中。
 
-<b>PyUSB Not Found and I've followed all the steps!</b>
+<b>PyUSB Not Found</b>
 
-Answer: **Fluffy only works with Python 3 32-bit version.** Also be ensure no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error.
+注意：**Fluffy不支持64位的Python，请使用32位的Python运行。** 或试着删除之前的Python版本，注意只保留32位的Python3就可以。
 
-<b>What kind of cable does the Switch use?</b>
+<b>我需要什么类型的数据线?</b>
 
-Answer: USB type C cable. Though, not all USB type C cables are the same. Some will not be compatible with the Switch.
+USB type C 数据线就可以。注意也不是所以的USB-C的线都能够完美支持。
 
-<b>Does Fluffy work on MacOS and Linux?</b>
+<b>MacOS 和 Linux 可以运行 Fluffy 吗?</b>
 
-Answer: Absolutely! Python is cross-platform and so Fluffy should work on both operating systems.
+当然啦！Python是跨平台的，所以 Fluffy 也可以的！
 
-<b>Which Custom Firmware works best with Fluffy and TinFoil?</b>
+<b>哪种破解系统最适合运行 Fluffy 和 TinFoil?</b>
 
-Answer: All of them will work the same. That is up to you.
+大部分都可以，看你喜欢用哪个，译者用的是大气层。
 
-<b>Why does my install keeps hanging and/or crashing?</b>
+<b>为什么我安装的时候总是程序崩溃?</b>
 
-Answer: Switch Transfer Mode to "Safe".
+不如试试“安全模式”？
 
-<b>Why do I have unsufficient permission error (usb)(linux)? (credit: YoyPa)</b>
+<b>提示错误： unsufficient permission error (usb)(linux)? (credit: YoyPa)</b>
 
-Answer: You need to make a <a href=https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules>udev rule</a> to modify the switch usb device permission in /etc/udev/rules.d/
+将 <a href=https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules>udev rule</a> 放到你的系统驱动配置 /etc/udev/rules.d/ 中。
 
-<b>Still having problems? Consider making a bug report on this GitHub page to request assistance.</b>
-
-<i>Disclaimer: The "Pink Donut" design was designed by fourminute exclusively for Fluffy and infringes on no copyright. The font used in "intro.png" is also 100% royalty free.</i>
+<b>如果还有其他问题，可以issue这个Github主页，期待你让 Fluffy 变得更好。</b>
 
