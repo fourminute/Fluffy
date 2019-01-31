@@ -158,11 +158,11 @@ def set_language(v):
         Language.CurrentDict = Language.ChineseDict
     elif v == 2:
         Language.CurrentDict = Language.VietDict
-    #elif v == 3:
-        #Language.CurrentDict = Language.JapaneseDict
-    #elif v == 4:
-        #Language.CurrentDict = Language.KoreanDict
     elif v == 3:
+        Language.CurrentDict = Language.TurkishDict
+    elif v == 4:
+        Language.CurrentDict = Language.BrazilianDict
+    elif v == 5:
         Language.CurrentDict = Language.ItalianDict
     
 class Language:
@@ -262,7 +262,39 @@ class Language:
                   28: "Tốc Độ",
                   29: "Đang Chuyển NCA",
                    }
-
+    
+    BrazilianDict = {0: "Fluffy",
+                  1: "INICIAR TRANSFERÊNCIA",
+                  2: "IP do Switch",
+                  3: "IP deste computador",
+                  4: "Modo de transferência USB",
+                  5: "Modo normal",
+                  6: "Modo seguro",
+                  7: "NSP atual",
+                  8: "Instalado com sucesso",
+                  9: "Aguardando seleção",
+                  10: "Switch não detectado",
+                  11: "Switch detectado",
+                  12: "Modo de rede",
+                  13: "Selecione o NSP",
+                  14: "NSP(s) selecionados",
+                  15: "Aguardando pedido de conexão",
+                  16: "CANCELAR",
+                  17: "Erro: Problema reportado pelo Goldleaf.",
+                  18: "Erro: Problema reportado pelo Tinfoil.",
+                  19: "Erro: Problema reportado pela rede.",
+                  20: "Tema escuro",
+                  21: "Opções",
+                  22: "Língua",
+                  23: "Github",
+                  24: "Rede",
+                  25: "Cabeçalho enviado",
+                  26: "NSP(s) em fila",
+                  27: "Instalando",
+                  28: "Velocidade de transferência",
+                  29: "NCA atual",
+                   }
+    
     ItalianDict = {0: "Fluffy",
                   1: "Inizia Trasferimento",
                   2: "IP della Switch ",
@@ -295,6 +327,39 @@ class Language:
                   29: "NCA Corrente",
                   }
 
+
+    TurkishDict = {0: "Fluffy",
+                  1: "Aktarmaya Başla",
+                  2: "Switch IP 'si",
+                  3: "Bu bilgisayarın IP 'si",
+                  4: "USB Transfer Modu",
+                  5: "Normal Mod",
+                  6: "Güvenli Mod",
+                  7: "Şu anki NSP",
+                  8: "Başarıyla Yüklendi",
+                  9: "Seçim Bekleniyor",
+                  10: "Switch Algılanamadı",
+                  11: "Switch Algılandı",
+                  12: "Ağ Modu",
+                  13: "NSP Seçimi",
+                  14: "NSP(ler) Seçildi",
+                  15: "Bağlantı İsteği Bekleniyor",
+                  16: "İptal",
+                  17: "Hata: Goldleaf 'te sıradışı durum oluştu.",
+                  18: "Hata: Tinfoil 'de sıradışı durum oluştu.",
+                  19: "Hata: Ağda sıradışı durum oluştu.",
+                  20: "Karanlık Mod",
+                  21: "Ayarlar",
+                  22: "Dil",
+                  23: "Github",
+                  24: "Ağ",
+                  25: "Başlık Gönderildi",
+                  26: "Sıradaki NSP(ler)",
+                  27: "Yükleniyor",
+                  28: "Aktarma Hızı",
+                  29: "Şu anki NCA",
+                   }
+				   
 set_language(language)
 # End Language
 
@@ -1273,6 +1338,8 @@ try:
     lang_group.addAction(QAction('English',lang_group,checkable=True))
     lang_group.addAction(QAction('中文',lang_group,checkable=True))
     lang_group.addAction(QAction('Tiếng Việt',lang_group,checkable=True))
+    lang_group.addAction(QAction('Türkçe',lang_group,checkable=True))
+    lang_group.addAction(QAction('Português Brasileiro',lang_group,checkable=True))
     lang_group.addAction(QAction('Italian',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(lang_menu_cmd)
