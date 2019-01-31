@@ -57,7 +57,7 @@
 ## Linux 安装说明
 
 ### Arch/Manjaro/Antergos
-安装 AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
+安装 AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> 来自 <a href="https://github.com/YoyPa">YoyPa</a>.
 
 ### 其他 安装说明
 
@@ -68,7 +68,7 @@
 * ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
 
 #### 2/2) 下载和安装 fluffy 安装器
-下载最新的版本 <a href="https://github.com/fourminute/Fluffy/releases/latest">archive</a> , 然后根据以下提示使用:
+下载最新的版本 <a href="https://github.com/fourminute/Fluffy/releases/latest">安装包</a> , 然后根据以下提示使用:
 
 这只是最简单使用fluffy的方式，如果遇到问题，你可以试试重启电脑或者重新插拔一下Switch以应用驱动，或者试试手动给fluffy赋予权限:
 ```
@@ -112,25 +112,25 @@ chmod 644 /usr/share/icons/hicolor/128x128/apps/fluffy.png
 * <b>完成了上面的安装说明了？OK！让我们继续吧！</b>
 * 在你的Switch上打开破解系统，一般进入的操作是进入相册，然后找到 TinFoil > Title Management > USB Install NSP.
 * 双击 Fluffy.pyw 文件 (Linux 用户:在你的开始菜单或者 terminal里输入 ```fluffy```).
-* Click "Select NSPs" and select as many NSPs as you want to install.
-* If "Switch Detected!" is visible. Click "Begin Transfer".
-* On your Switch, select and install the NSPs.
+* 点击 "选择 NSP 游戏文件" 选择你想安装的游戏文件，可以选择多个哦.
+* 如果显示 "Switch 已连接!" 。点击 "开始传输"。
+* 在你的Switch的 TinFoil 上, 选择要安装的游戏文件.
 
-## Troubleshooting Tips
-<b>Why do I keep getting the error: "USBCore No Backend Available"?</b>
+## 遇到小问题了？
+<b>报错 : "USBCore No Backend Available"?</b>
 
-Answer: This can be caused by 1-2 things.
+ 这可能有以下两点引起的：
 
-1) Not all USB type C cables will work with the Switch. If your Switch connects then frequently disconnects, then reconnects again, etc. Or if you receive this error, it's highly likely you will need a newer USB type C cable. Yes, there are differences despite being visually similar.
+1) 你的USB-C线不支持，试试换一条更好的。
 
-2) LibUSB wasn't found. Install it with "pip3 install libusb" and "pip3 install libusb1". Also follow the above steps labeled "Additional Windows Instructions".
+2) LibUSB 驱动没有成功安装. 通过以下命令安装 "pip3 install libusb" 和 "pip3 install libusb1"。
 
-<b>Why do I keep getting the error: "No module named 'PyQt5'"?</b>
+<b>一直提示: "No module named 'PyQt5'"?</b>
 
-Python by default *wants* to run in 64-bit mode, however, when this happens Fluffy won't work. As you may already know, Fluffy does not, will not, and cannot run in 64-bit Python. To bypass this behavior you can alternative open Fluffy.pyw in IDLE(32-bit mode) and click Run > Run Module.
+首先，Fluffy不支持64位的Python，请使用32位的Python运行.
 
 
-<b>Why does network install fail?</b>
+<b>网络安装?</b>
 
 Answer: Network install is a hit or miss depending on your setup. Try forwarding port 2000 in your router and disabling your firewall. Ensure your Switch and PC are on the same network.
 
