@@ -20,7 +20,7 @@
 * 5.x USB 修复 (感谢： <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
 # 屏幕截图
-![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/screenshot-fluffy-v240c.png?raw=true)
+![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/screenshotv250b.png?raw=true)
 
 
 # 使用说明
@@ -54,7 +54,7 @@
 
 如果你依旧报错, 你可以试试手动安装libusb驱动: [libusb installer](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-win32-devel-filter-1.2.6.0.exe).
 
-## Linux 安装安装说明
+## Linux 安装说明
 
 ### Arch/Manjaro/Antergos
 安装 AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
@@ -70,18 +70,18 @@
 #### 2/2) 下载和安装 fluffy 安装器
 下载最新的版本 <a href="https://github.com/fourminute/Fluffy/releases/latest">archive</a> , 然后根据以下提示使用:
 
-This is the bare minimum to use fluffy, fluffy itself and a udev rules to change permission on the usb device corresponding to the switch (you might need to reboot to apply udev rule, or at least unplug/plug the switch):
+这只是最简单使用fluffy的方式，如果遇到问题，你可以试试重启电脑或者重新插拔一下Switch以应用驱动，或者试试手动给fluffy赋予权限:
 ```
 mv linux/80-fluffy-switch.rules /etc/udev/rules.d/80-fluffy-switch.rules
 mv fluffy.pyw /usr/bin/fluffy
 ```
-Permission are 644 for 80-fluffy-switch.rules and 755 for fluffy:
+权限说明： 644 for 80-fluffy-switch.rules and 755 for fluffy:
 ```
 chmod 644 /etc/udev/rules.d/80-fluffy-switch.rules
 chmod 755 /usr/bin/fluffy
 ```
 
-If you want an entry in your launcher and an icon move those files:
+如果你需要在lanucher里面显示图标，请尝试以下命令:
 ```
 mv linux/fluffy.desktop /usr/share/applications/fluffy.desktop
 mv icons/16x16/fluffy.png /usr/share/icons/hicolor/16x16/apps/fluffy.png
@@ -91,7 +91,7 @@ mv icons/48x48/fluffy.png /usr/share/icons/hicolor/48x48/apps/fluffy.png
 mv icons/64x64/fluffy.png /usr/share/icons/hicolor/64x64/apps/fluffy.png
 mv icons/128x128/fluffy.png /usr/share/icons/hicolor/128x128/apps/fluffy.png
 ```
-Permission are 644 for all:
+权限都是 664:
 ```
 chmod 644 /usr/share/applications/fluffy.desktop
 chmod 644 /usr/share/icons/hicolor/16x16/apps/fluffy.png
@@ -102,16 +102,16 @@ chmod 644 /usr/share/icons/hicolor/64x64/apps/fluffy.png
 chmod 644 /usr/share/icons/hicolor/128x128/apps/fluffy.png
 ```
 
-## MacOS instructions
-* brew install libusb <i>(For more info on brew, head to https://brew.sh/)</i>
+## MacOS 安装说明
+* 在终端里执行：brew install libusb <i>(关于 brew, 点这 https://brew.sh/)</i>
 
-/!\ This section need to be done /!\
+/!\ 有了brew的MacOS很方便！这就行了 /!\
 
-## How-To-Use
-Complete beginner? No problem. 
-* <b>First follow the installation steps above. Done? Let's continue!</b>
-* On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP.
-* Double-click on Fluffy.pyw to start it (Linux users: type ```fluffy``` in your start menu or terminal).
+## 如何使用
+完全是新手？也没关系。 
+* <b>完成了上面的安装说明了？OK！让我们继续吧！</b>
+* 在你的Switch上打开破解系统，一般进入的操作是进入相册，然后找到 TinFoil > Title Management > USB Install NSP.
+* 双击 Fluffy.pyw 文件 (Linux 用户:在你的开始菜单或者 terminal里输入 ```fluffy```).
 * Click "Select NSPs" and select as many NSPs as you want to install.
 * If "Switch Detected!" is visible. Click "Begin Transfer".
 * On your Switch, select and install the NSPs.
