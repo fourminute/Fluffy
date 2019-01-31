@@ -858,9 +858,22 @@ def init_goldleaf_usb_install():
         sys.exit()
 
 # Tinfoil Network
+netrlist = []
+
+def reset_netrlist():
+    global netrlist
+    netrlist = None
+    netrlist = []
+    
+def append_netrlist(v, v2):
+    global netrlist
+    netrlist.append((v, v2))
+    
 class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
     def send_head(self):
-        path = self.translate_path(self.path)
+        for s in range(len(netrlist)):
+            if netrlist[s][0] == str(self.path)[1:]:
+                path = netrlist[s][1]
         ctype = self.guess_type(path)
         if os.path.isdir(path):
             return SimpleHTTPRequestHandler.send_head(self)
@@ -960,6 +973,7 @@ class MyServer(TCPServer):
         sys.exit()
         
 def init_tinfoil_net_install():
+    reset_netrlist()
     accepted_extension = ('.nsp')
     hostPort = random.randint(26490,26999)
     target_ip = switch_ip
@@ -971,7 +985,10 @@ def init_tinfoil_net_install():
     for file in [file for file in next(os.walk(target_path))[2] if file.endswith(accepted_extension)]:
         for y in selected_files:
             if str(file).find(os.path.basename(y)) != -1:
-                file_list_payload += baseUrl + quote(file) + '\n'
+                n = random.randint(1,10000000)
+                fake_file = str(n) + ".nsp"
+                append_netrlist(fake_file, str(y))
+                file_list_payload += baseUrl + fake_file + '\n'
     file_list_payloadBytes = file_list_payload.encode('ascii')
     if directory and directory != '.':
         os.chdir(directory)
