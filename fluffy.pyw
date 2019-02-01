@@ -29,6 +29,7 @@ import threading
 import struct
 import random
 import re
+    
 try:
     import logging
     if os.path.isfile('fluffy.log'):
@@ -40,6 +41,17 @@ try:
 except:
     is_logging = False
     pass
+try:
+    from tkinter import filedialog
+    import tkinter as tk
+    root = tk.Tk()
+    root.withdraw()
+except Exception as e:
+    if is_logging:
+        logging.error(e, exc_info=True)
+    else:
+        print(str(e))
+    exit()
 try:
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     from SocketServer import TCPServer
@@ -58,6 +70,8 @@ try:
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
+    else:
+        print(str(e))
     exit()
 try:
     import usb.core
@@ -68,7 +82,7 @@ except:
     pass
 
 # Variables
-VERSION = "2.4.2"
+VERSION = "2.6.0"
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
@@ -103,19 +117,25 @@ cur_nca_count = 1
 initial_dir = os.getcwd()
 switch_ip = "0.0.0.0"
 host_ip = "0.0.0.0"
+language = 0
+
+# Load Settings
 if os.path.isfile(initial_dir + '/fluffy_config.py'):
     try:
         import fluffy_config
         switch_ip = fluffy_config.switch_ip
         is_dark_mode = fluffy_config.dark_mode
+        language = fluffy_config.language
     except:
         switch_ip = "0.0.0.0"
-        is_dark_mode = False
+        is_dark_mode = True
+        language = 0
         pass
 else:
     switch_ip = "0.0.0.0"
-    is_dark_mode = False
-    
+    is_dark_mode = True
+    language = 0
+   
 gold_in = None
 gold_out = None
 net_port = 2000 #Unused, saved for future reference (Ie. Goldleaf Network)
@@ -129,6 +149,26 @@ TransferRateDict  = {0: TransferRates.Safe,
                      1: TransferRates.Normal}
 
 # "Language!" -Cap, May 1st 2015
+def set_language(v):
+    global language
+    language = v
+    if v == 0:
+        Language.CurrentDict = Language.EnglishDict
+    elif v == 1:
+        Language.CurrentDict = Language.ChineseDict
+    elif v == 2:
+        Language.CurrentDict = Language.VietDict
+    elif v == 3:
+        Language.CurrentDict = Language.TurkishDict
+    elif v == 4:
+        Language.CurrentDict = Language.BrazilianDict
+    elif v == 5:
+        Language.CurrentDict = Language.ItalianDict
+    elif v == 6:
+        Language.CurrentDict = Language.FrenchDict
+    elif v == 7:
+        Language.CurrentDict = Language.SpanishDict
+        
 class Language:
     CurrentDict = None
     EnglishDict = {0: "Fluffy",
@@ -145,22 +185,27 @@ class Language:
                   11: "Switch Detected",
                   12: "Network Mode",
                   13: "NSP Selection",
-                  14: "NSP Selected",
-                  15: "Awaiting Connection",
+                  14: "NSP(s) Selected",
+                  15: "Awaiting Connection Request",
                   16: "Cancel",
                   17: "Error: Goldleaf threw an exception.",
                   18: "Error: Tinfoil threw an exception.",
                   19: "Error: Network threw an exception.",
                   20: "Dark Mode",
-                  21: "NSP Selection",
-                  22: "NSP Selected",
-                  23: "Options",
-                  24: "Language",
-                  25: "Github",
-                  }
-    ChineseDict = {0: "卷卷",
+                  21: "Options",
+                  22: "Language",
+                  23: "Github",
+                  24: "Network",
+                  25: "Headers Sent",
+                  26: "NSP(s) in Queue",
+                  27: "Installing",
+                  28: "Transfer Rate",
+                  29: "Current NCA",
+                   }
+    
+    ChineseDict = {0: "Fluffy 卷卷安装器",
                   1: "开始传输",
-                  2: "思维奇的IP地址",
+                  2: "Switch的IP地址",
                   3: "此电脑的IP地址",
                   4: "USB传输模式",
                   5: "正常模式",
@@ -168,24 +213,223 @@ class Language:
                   7: "当前的NSP游戏文件",
                   8: "成功安装",
                   9: "等待选择",
-                  10: "思维奇没有连接",
-                  11: "思维奇已连接",
+                  10: "Switch没有连接",
+                  11: "Switch已连接",
                   12: "网络模式",
                   13: "选择NSP游戏文件",
-                  14: "游戏文件已选择",
+                  14: "个NSP游戏文件 已选择",
                   15: "等待连接",
                   16: "取消",
                   17: "错误: Goldleaf 反馈了一个异常.",
                   18: "错误: Tinfoil 反馈了一个异常.",
-                  19: "错误: 网络 反馈了一个异常.",
+                  19: "错误: 网络状态 反馈了一个异常.",
                   20: "黑暗模式",
-                  21: "选择NSP游戏文件",
-                  22: "NSP游戏文件已选择",
-                  23: "选项",
-                  24: "语言切换",
-                  25: "Github主页地址",
+                  21: "选项",
+                  22: "语言切换",
+                  23: "Github主页地址",
+                  24: "网络",
+                  25: "发送NSP头文件",
+                  26: "个NSP游戏文件 在队列中",
+                  27: "NSP游戏文件 安装中",
+                  28: "传输速率",
+                  29: "当前的NCA游戏文件包",
+                   }
+
+    VietDict = {  0: "Fluffy",
+                  1: "Bắt Đầu Chuyển",
+                  2: "IP Của Switch",
+                  3: "IP Của Máy Vi Tính",
+                  4: "Tốc Độ USB",
+                  5: "Tốc Độ Bình Thường",
+                  6: "Tốc Độ Chậm",
+                  7: "Đang Chuyển NSP",
+                  8: "Tải Xông",
+                  9: "Hãy Chọn NSP Của Bạn",
+                  10: "Không Thể Tìm Thấy Switch Của Bạn",
+                  11: "Tìm Được Switch Của Bạn",
+                  12: "Bạn Đã Chọn Chuyển Bằng Wi-Fi",
+                  13: "Xin Vui Lòng Chọn NSP",
+                  14: "Cái NSP(s) Đã Được Chọn",
+                  15: "Đang Chờ Yêu Cầu Kết Nối",
+                  16: "Hủy Bỏ",
+                  17: "Error: Goldleaf ngừng hoạt động.",
+                  18: "Error: Tinfoil ngừng hoạt động.",
+                  19: "Error: Network ngừng hoạt động.",
+                  20: "Hình Tối",
+                  21: "Sự Lựa Chọn",
+                  22: "Ngôn Ngữ",
+                  23: "Github",
+                  24: "Network",
+                  25: "Danh Sách NSP Đã Gởi Cho Bạn",
+                  26: "Đang Chờ Chuyển NSP(s)",
+                  27: "Đang Tải",
+                  28: "Tốc Độ",
+                  29: "Đang Chuyển NCA",
+                   }
+    
+    BrazilianDict = {0: "Fluffy",
+                  1: "INICIAR TRANSFERÊNCIA",
+                  2: "IP do Switch",
+                  3: "IP deste computador",
+                  4: "Modo de transferência USB",
+                  5: "Modo normal",
+                  6: "Modo seguro",
+                  7: "NSP atual",
+                  8: "Instalado com sucesso",
+                  9: "Aguardando seleção",
+                  10: "Switch não detectado",
+                  11: "Switch detectado",
+                  12: "Modo de rede",
+                  13: "Selecione o NSP",
+                  14: "NSP(s) selecionados",
+                  15: "Aguardando pedido de conexão",
+                  16: "CANCELAR",
+                  17: "Erro: Problema reportado pelo Goldleaf.",
+                  18: "Erro: Problema reportado pelo Tinfoil.",
+                  19: "Erro: Problema reportado pela rede.",
+                  20: "Tema escuro",
+                  21: "Opções",
+                  22: "Língua",
+                  23: "Github",
+                  24: "Rede",
+                  25: "Cabeçalho enviado",
+                  26: "NSP(s) em fila",
+                  27: "Instalando",
+                  28: "Velocidade de transferência",
+                  29: "NCA atual",
+                   }
+    
+    ItalianDict = {0: "Fluffy",
+                  1: "Inizia Trasferimento",
+                  2: "IP della Switch",
+                  3: "IP di questo Computer",
+                  4: "Trasferimento USB",
+                  5: "Modalità Normale",
+                  6: "Modalità Sicura",
+                  7: "NSP Corrente",
+                  8: "Installazione Avvenuta con Successo",
+                  9: "In attesa di selezione",
+                  10: "Switch Non Rilevata",
+                  11: "Switch Rilevata",
+                  12: "Modalità Network",
+                  13: "Seleziona NSP",
+                  14: "NSP(s) Selezionato(i)",
+                  15: "In Attesa di Richiesta di Connessione",
+                  16: "Annulla",
+                  17: "Errore: Goldleaf ha lanciato una eccezione.",
+                  18: "Errore: Tinfoil ha lanciato una eccezione.",
+                  19: "Errore: eccezione nella Modalità Network.",
+                  20: "Dark Mode",
+                  21: "Opzioni",
+                  22: "Lingua",
+                  23: "Github",
+                  24: "Network",
+                  25: "Headers Inviati",
+                  26: "NSP(s) in Coda",
+                  27: "Installazione in Corso",
+                  28: "Velocità di Trasferimento",
+                  29: "NCA Corrente",
                   }
 
+
+    TurkishDict = {0: "Fluffy",
+                  1: "Aktarmaya Başla",
+                  2: "Switch IP 'si",
+                  3: "Bu bilgisayarın IP 'si",
+                  4: "USB Transfer Modu",
+                  5: "Normal Mod",
+                  6: "Güvenli Mod",
+                  7: "Şu anki NSP",
+                  8: "Başarıyla Yüklendi",
+                  9: "Seçim Bekleniyor",
+                  10: "Switch Algılanamadı",
+                  11: "Switch Algılandı",
+                  12: "Ağ Modu",
+                  13: "NSP Seçimi",
+                  14: "NSP(ler) Seçildi",
+                  15: "Bağlantı İsteği Bekleniyor",
+                  16: "İptal",
+                  17: "Hata: Goldleaf 'te sıradışı durum oluştu.",
+                  18: "Hata: Tinfoil 'de sıradışı durum oluştu.",
+                  19: "Hata: Ağda sıradışı durum oluştu.",
+                  20: "Karanlık Mod",
+                  21: "Ayarlar",
+                  22: "Dil",
+                  23: "Github",
+                  24: "Ağ",
+                  25: "Başlık Gönderildi",
+                  26: "Sıradaki NSP(ler)",
+                  27: "Yükleniyor",
+                  28: "Aktarma Hızı",
+                  29: "Şu anki NCA",
+                   }
+    
+    FrenchDict = {0: "Fluffy",
+                  1: "Démarrer le Transfert",
+                  2: "IP de la Switch",
+                  3: "IP de l'Ordinateur",
+                  4: "Mode de Transfert USB",
+                  5: "Mode Normal",
+                  6: "Mode Sûr",
+                  7: "NSP Actuel",
+                  8: "Installé Avec Succès",
+                  9: "En Attente de Sélection",
+                  10: "Switch Non Détecté",
+                  11: "Switch Détecté",
+                  12: "Mode Réseau",
+                  13: "Ajouter NSP",
+                  14: "NSP(s) Sélectionné(s)",
+                  15: "En Attente de la Demande de Connection",
+                  16: "Annuler",
+                  17: "Erreur: Goldleaf a généré une exception.",
+                  18: "Erreur: Tinfoil a généré une exception.",
+                  19: "Erreur: Le réseau a généré une exception.",
+                  20: "Mode Sombre",
+                  21: "Options",
+                  22: "Langue",
+                  23: "Github",
+                  24: "Réseau",
+                  25: "En-têtes Envoyées",
+                  26: "NSP(s) en File d'Attente",
+                  27: "En Cours d'Installation",
+                  28: "Débit",
+                  29: "NCA Actuel",
+                   }
+    
+    SpanishDict = {0: "Fluffy",
+                  1: "Iniciar la Transferencia",
+                  2: "IP de la Switch",
+                  3: "IP del Ordenador",
+                  4: "Modo de Transferencia USB",
+                  5: "Modo Normal",
+                  6: "Modo Seguro",
+                  7: "NSP Actual",
+                  8: "Instalado Con Éxito",
+                  9: "Esperando Selección",
+                  10: "Switch No Detectada",
+                  11: "Switch Detectada",
+                  12: "Modo Red",
+                  13: "Añadir NSP",
+                  14: "NSP(s) Seleccionado(s)",
+                  15: "Esperando la Solicitud de Conexión",
+                  16: "Cancelar",
+                  17: "Error: Goldleaf ha generado una excepción.",
+                  18: "Error: Tinfoil ha generado une excepción.",
+                  19: "Error: El red ha generado une excepción.",
+                  20: "Modo Oscuro",
+                  21: "Opciones",
+                  22: "Idioma",
+                  23: "Github",
+                  24: "Red",
+                  25: "Cabeceras Enviadas",
+                  26: "NSP(s) en la Cola",
+                  27: "Instalando",
+                  28: "Velocidad",
+                  29: "NCA Actual",
+                   }
+				   
+set_language(language)
+# End Language
 
 # Setters
 def set_dark_mode(v):
@@ -260,11 +504,13 @@ def close_program():
         if is_dark_mode:
             with open(initial_dir + '/fluffy_config.py', 'w') as w:
                 w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
-                w.write('dark_mode = True')
+                w.write('dark_mode = True\n')
+                w.write('language = ' + str(language) + '\n')
         else:
             with open(initial_dir + '/fluffy_config.py', 'w') as w:
                 w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
-                w.write('dark_mode = False')
+                w.write('dark_mode = False\n')
+                w.write('language = ' + str(language) + '\n')
     except:
         pass
     is_exiting = True
@@ -335,7 +581,6 @@ def reset_install():
     txt_port.setEnabled(True)
     tin_radio.setEnabled(True)
     gold_radio.setEnabled(True)
-    l_status.setText("Awaiting Selection.")
     l_nsp.setText("")
     l_nsp.setStyleSheet("")
     l_switch.setText("")
@@ -357,15 +602,17 @@ def reset_install():
     sent_header = False
     cur_progress = 0
     end_progress = 100
+    init_language()
+    window.menuBar().setEnabled(True)
 
 def throw_error(_type):
     global last_error
     if _type == 0:
-        last_error = "Error: Goldleaf USB threw an exception."
+        last_error = Language.CurrentDict[17] # Goldleaf
     elif _type == 1:
-        last_error = "Error: Tinfoil Network threw an exception."
+        last_error = Language.CurrentDict[19] # Network
     elif _type == 2:
-        last_error = "Error: Tinfoil USB threw an exception."
+        last_error = Language.CurrentDict[18] # Tinfoil
 
 def reset_last_error():
     global last_error
@@ -611,9 +858,22 @@ def init_goldleaf_usb_install():
         sys.exit()
 
 # Tinfoil Network
+netrlist = []
+
+def reset_netrlist():
+    global netrlist
+    netrlist = None
+    netrlist = []
+    
+def append_netrlist(v, v2):
+    global netrlist
+    netrlist.append((v, v2))
+    
 class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
     def send_head(self):
-        path = self.translate_path(self.path)
+        for s in range(len(netrlist)):
+            if netrlist[s][0] == str(self.path)[1:]:
+                path = netrlist[s][1]
         ctype = self.guess_type(path)
         if os.path.isdir(path):
             return SimpleHTTPRequestHandler.send_head(self)
@@ -669,6 +929,7 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
         if 'Range' not in self.headers:
             SimpleHTTPRequestHandler.copyfile(self, infile, outfile)
             return
+        complete_loading()
         set_cur_nsp(str(os.path.basename(infile.name)))
         start, end = self.range
         infile.seek(start)
@@ -712,6 +973,7 @@ class MyServer(TCPServer):
         sys.exit()
         
 def init_tinfoil_net_install():
+    reset_netrlist()
     accepted_extension = ('.nsp')
     hostPort = random.randint(26490,26999)
     target_ip = switch_ip
@@ -723,7 +985,10 @@ def init_tinfoil_net_install():
     for file in [file for file in next(os.walk(target_path))[2] if file.endswith(accepted_extension)]:
         for y in selected_files:
             if str(file).find(os.path.basename(y)) != -1:
-                file_list_payload += baseUrl + quote(file) + '\n'
+                n = random.randint(1,10000000)
+                fake_file = str(n) + ".nsp"
+                append_netrlist(fake_file, str(y))
+                file_list_payload += baseUrl + fake_file + '\n'
     file_list_payloadBytes = file_list_payload.encode('ascii')
     if directory and directory != '.':
         os.chdir(directory)
@@ -734,7 +999,6 @@ def init_tinfoil_net_install():
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((target_ip, 2000))
         sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
-        complete_loading()
         while len(sock.recv(1)) < 1:
             if is_exiting:
                 pid = os.getpid()
@@ -775,6 +1039,7 @@ class Tinfoil:
         set_cur_nsp(str(os.path.basename(nsp_name)))
         Tinfoil.send_response_header(out_ep, CMD_ID_FILE_RANGE, range_size)
         with open(nsp_name, 'rb') as f:
+            complete_loading()
             f.seek(range_offset)
             curr_off = 0x0
             end_off = range_size
@@ -852,7 +1117,6 @@ def init_tinfoil_usb_install():
         assert out_ep is not None
         assert in_ep is not None
         Tinfoil.send_nsp_list(selected_files, nsp_dir, out_ep)
-        complete_loading()
         Tinfoil.poll_commands(nsp_dir, in_ep, out_ep)
         complete_install()
         sys.exit()
@@ -873,77 +1137,70 @@ try:
     
     # Widget Functions
     def send_header_cmd():
-        btn_header.setEnabled(False)
-        btn_nsp.setEnabled(False)
-        combo.setEnabled(False)
-        txt_ip.setEnabled(False)
-        txt_ip2.setEnabled(False)
-        net_radio.setEnabled(False)
-        usb_radio.setEnabled(False)
-        txt_port.setEnabled(False)
-        tin_radio.setEnabled(False)
-        gold_radio.setEnabled(False)
-        if is_network:
-            set_ip(txt_ip.text(), 0)
-            set_ip(txt_ip2.text(), 1)
-            set_port(txt_port.text())
-            set_sent_header()
-            set_start_time()
-            threading.Thread(target = init_tinfoil_net_install).start()
-        else:
-            if is_goldleaf:
-                set_transfer_rate(combo.currentIndex())
+        if not sent_header:
+            btn_header.setEnabled(False)
+            btn_nsp.setEnabled(False)
+            combo.setEnabled(False)
+            txt_ip.setEnabled(False)
+            txt_ip2.setEnabled(False)
+            net_radio.setEnabled(False)
+            usb_radio.setEnabled(False)
+            txt_port.setEnabled(False)
+            tin_radio.setEnabled(False)
+            gold_radio.setEnabled(False)
+            window.menuBar().setEnabled(False)
+            if combo.currentText() == Language.CurrentDict[5]:
+                set_transfer_rate(1)
+            elif combo.currentText() == Language.CurrentDict[6]:
+                set_transfer_rate(0)
+            if is_network:
+                set_ip(txt_ip.text(), 0)
+                set_ip(txt_ip2.text(), 1)
+                set_port(txt_port.text())
                 set_sent_header()
                 set_start_time()
-                threading.Thread(target = init_goldleaf_usb_install).start()
+                threading.Thread(target = init_tinfoil_net_install).start()
             else:
-                set_transfer_rate(combo.currentIndex())
-                set_sent_header()
-                set_start_time()
-                threading.Thread(target = init_tinfoil_usb_install).start()
+                if is_goldleaf:
+                    set_sent_header()
+                    set_start_time()
+                    threading.Thread(target = init_goldleaf_usb_install).start()
+                else:
+                    set_sent_header()
+                    set_start_time()
+                    threading.Thread(target = init_tinfoil_usb_install).start()
+        else:
+            reset_install()
         
     def nsp_file_dialog():
         try:
             if not is_goldleaf:
-                d = QFileDialog.getOpenFileNames(window, 'Open file', initial_dir, "NSP Files (*.nsp)")
+                d = filedialog.askopenfilenames(parent=root,title=Language.CurrentDict[13],filetypes=[("NSP files", "*.nsp")])
             else:
-                d = QFileDialog.getOpenFileName(window, 'Open file', initial_dir, "NSP Files (*.nsp)")
+                d = filedialog.askopenfilename(parent=root,title=Language.CurrentDict[13],filetypes=[("NSP files", "*.nsp")])
             tmp = list()
             list_nsp.clear()
             i = 0
-            nameys = d.selectedFiles()
-            for items in nameys:
-                print(items)
-            df = None
-            if '\', \'' in str(d): df = re.split('\', \'',str(d))
-            if '\", \"' in str(d): df = re.split('\", \"',str(d))
-            fil = list()
-            if df != None:
-                for a in df:
-                    if '],' in a:
-                        a = a.replace('],','')
-                        a = a[:-1]
-                    if '([' in a:
-                        a = a.replace('([','')
-                        a = a[1:]
-                    if '*.nsp' in a:
-                        a = a[:-21]
-                    fil.append(a)
+            if not is_goldleaf:
+                file_list = list(d)
+                for f in file_list:
+                    if str(f).endswith(".nsp"):
+                        i += 1
+                        list_nsp.addItem(os.path.basename(str(f)))
+                        tmp.append(f)
             else:
-                fil.append(str(d)[3:-24])
-            for f in fil:
-                i += 1
-                list_nsp.addItem(os.path.basename(str(f)))
-                tmp.append(str(f))
+                tmp.append(str(d))
+                list_nsp.addItem(os.path.basename(str(d)))
+                i+=1
             if i > 0:
                 btn_header.setEnabled(True)
                 set_total_nsp(i)
-                set_selected_files(tmp)
                 set_dir(os.path.dirname(tmp[0]))
-                l_status.setText(str(total_nsp) + " NSPs Selected.")
+                set_selected_files(tmp)
+                l_status.setText(str(total_nsp) + " " + Language.CurrentDict[14])
             else:
                 btn_header.setEnabled(False)
-                l_status.setText("Awaiting Selection.")
+                l_status.setText(Language.CurrentDict[9])
         except Exception as e:
             if is_logging:
                 logging.error(e, exc_info=True)
@@ -960,9 +1217,6 @@ try:
             set_dark_mode(False)
         
     def tin_radio_cmd():
-        l_status.setText("Awaiting Selection.")
-        btn_nsp.setText("Select NSPs")
-        l_nsp.setText("")
         txt_ip.setEnabled(False)
         txt_ip2.setEnabled(False)
         txt_port.setEnabled(False)
@@ -973,8 +1227,6 @@ try:
         split_check.setEnabled(True)
         
     def gold_radio_cmd():
-        l_status.setText("Awaiting Selection.")
-        btn_nsp.setText("Select NSP")
         txt_ip.setEnabled(False)
         txt_ip2.setEnabled(False)
         txt_port.setEnabled(False)
@@ -988,7 +1240,6 @@ try:
         list_nsp.clear()
         
     def usb_radio_cmd():
-        btn_nsp.setText("Select NSPs")
         txt_ip.setEnabled(False)
         txt_ip2.setEnabled(False)
         combo.setEnabled(True)
@@ -997,7 +1248,6 @@ try:
         split_check.setEnabled(True)
         
     def net_radio_cmd():
-        btn_nsp.setText("Select NSPs")
         txt_ip.setEnabled(True)
         txt_ip2.setEnabled(True)
         combo.setEnabled(False)
@@ -1006,6 +1256,7 @@ try:
         split_check.setCheckState(False)
         split_check.setEnabled(False)
         
+    #Unused
     def split_cmd():
         if split_check.checkState():
             btn_nsp.setText("Select Folder")
@@ -1015,13 +1266,13 @@ try:
     def set_done_text():
         tmp_string = str(total_nsp)
         reset_install()
-        l_nsp.setText("Successfully Installed " + tmp_string + " NSPs!")
+        l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
         
 
     def set_loading_text():
         l_nsp.setText("")
         l_status.setText("")
-        l_switch.setText(str(total_nsp) + " NSP(s) queued for install.")
+        l_switch.setText(str(total_nsp) + " " + Language.CurrentDict[26] + ".")
         l_switch.setStyleSheet(PURPLE)
 
     def set_progress_text():
@@ -1031,31 +1282,31 @@ try:
         if n_rate < 0:
             n_rate = 0.0
         if not is_goldleaf:
-            l_status.setText("Installing " + str(cur_nsp_count) + " of " + str(total_nsp) + " NSP(s).")
+            l_status.setText(Language.CurrentDict[27] + " " + str(cur_nsp_count) + " / " + str(total_nsp) + " NSP(s).")
         else:
-            l_status.setText("Installing " + str(cur_nca_count) + " of " + str(max_nca_count) + " NCAs.")
-        l_switch.setText("Transfer Rate: " + str(n_rate) + "MB/s.")
+            l_status.setText(Language.CurrentDict[27] + " " + str(cur_nca_count) + " / " + str(max_nca_count) + " NCAs.")
+        l_switch.setText(Language.CurrentDict[28] + ": " + str(n_rate) + "MB/s.")
         l_switch.setStyleSheet(GREEN)
         l_status.setStyleSheet(GREEN)
         if not is_goldleaf:
             if len(cur_nsp_name) > 13:
-                l_nsp.setText("Current NSP: \"" + cur_nsp_name[:13] + "...\"")
+                l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name[:13] + "...\"")
             else:
-                l_nsp.setText("Current NSP: \"" + cur_nsp_name + "\"")
+                l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
         else:
             if len(cur_nca_name) > 13:
-                l_nsp.setText("Current NCA: \"..." + cur_nca_name[-13:] + "\"")
+                l_nsp.setText(Language.CurrentDict[29] + ": \"..." + cur_nca_name[-13:] + "\"")
             else:
-                l_nsp.setText("Current NCA: \"" + cur_nca_name + "\"")
+                l_nsp.setText(Language.CurrentDict[29] + ": \"" + cur_nca_name + "\"")
 
     def set_switch_text():
         dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
         if dev is None:
-            l_switch.setText("Switch Not Detected!")
+            l_switch.setText(Language.CurrentDict[10]+"!")
             btn_header.setEnabled(False)
             l_switch.setStyleSheet(RED)
         else:
-            l_switch.setText("Switch Detected!")
+            l_switch.setText(Language.CurrentDict[11]+"!")
             l_switch.setStyleSheet(GREEN)
             if list_nsp.count() > 0:
                 btn_header.setEnabled(True)
@@ -1063,7 +1314,7 @@ try:
                 btn_header.setEnabled(False)
                     
     #Init Widgets
-    l_host = QtWidgets.QLabel("This Computers IP:")
+    l_host = QtWidgets.QLabel(Language.CurrentDict[3]+":")
     txt_ip2 = QtWidgets.QLineEdit("0.0.0.0")
     try:
         fill = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
@@ -1071,21 +1322,21 @@ try:
     except:
         pass
     l_nsp = QtWidgets.QLabel("")
-    l_ip = QtWidgets.QLabel("Switch IP:")
+    l_ip = QtWidgets.QLabel(Language.CurrentDict[2]+":")
     l_port = QtWidgets.QLabel("Port:")
     txt_ip = QtWidgets.QLineEdit("0.0.0.0")
     tin_radio = QtWidgets.QRadioButton("Adubbz/Tinfoil")
     gold_radio = QtWidgets.QRadioButton("XorTroll/Goldleaf")
     split_check = QtWidgets.QCheckBox("Use Split NSP")
-    dark_check = QtWidgets.QCheckBox("Dark Mode")
+    dark_check = QtWidgets.QCheckBox(Language.CurrentDict[20])
     usb_radio = QtWidgets.QRadioButton("USB")
-    net_radio = QtWidgets.QRadioButton("Network")
-    btn_nsp = QtWidgets.QPushButton("Select NSPs")
-    btn_header = QtWidgets.QPushButton("Begin Transfer")
-    l_rate = QtWidgets.QLabel("USB Transfer Mode")
+    net_radio = QtWidgets.QRadioButton(Language.CurrentDict[24])
+    btn_nsp = QtWidgets.QPushButton(Language.CurrentDict[13])
+    btn_header = QtWidgets.QPushButton(Language.CurrentDict[1])
+    l_rate = QtWidgets.QLabel(Language.CurrentDict[4])
     l_github = QtWidgets.QLabel("v" + VERSION)
-    l_status = QtWidgets.QLabel("Awaiting Selection.")
-    l_switch = QtWidgets.QLabel("Switch Not Detected!")
+    l_status = QtWidgets.QLabel(Language.CurrentDict[9]+".")
+    l_switch = QtWidgets.QLabel(Language.CurrentDict[10]+"!")
     list_nsp = QtWidgets.QListWidget()
     combo = QComboBox()
     
@@ -1106,8 +1357,8 @@ try:
     h3_box.addStretch()
     h3_box.addWidget(l_github)
     h_group = QtWidgets.QButtonGroup()
-    combo.addItem("Safe Mode")
-    combo.addItem("Normal Mode")
+    combo.addItem(Language.CurrentDict[6])
+    combo.addItem(Language.CurrentDict[5])
     combo.setCurrentIndex(1)
     tin_radio.setChecked(True)
     tin_radio.toggled.connect(tin_radio_cmd)
@@ -1132,29 +1383,64 @@ try:
     img_label = QLabel()
     img_label.setAlignment(Qt.AlignCenter)
 
-    #Menu Bar
-    def lang_menu_cmd(): 
-        lang_checked = list()
+    # Language Init
+    def init_language():
+        l_nsp.setText("")
+        l_status.setText(Language.CurrentDict[9]+".")
+        l_switch.setText(Language.CurrentDict[10]+"!")
+        l_ip.setText(Language.CurrentDict[2]+":")
+        dark_check.setText(Language.CurrentDict[20])
+        net_radio.setText(Language.CurrentDict[24])
+        btn_nsp.setText(Language.CurrentDict[13])
+        btn_header.setText(Language.CurrentDict[1])
+        l_rate.setText(Language.CurrentDict[4])
+        combo.clear()
+        combo.SelectedIndex = 0
+        combo.addItem(Language.CurrentDict[5])
+        combo.addItem(Language.CurrentDict[6])
+        l_host.setText(Language.CurrentDict[3]+":")
+        lang_menu.setTitle(Language.CurrentDict[22])
+        #git_menu.setTitle(Language.CurrentDict[23])
+        window.setWindowTitle(Language.CurrentDict[0])
+        
+    # Menu Bar
+    def lang_menu_cmd():
+        new_lang = None
+        ai = 0
         for action in lang_menu.actions():
             if action.isChecked():
-                lang_checked.append(action.text())
-                print(action.text())
+                if ai != language:
+                        set_language(ai)
+                        init_language()     
+            ai+=1
+    
                 
-    lang_menu = window.menuBar().addMenu('Language')
-    opt_menu = window.menuBar().addMenu('Options')
-    git_menu = window.menuBar().addMenu('Github')
-    lang_menu.addAction(QAction('English',lang_menu,checkable=True))
-    lang_menu.addAction(QAction('Korean',lang_menu,checkable=True))
-    lang_menu.addAction(QAction('Chinese',lang_menu,checkable=True))
-    lang_menu.addAction(QAction('Vietnamese',lang_menu,checkable=True))
-    lang_menu.addAction(QAction('Japanese',lang_menu,checkable=True))
-    lang_menu.triggered.connect(lang_menu_cmd)
+    lang_menu = window.menuBar().addMenu(Language.CurrentDict[22])
+    #opt_menu = window.menuBar().addMenu(Language.CurrentDict[21])
+    #git_menu = window.menuBar().addMenu(Language.CurrentDict[23])
+    lang_group = QActionGroup(lang_menu)
+    lang_group.setExclusive(True)
+    lang_group.addAction(QAction('English',lang_group,checkable=True))
+    lang_group.addAction(QAction('中文',lang_group,checkable=True))
+    lang_group.addAction(QAction('Tiếng Việt',lang_group,checkable=True))
+    lang_group.addAction(QAction('Türkçe',lang_group,checkable=True))
+    lang_group.addAction(QAction('Português Brasileiro',lang_group,checkable=True))
+    lang_group.addAction(QAction('Italian',lang_group,checkable=True))
+    lang_group.addAction(QAction('Français',lang_group,checkable=True))
+    lang_group.addAction(QAction('Español',lang_group,checkable=True))
+    lang_menu.addActions(lang_group.actions())
+    lang_group.triggered.connect(lang_menu_cmd)
     #opt_menu.triggered.connect(opt_menu_cmd)
     #git_menu.triggered.connect(git_menu_cmd)
 
-    
-
+    # Set Language
+    aix = 0
+    for action in lang_menu.actions():
+        if aix == language:
+            action.setChecked(True)
+        aix+=1
         
+    init_language()
                 
     
     # Occupy VBOX
@@ -1181,7 +1467,7 @@ try:
     v_box.addLayout(h3_box)
     window.setCentralWidget(QWidget(window))
     window.centralWidget().setLayout(v_box)
-    window.setWindowTitle('Fluffy')
+    window.setWindowTitle(Language.CurrentDict[0])
     btn_nsp.clicked.connect(nsp_file_dialog)
     btn_header.clicked.connect(send_header_cmd)
     window.setWindowIcon(QIcon(iconpixmap))
@@ -1195,7 +1481,7 @@ try:
         l_rate.setVisible(False)
         combo.setVisible(False)
         gold_radio.setVisible(False)
-        l_switch.setText("Network mode.")
+        l_switch.setText(Language.CurrentDict[12])
         l_switch.setStyleSheet(BLUE)
     if is_dark_mode:
         try:
@@ -1210,6 +1496,7 @@ try:
         dark_check.setChecked(False)
     
     # Main loop
+    
     while True:
         if last_error != "NA":
             msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
@@ -1237,7 +1524,7 @@ try:
             os.kill(pid, signal.SIGTERM)
             
         if not sent_header and not is_installing and is_network:
-            l_switch.setText("Network mode.")
+            l_switch.setText(Language.CurrentDict[12])
             l_switch.setStyleSheet(BLUE)
             if list_nsp.count() > 0:
                 btn_header.setEnabled(True)
@@ -1256,11 +1543,18 @@ try:
                     if is_installing:
                         set_progress_text()
                     else:
-                        l_status.setText("Headers Sent.")
-                        l_switch.setText("Awaiting Connection Request.")
+                        l_status.setText(Language.CurrentDict[25])
+                        l_switch.setText(Language.CurrentDict[15])
                         l_switch.setStyleSheet(PURPLE)
             except:
                 pass
+            
+        if sent_header and not is_installing and not is_done:
+            btn_header.setEnabled(True)
+            btn_header.setText(Language.CurrentDict[16])
+        if sent_header and is_installing and not is_done:
+            btn_header.setEnabled(False)
+            
         # Goldleaf & Tinfoil USB Mode
         if sent_header and not is_network:
             try:
