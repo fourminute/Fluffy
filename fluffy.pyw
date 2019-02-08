@@ -168,6 +168,8 @@ def set_language(v):
         Language.CurrentDict = Language.FrenchDict
     elif v == 7:
         Language.CurrentDict = Language.SpanishDict
+    elif v == 8:
+        Language.CurrentDict = Language.GermanDict
         
 class Language:
     CurrentDict = None
@@ -426,6 +428,38 @@ class Language:
                   27: "Instalando",
                   28: "Velocidad",
                   29: "NCA Actual",
+                   }
+
+    GermanDict = {0: "Fluffy",
+                  1: "Übertragung starten",
+                  2: "Switch-IP-Adresse",
+                  3: "Computer-IP-Adresse",
+                  4: "USB-Übertragungsmodus",
+                  5: "Normaler Modus",
+                  6: "Sicherer Modus",
+                  7: "Momentane NSP",
+                  8: "Erfolgreich installiert",
+                  9: "Warte auf Auswahl",
+                  10: "Keine Switch erkannt",
+                  11: "Switch erkannt",
+                  12: "Netzwerk-Modus",
+                  13: "NSP-Auswahl",
+                  14: "NSP(s) ausgewählt",
+                  15: "Warte auf Verbindung",
+                  16: "Abbrechen",
+                  17: "Goldleaf-Fehler!",
+                  18: "Tinfoil-Fehler!",
+                  19: "Netzwerk-Fehler!",
+                  20: "Dunkles Design",
+                  21: "Einstellungen",
+                  22: "Sprache",
+                  23: "GitHub",
+                  24: "Netzwerk",
+                  25: "Header gesendet",
+                  26: "NSP(s) in Warteschlange",
+                  27: "Installiere",
+                  28: "Transferrate",
+                  29: "Momentane NCA",
                    }
 				   
 set_language(language)
@@ -1428,6 +1462,7 @@ try:
     lang_group.addAction(QAction('Italian',lang_group,checkable=True))
     lang_group.addAction(QAction('Français',lang_group,checkable=True))
     lang_group.addAction(QAction('Español',lang_group,checkable=True))
+    lang_group.addAction(QAction('Deutsch',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(lang_menu_cmd)
     #opt_menu.triggered.connect(opt_menu_cmd)
