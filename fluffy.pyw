@@ -29,6 +29,7 @@ import threading
 import struct
 import random
 import re
+import configparser
     
 try:
     import logging
@@ -120,12 +121,14 @@ host_ip = "0.0.0.0"
 language = 0
 
 # Load Settings
-if os.path.isfile(initial_dir + '/fluffy_config.py'):
+if os.path.isfile(initial_dir + '/fluffy.conf'):
     try:
-        import fluffy_config
-        switch_ip = fluffy_config.switch_ip
-        is_dark_mode = fluffy_config.dark_mode
-        language = fluffy_config.language
+        with open(initial_dir + '/fluffy.conf') as cfgfile:
+            configp = configparser.ConfigParser()
+            configp.read_file(cfgfile)
+            switch_ip = configp.get('DEFAULT', 'switch_ip')
+            is_dark_mode = configp.get('DEFAULT', 'dark_mode')
+            language = int(configp.get('DEFAULT', 'language'))
     except:
         switch_ip = "0.0.0.0"
         is_dark_mode = True
@@ -535,16 +538,15 @@ def set_last_transfer_rate(v):
 def close_program():
     global is_exiting
     try:
+        configp = configparser.ConfigParser()
+        configp['DEFAULT'] = {'switch_ip': switch_ip,
+                              'language': language}
         if is_dark_mode:
-            with open(initial_dir + '/fluffy_config.py', 'w') as w:
-                w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
-                w.write('dark_mode = True\n')
-                w.write('language = ' + str(language) + '\n')
+            configp['DEFAULT']['dark_mode'] = 'True'
         else:
-            with open(initial_dir + '/fluffy_config.py', 'w') as w:
-                w.write('switch_ip = \"' + str(switch_ip) + "\"\n")
-                w.write('dark_mode = False\n')
-                w.write('language = ' + str(language) + '\n')
+            configp['DEFAULT']['dark_mode'] = 'False'
+        with open(initial_dir + '/fluffy.conf', 'w') as cfgfile:
+            configp.write(cfgfile)
     except:
         pass
     is_exiting = True
