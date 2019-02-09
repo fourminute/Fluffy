@@ -2,7 +2,7 @@
 ![intro](https://github.com/fourminute/Fluffy/blob/master/misc/fluffy-intro.png?raw=true)
  <b><a href="https://github.com/fourminute/Fluffy/blob/master/README_CH.md">查看中文使用说明，请点击这里！</a></b>
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.6.0</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.7.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
 ## Features
