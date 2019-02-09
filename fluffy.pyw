@@ -83,7 +83,7 @@ except:
     pass
 
 # Variables
-VERSION = "2.6.0"
+VERSION = "2.7.0"
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
@@ -127,16 +127,16 @@ if os.path.isfile(initial_dir + '/fluffy.conf'):
             configp = configparser.ConfigParser()
             configp.read_file(cfgfile)
             switch_ip = configp.get('DEFAULT', 'switch_ip')
-            is_dark_mode = configp.get('DEFAULT', 'dark_mode')
+            dark_mode = int(configp.get('DEFAULT', 'dark_mode'))
             language = int(configp.get('DEFAULT', 'language'))
     except:
         switch_ip = "0.0.0.0"
-        is_dark_mode = True
+        dark_mode = 0
         language = 0
         pass
 else:
     switch_ip = "0.0.0.0"
-    is_dark_mode = True
+    dark_mode = 0
     language = 0
    
 gold_in = None
@@ -470,11 +470,11 @@ set_language(language)
 
 # Setters
 def set_dark_mode(v):
-    global is_dark_mode
-    if v:
+    global dark_mode
+    if v == 0:
         import qdarkstyle
         app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-        is_dark_mode = True
+        dark_mode = 0
         l_github.setStyleSheet("QLabel { color: rgba(255, 255, 255, 50%) }")
         pixmap = QPixmap(dinlaypixmap)
         screen = app.primaryScreen()
@@ -492,7 +492,7 @@ def set_dark_mode(v):
         else:
             img_label.setPixmap(pixmap)
     else:
-        is_dark_mode = False
+        dark_mode = 1
         pixmap = QPixmap(inlaypixmap)
         screen = app.primaryScreen()
         app.setStyleSheet("")
@@ -540,11 +540,8 @@ def close_program():
     try:
         configp = configparser.ConfigParser()
         configp['DEFAULT'] = {'switch_ip': switch_ip,
-                              'language': language}
-        if is_dark_mode:
-            configp['DEFAULT']['dark_mode'] = 'True'
-        else:
-            configp['DEFAULT']['dark_mode'] = 'False'
+                              'language': language,
+                              'dark_mode': dark_mode}
         with open(initial_dir + '/fluffy.conf', 'w') as cfgfile:
             configp.write(cfgfile)
     except:
@@ -640,6 +637,10 @@ def reset_install():
     end_progress = 100
     init_language()
     window.menuBar().setEnabled(True)
+    if is_network:
+        net_radio_cmd()
+    else:
+        usb_radio_cmd()
 
 def throw_error(_type):
     global last_error
@@ -698,6 +699,17 @@ class PFS0:
     file_array       = []
     f                = None
     file_names       = []
+
+    @staticmethod
+    def reset():
+        PFS0.magic            = None
+        PFS0.total_files      = None
+        PFS0.string_table     = None
+        PFS0.header_remainder = None
+        PFS0.body_length      = None
+        PFS0.file_array       = []
+        PFS0.f                = None
+        PFS0.file_names       = []
     
     @staticmethod
     def open(fn):
@@ -775,7 +787,15 @@ class Goldleaf:
     magic        = 0x43554c47
     ticket_index = 0
     cmd_id       = 0
-    started      = False
+    nsp_path = ""
+
+    @staticmethod
+    def reset():
+        Goldleaf.GLUC         = 0x43554c47
+        Goldleaf.magic        = 0x43554c47
+        Goldleaf.ticket_index = 0
+        Goldleaf.cmd_id       = 0
+        Goldleaf.nsp_path = ""
 
     @staticmethod
     def write(buffer):
@@ -803,7 +823,7 @@ class Goldleaf:
         gold_out.write(bytes(packed))
     
     @staticmethod
-    def Goldleaf_USB(nsp_path):
+    def Goldleaf_USB():
         Goldleaf.write_cmd(CommandId.ConnectionRequest)
         while True:
             if is_exiting:
@@ -815,13 +835,13 @@ class Goldleaf:
                 
                 if Goldleaf.is_id(CommandId.ConnectionResponse) and Goldleaf.magic_ok():
                     Goldleaf.write_cmd(CommandId.NSPName)
-                    base_name = os.path.basename(nsp_path)
+                    base_name = os.path.basename(Goldleaf.nsp_path)
                     Goldleaf.write(struct.pack("<I",len(base_name)))
                     Goldleaf.write(base_name.encode())
                 
                 elif Goldleaf.is_id(CommandId.Start) and Goldleaf.magic_ok():
                     Goldleaf.write_cmd(CommandId.NSPData)
-                    PFS0.open(nsp_path)
+                    PFS0.open(Goldleaf.nsp_path)
                     Goldleaf.write(struct.pack("<I",len(PFS0.file_array)))
                     for i in range(len(PFS0.file_array)):
                         Goldleaf.write(struct.pack("<I",len(PFS0.file_names[i])))
@@ -851,7 +871,12 @@ class Goldleaf:
                                 pass
 
                 elif Goldleaf.is_id(CommandId.NSPTicket) and Goldleaf.magic_ok():
-                    Goldleaf.write(PFS0.read_nca(Goldleaf.ticket_index))
+                    while True:
+                        try:
+                            Goldleaf.write(PFS0.read_nca(Goldleaf.ticket_index))
+                            break
+                        except:
+                            pass
  
 
                 elif Goldleaf.is_id(CommandId.Finish) and Goldleaf.magic_ok():
@@ -865,9 +890,17 @@ class Goldleaf:
 def init_goldleaf_usb_install():
     global gold_in
     global gold_out
+    Goldleaf.reset()
+    PFS0.reset()
     for file in selected_files:
         try:
             dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+            if dev.is_kernel_driver_active(0):
+                try:
+                    dev.detach_kernel_driver(0)
+                    print("Detached Switch from kernel.")
+                except:
+                    pass
             dev.reset()
             dev.set_configuration()
             cfg = dev.get_active_configuration()
@@ -878,7 +911,8 @@ def init_goldleaf_usb_install():
             assert gold_out is not None
             assert gold_in is not None
             set_cur_nsp(os.path.basename(file))
-            Goldleaf.Goldleaf_USB(str(file))
+            Goldleaf.nsp_path = str(file)
+            Goldleaf.Goldleaf_USB()
         except Exception as e:
             if is_logging:
                 logging.error(e, exc_info=True)
@@ -1141,8 +1175,12 @@ def init_tinfoil_usb_install():
     try:
         nsp_dir = selected_dir
         dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-        if dev is None:
-            raise ValueError('Switch is not found!')
+        if dev.is_kernel_driver_active(0):
+            try:
+                dev.detach_kernel_driver(0)
+                print("Detached Switch from kernel.")
+            except:
+                pass
         dev.reset()
         dev.set_configuration()
         cfg = dev.get_active_configuration()
@@ -1245,12 +1283,12 @@ try:
     def dark_mode_cmd():
         if dark_check.isChecked():
             try:
-                set_dark_mode(True)
+                set_dark_mode(0)
             except:
                 dark_check.setChecked(False)
                 pass
         else:
-            set_dark_mode(False)
+            set_dark_mode(1)
         
     def tin_radio_cmd():
         txt_ip.setEnabled(False)
@@ -1361,8 +1399,8 @@ try:
     l_ip = QtWidgets.QLabel(Language.CurrentDict[2]+":")
     l_port = QtWidgets.QLabel("Port:")
     txt_ip = QtWidgets.QLineEdit("0.0.0.0")
-    tin_radio = QtWidgets.QRadioButton("Adubbz/Tinfoil")
-    gold_radio = QtWidgets.QRadioButton("XorTroll/Goldleaf")
+    tin_radio = QtWidgets.QRadioButton("Tinfoil")
+    gold_radio = QtWidgets.QRadioButton("Goldleaf")
     split_check = QtWidgets.QCheckBox("Use Split NSP")
     dark_check = QtWidgets.QCheckBox(Language.CurrentDict[20])
     usb_radio = QtWidgets.QRadioButton("USB")
@@ -1461,7 +1499,7 @@ try:
     lang_group.addAction(QAction('Tiếng Việt',lang_group,checkable=True))
     lang_group.addAction(QAction('Türkçe',lang_group,checkable=True))
     lang_group.addAction(QAction('Português Brasileiro',lang_group,checkable=True))
-    lang_group.addAction(QAction('Italian',lang_group,checkable=True))
+    lang_group.addAction(QAction('Italiano',lang_group,checkable=True))
     lang_group.addAction(QAction('Français',lang_group,checkable=True))
     lang_group.addAction(QAction('Español',lang_group,checkable=True))
     lang_group.addAction(QAction('Deutsch',lang_group,checkable=True))
@@ -1520,16 +1558,16 @@ try:
         gold_radio.setVisible(False)
         l_switch.setText(Language.CurrentDict[12])
         l_switch.setStyleSheet(BLUE)
-    if is_dark_mode:
+    if dark_mode == 0:
         try:
-            set_dark_mode(True)
+            set_dark_mode(0)
             dark_check.setChecked(True)
         except:
-            set_dark_mode(False)
+            set_dark_mode(1)
             dark_check.setChecked(False)
             pass
     else:
-        set_dark_mode(False)
+        set_dark_mode(1)
         dark_check.setChecked(False)
     
     # Main loop
@@ -1552,6 +1590,10 @@ try:
         QApplication.processEvents()
         
         if not window.isVisible():
+            try:
+                switch_ip = txt_ip.text()
+            except:
+                pass
             close_program()
             pid = os.getpid()
             os.kill(pid, signal.SIGTERM)
