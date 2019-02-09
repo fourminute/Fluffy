@@ -83,7 +83,7 @@ except:
     pass
 
 # Variables
-VERSION = "2.7.0"
+VERSION = "2.7.1"
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
@@ -895,12 +895,6 @@ def init_goldleaf_usb_install():
     for file in selected_files:
         try:
             dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-            if dev.is_kernel_driver_active(0):
-                try:
-                    dev.detach_kernel_driver(0)
-                    print("Detached Switch from kernel.")
-                except:
-                    pass
             dev.reset()
             dev.set_configuration()
             cfg = dev.get_active_configuration()
@@ -1175,12 +1169,6 @@ def init_tinfoil_usb_install():
     try:
         nsp_dir = selected_dir
         dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-        if dev.is_kernel_driver_active(0):
-            try:
-                dev.detach_kernel_driver(0)
-                print("Detached Switch from kernel.")
-            except:
-                pass
         dev.reset()
         dev.set_configuration()
         cfg = dev.get_active_configuration()
