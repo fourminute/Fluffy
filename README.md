@@ -66,7 +66,7 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 * Install Python3:
 * ```sudo apt install python3 python3-pip python3-tk```.
 * Then open Terminal and run this command:
-* ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle```.
+* ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser```.
 
 #### 2/2) Download Fluffy and Switch Rule
 Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and <a href="https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules">80-fluffy-switch.rules</a>.
