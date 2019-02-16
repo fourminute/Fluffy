@@ -49,7 +49,7 @@
 ### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
 * Open Command-line/CMD (Start, search "CMD") and run the following:
 ```
-pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle
+pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 ```
 
 ### Additional Windows Instructions
@@ -102,6 +102,7 @@ sudo ./install.sh
 ```
  brew install libusb 
  brew reinstall python --with-tcl-tk
+ pip3 install configparser
 ```
 <i>For more info on brew, head to https://brew.sh/</i>
 
