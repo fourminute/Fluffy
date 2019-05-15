@@ -173,6 +173,8 @@ def set_language(v):
         Language.CurrentDict = Language.SpanishDict
     elif v == 8:
         Language.CurrentDict = Language.GermanDict
+    elif v == 9:
+        Language.CurrentDict = Language.IndonesiaDict
         
 class Language:
     CurrentDict = None
@@ -464,6 +466,39 @@ class Language:
                   28: "Transferrate",
                   29: "Momentane NCA",
                    }
+
+    IndonesiaDict = {0: "Fluffy",
+                  1: "Memulai Transfer",
+                  2: "Ganti IP",
+                  3: "IP Komputer Ini",
+                  4: "Mode Transfer melalui USB",
+                  5: "Mode Normal",
+                  6: "Mode Aman",
+                  7: "NSP Saat Ini",
+                  8: "Penerapaan Berhasil",
+                  9: "Menunggu Pilihan",
+                  10: "Switch tidak terdeteksi",
+                  11: "Switch terdeteksi",
+                  12: "Mode Jaringan",
+                  13: "Pemilihan NSP",
+                  14: "NSP(s) Terpilih",
+                  15: "Menunggu Request Koneksi",
+                  16: "Batal",
+                  17: "Error: Goldleaf Melemparkan Pengecualian.",
+                  18: "Error: Tinfoil Melemparkan Pengecualian.",
+                  19: "Error: Jaringan Melemparkan Pengecualian.",
+                  20: "Mode Gelap",
+                  21: "Opsi",
+                  22: "Bahasa",
+                  23: "Github",
+                  24: "Jaringan",
+                  25: "Headers Terkirim",
+                  26: "NSP dalam Antrian",
+                  27: "Menerapkan",
+                  28: "Kecepatan Transfer",
+                  29: "NCA Saat Ini",
+                   }
+                   
 				   
 set_language(language)
 # End Language
@@ -1491,6 +1526,7 @@ try:
     lang_group.addAction(QAction('Français',lang_group,checkable=True))
     lang_group.addAction(QAction('Español',lang_group,checkable=True))
     lang_group.addAction(QAction('Deutsch',lang_group,checkable=True))
+    lang_group.addAction(QAction('Bahasa Indonesia',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(lang_menu_cmd)
     #opt_menu.triggered.connect(opt_menu_cmd)
