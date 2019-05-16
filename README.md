@@ -5,6 +5,9 @@
 #### All donations are appreciated! Thank you if you decide to donate!
 * <b>Monero</b>:  4APPsi7nnAs4ZjGC58V5CjVnceEvnZbY1WCBSjmcQsKhGPWLL2EaoUDU2RVFnuLEnASRA2ECXD4YvQ8hyVyZg1raJ482yei
 
+
+![License](https://img.shields.io/badge/License-GPLv3-blue.svg) [![Releases](https://img.shields.io/github/downloads/fourminute/fluffy/total.svg)]() [![LatestVer](https://img.shields.io/github/release-pre/fourminute/fluffy.svg)]()
+
 ### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.8.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
 
