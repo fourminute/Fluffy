@@ -121,10 +121,12 @@ cd /path/to/files/
 sudo ./install.sh
 ```
 ## MacOS instructions
+<sub>Special thanks to <a href="https://github.com/GuillaumeJulien">GuillaumeJulien</a> for these instructions.</sup>
 ```
- brew install libusb 
- brew reinstall python --with-tcl-tk
- pip3 install configparser
+brew install tcl-tk
+brew reinstall python3
+pip3 install configparser
+python3 ./fluffy.pyw
 ```
 <i>For more info on brew, head to https://brew.sh/</i>
 
