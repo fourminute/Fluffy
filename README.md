@@ -190,4 +190,22 @@ Answer: You need to make a <a href=https://github.com/fourminute/Fluffy/blob/mas
 
 <b>Still having problems? Consider making a bug report on this GitHub page to request assistance.</b>
 
+
+## Credits
+
+Fluffy was developed from the ground-up by Fourminute, including almost all of the features and bug fixes throughout. But there have been several people that have devoted their time and effort into improving Fluffy.
+
+I would like to extend my thanks to the people below for helping make Fluffy what it is today.
+
+* <a href="https://github.com/wendyliga">wendyliga</a> for their Bahasa Indonesia translation.
+* <a href="https://github.com/TheLastZombie">TheLastZombie</a> for their German translation.
+* <a href="https://github.com/YoyPa">YoyPa</a> for their many and various code contributions, creating and maintaining the Fluffy Arch Linux repository, as well as their Spanish and French translations.
+* <a href="https://github.com/friedkeenan">friedkeenan</a> for their Goldleaf v0.5 compatibility fixes.
+* <a href="https://github.com/TorpedoXL">TorpedoXL</a> for their Turkish translation.
+* <a href="https://github.com/DavidOliM">DavidOliM</a> for their Brazilian Portuguese translation.
+* <a href="https://github.com/danypava">danypava</a> for their Italian translation.
+* <a href="https://github.com/Sev73n">Sev73n</a> for their Chinese(Mandarin) translation as well as translating the entire README.
+
+To anyone else that I missed, thank you.
+
 <i>Disclaimer: The "Pink Donut" design was designed by fourminute exclusively for Fluffy and infringes on no copyright. The font used in "intro.png" is also 100% royalty free.</i>
