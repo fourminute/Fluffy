@@ -125,7 +125,7 @@ sudo ./install.sh
 ```
 brew install tcl-tk
 brew reinstall python3
-pip3 install configparser
+pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 python3 ./fluffy.pyw
 ```
 <sub><i>For more info on brew, head to https://brew.sh/</i></sup>
