@@ -83,6 +83,8 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 * ```sudo apt install python3 python3-pip python3-tk```.
 * Then open Terminal and run this command:
 * ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser```.
+* If that doesn't work try
+* ```pip install pyusb pyqt5 libusb libusb1 qdarkstyle configparser```.
 
 #### 2/2) Download Fluffy and Switch Rule
 Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and <a href="https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules">80-fluffy-switch.rules</a>.
@@ -125,13 +127,22 @@ sudo ./install.sh
 ## How-To-Use
 Complete beginner? No problem. 
 * <b>First follow the installation steps above. Done? Let's continue!</b>
-* On your Switch running Custom Firmware open TinFoil > Title Management > USB Install NSP.
-* Double-click on Fluffy.pyw to start it (Linux users: type ```fluffy``` in your start menu or terminal).
-* Click "Select NSPs" and select as many NSPs as you want to install.
+* On your Switch running Custom Firmware(for example, ReINX or Atmosphere) open TinFoil > Title Management > USB Install NSP.
+* Start Fluffy.pyw.
+* Click "NSP Selection" and select as many NSPs as you want to install.
+* Connect your Switch to your computer.
 * If "Switch Detected!" is visible. Click "Begin Transfer".
-* On your Switch, select and install the NSPs.
+* On your Switch, follow the on-screen instructions.
 
 ## Troubleshooting Tips
+<b>(Linux)Fluffy.pyw still shows up as an unknown file?</b>
+
+Answer: Install IDLE, a Python interface that allows you to run Python executables.
+```
+sudo apt-get install idle3
+```
+Open IDLE > Open Fluffy.pyw then select Run > Run Module.
+
 <b>Why do I keep getting the error: "USBCore No Backend Available"?</b>
 
 Answer: This can be caused by 1-2 things.
