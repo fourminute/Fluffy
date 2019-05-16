@@ -128,7 +128,7 @@ brew reinstall python3
 pip3 install configparser
 python3 ./fluffy.pyw
 ```
-<i>For more info on brew, head to https://brew.sh/</i>
+<sub><i>For more info on brew, head to https://brew.sh/</i></sup>
 
 ## How-To-Use
 Complete beginner? No problem. 
