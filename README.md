@@ -25,6 +25,17 @@
 * Switch connected indicator.
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
 
+## Differences between other NSP installers.
+* Fluffy has <i>the most</i> stable and feature-rich NSP network install available.
+> * Fluffy randomizes port selection to allow for multiple consecutive network installs.
+> * Fluffy spoofs the file name sent to the Switch to fix a bug present in the original TinFoil's Network Install that causes a crash when installing NSP's with lengthy file names.
+> * Fluffy allows invidivual NSP selection when installing via Network.
+* Fluffy features proper error handling for both USB and Network installs, to better let you know what went wrong! This also means no more program restarts when an install fails.
+* Fluffy features <i>Safe Mode</i> installation for those of you with aging computers that makes it impossible to install NSP's with an outdated/slow USB port.
+* Fluffy is seemlessly cross compatible between <b>Windows</b>, <b>Linux</b>, and <b>MacOS</b>.
+* Fluffy displays highly-accurate transfer rate in MB/s when installing NSP's on either USB or Network.
+* Fluffy has been translated in <b>10 different languages</b>!
+
 # Screenshot
 ![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/screenshotv250b.png?raw=true)
 
