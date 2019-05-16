@@ -42,9 +42,12 @@
 * Fluffy displays highly-accurate transfer rate in MB/s when installing NSP's on either USB or Network.
 * Fluffy has been translated in <b>10 different languages</b>!
 
-# Screenshot
+# Multi-Language Screenshot
 ![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui2.png?raw=true)
 
+# Dark Mode Screenshot
+
+![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui1.png?raw=true)
 
 # Instructions For Use
 
