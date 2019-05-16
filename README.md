@@ -121,6 +121,8 @@ sudo apt-get install idle3
 Open IDLE > Open Fluffy.pyw then select Run > Run Module.
 
 ### Arch/Manjaro/Antergos
+<b>Warning: This repo may be outdated, check repo version before installing. It is always recommended to use the latest version of Fluffy.</b>
+
 Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
 
 
