@@ -43,7 +43,7 @@
 * Fluffy has been translated in <b>10 different languages</b>!
 
 # Screenshot
-![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui1.png?raw=true)
+![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui2.png?raw=true)
 
 
 # Instructions For Use
