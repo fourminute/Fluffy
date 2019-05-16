@@ -44,7 +44,7 @@
 
 # Screenshot
 
-<img src="https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui3.png?raw=true" width="700"/>
+<img src="https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui3.png?raw=true" width="650"/>
 
 # Multi-Language Screenshot
 ![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui2.png?raw=true)
