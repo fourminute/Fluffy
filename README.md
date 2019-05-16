@@ -24,7 +24,7 @@
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
 * Support for UI scaling on 4K, 1080P, and 720P displays.
 * Show current NSP being installed.
-* Individual NSP selection (suggest by: <b>Shadowhand</b>, thanks!).
+* Individual NSP selection with batch NSP install for both Network and USB.
 * Tasty donut.
 * Switch connected indicator.
 * 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
@@ -33,7 +33,7 @@
 * Fluffy has <i>the most</i> stable and feature-rich NSP network install available.
 	* Fluffy randomizes port selection to allow for multiple consecutive network installs.
 	* Fluffy spoofs the file name sent to the Switch to fix a bug present in the original TinFoil's Network Install that causes a crash when installing NSP's with lengthy file names.
-	* Fluffy allows invidivual NSP selection when installing via Network.
+	* Fluffy allows invidivual(and multiple) NSP selection when installing via Network.
 	* Fluffy shows live network transfer rate in MB/s, no need to look at your Switch!
 	* Fluffy displays the current NSP being transferred via Network.
 * Fluffy features proper error handling for both USB and Network installs, to better let you know what went wrong! This also means no more program restarts when an install fails.
