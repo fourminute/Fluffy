@@ -155,11 +155,10 @@ Complete beginner? No problem.
 ## Troubleshooting Tips
 <b>(Linux)Fluffy.pyw still shows up as an unknown file?</b>
 
-Answer: Install IDLE, a Python interface that allows you to run Python executables.
+Answer: Run it using Terminal
 ```
-sudo apt-get install idle3
+python3 fluffy.pyw
 ```
-Open IDLE > Open Fluffy.pyw then select Run > Run Module.
 
 <b>Why do I keep getting the error: "USBCore No Backend Available"?</b>
 
@@ -180,7 +179,7 @@ Answer: This is normal. Network install can sometimes take a long time to work d
 
 <b>PyUSB Not Found and I've followed all the steps!</b>
 
-Answer: **Fluffy only works with Python 3 32-bit version.** Also be ensure no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error.
+Answer: **Fluffy only works with Python 3 32-bit version.** Also ensure that no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error.
 
 <b>What kind of cable does the Switch use?</b>
 
@@ -194,9 +193,9 @@ Answer: Absolutely! Python is cross-platform and so Fluffy should work on both o
 
 Answer: All of them will work the same. That is up to you.
 
-<b>Why does my install keeps hanging and/or crashing?</b>
+<b>Why does my install keep hanging and/or crashing?</b>
 
-Answer: Switch Transfer Mode to "Safe".
+Answer: Switch Transfer Mode to "Safe Mode".
 
 <b>Why do I have unsufficient permission error (usb)(linux)? (credit: YoyPa)</b>
 
