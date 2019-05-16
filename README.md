@@ -156,9 +156,9 @@ Answer: This can be caused by 1-2 things.
 Python by default *wants* to run in 64-bit mode, however, when this happens Fluffy won't work. As you may already know, Fluffy does not, will not, and cannot run in 64-bit Python. To bypass this behavior you can alternative open Fluffy.pyw in IDLE(32-bit mode) and click Run > Run Module.
 
 
-<b>Why does network install fail?</b>
+<b>Why does network install hang/freeze?</b>
 
-Answer: Network install is a hit or miss depending on your setup. Try forwarding port 2000 in your router and disabling your firewall. Ensure your Switch and PC are on the same network.
+Answer: This is normal. Network install can sometimes take a long time to work depending on your nework, how many devices are using your WiFi, your WiFi speed, etc. Give it some time and it will initiate the transfer. It may take several minutes.
 
 <b>PyUSB Not Found and I've followed all the steps!</b>
 
