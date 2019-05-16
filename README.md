@@ -66,7 +66,7 @@
 ### 2/3) Install Python
 * Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b> Also be sure to include Tkinter with your installation(it should be a default option).
 
-### 3/3) Install PyUSB, LibUSB, PyQt5, QDarkStyle
+### 3/3) Install Python Dependencies
 * Open Command-line/CMD (Start, search "CMD") and run the following:
 ```
 pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
@@ -81,7 +81,7 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 
 ### Ubuntu/Debian based distributions
 
-#### 1/2) Install Python and Dependencies
+#### 1/3) Install Python and Dependencies
 * Required: ```python3 python3-pyusb python3-pyqt5 python3-tk python3.6-tk libusb libusb1 qdarkstyle```.
 * Install Python3:
 * ```sudo apt install python3 python3-pip python3-tk```.
@@ -90,7 +90,7 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 * If that doesn't work try
 * ```pip install pyusb pyqt5 libusb libusb1 qdarkstyle configparser```.
 
-#### 2/2) Download Fluffy and Switch Rule
+#### 2/3) Download Fluffy and Switch Rule
 Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and <a href="https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules">80-fluffy-switch.rules</a>.
 
 Open Terminal and change into the directory where these files are located using the cd command:
@@ -107,6 +107,18 @@ Then give both the proper permissions:
 sudo chmod 644 /etc/udev/rules.d/80-fluffy-switch.rules
 sudo chmod 755 fluffy.pyw
 ```
+#### 3/3) Starting Fluffy
+To start Fluffy.pyw you should be able to double-click to open. But if that doesn't work, you may need to run Fluffy.pyw using Terminal.
+
+Open Terminal and Enter:
+```
+python3 /path/to/fluffy.pyw
+```
+<i>Alternatively</i>, you can install IDLE(A Python interface).
+```
+sudo apt-get install idle3
+```
+Open IDLE > Open Fluffy.pyw then select Run > Run Module.
 
 ### Arch/Manjaro/Antergos
 Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
