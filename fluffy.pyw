@@ -31,6 +31,7 @@ import struct
 import random
 import re
 import configparser
+import psutil
     
 try:
     import logging
@@ -674,6 +675,8 @@ def reset_install():
         net_radio_cmd()
     else:
         usb_radio_cmd()
+    if is_goldleaf:
+        btn_nsp.setEnabled(False)
 
 def throw_error(_type):
     global last_error
@@ -718,105 +721,38 @@ def set_goldleaf(v):
     global is_goldleaf
     is_goldleaf = v
     
-
-
-
-
-# PFS0 & Goldleaf by fourminute.
-# Goldleaf v0.5 compatibility fix by Friedkeenan.
-class PFS0:
-    @staticmethod
-    def reset():
-        PFS0.magic            = None
-        PFS0.total_files      = None
-        PFS0.string_table     = None
-        PFS0.header_remainder = None
-        PFS0.body_length      = None
-        PFS0.file_array       = []
-        try:
-            PFS0.f.close()
-        except:
-            pass
-        PFS0.f                = None
-        PFS0.file_names       = []
-    
-    @staticmethod
-    def open(fn):
-        PFS0.f = open(fn, 'rb')
-        PFS0.f.seek(0)
-        PFS0.magic = PFS0.f.read(4).decode()
-        if PFS0.magic != 'PFS0':
-            print("PFS0 didn't check out. Possible NSP corruption.")
-        PFS0.total_files      = struct.unpack("<I",PFS0.f.read(4))[0]
-        PFS0.header_remainder = struct.unpack("<I",PFS0.f.read(4))[0]
-        PFS0.string_table = 0x10 + 0x18 * PFS0.total_files
-        PFS0.f.read(4)
-        PFS0.file_array = []
-        for i in range(PFS0.total_files):
-            nca_offset = struct.unpack("<Q",PFS0.f.read(8))[0]
-            nca_size   = struct.unpack("<Q",PFS0.f.read(8))[0]
-            name_offset= struct.unpack("<I",PFS0.f.read(4))[0]
-            PFS0.file_array.append((nca_offset,nca_size,name_offset))
-            PFS0.f.read(4)
-        PFS0.body_length = PFS0.f.tell() + PFS0.header_remainder
-        for i in range(PFS0.total_files):
-            PFS0.f.seek(PFS0.string_table+PFS0.file_array[i][2])
-            fn = b''
-            while True:
-                b = PFS0.f.read(1)
-                if b == b'\x00': break
-                fn += b
-            PFS0.file_names.append(fn.decode())    
-   
-    @staticmethod
-    def read_chunks(index):
-        global transfer_rate
-        global last_transfer_rate
-        chunk_size = transfer_rate
-        abs_sz = int(PFS0.file_array[index][1])
-        abs_off = int(PFS0.body_length+PFS0.file_array[index][0])
-        PFS0.f.seek(abs_off)
-        end = abs_off + abs_sz
-        while True:
-            if is_exiting:
-                pid = os.getpid()
-                os.kill(pid, signal.SIGTERM)
-            to_read = end - PFS0.f.tell()
-            if to_read < chunk_size:
-                yield PFS0.f.read(to_read)
-                break
-            else:
-                yield PFS0.f.read(chunk_size)
-            set_progress(int(PFS0.f.tell()), abs_sz)
-            elapsed_time = time.time() - start_time
-            if elapsed_time >= 1:
-                set_cur_transfer_rate(int(PFS0.f.tell()) - last_transfer_rate)
-                set_last_transfer_rate(int(PFS0.f.tell()))
-                set_start_time()
-   
-    @staticmethod
-    def read_nca(index):
-        PFS0.f.seek(PFS0.body_length+PFS0.file_array[index][0])
-        return PFS0.f.read(PFS0.file_array[index][1])
-        
-        
-            
+# Goldleaf            
 class CommandId:
-    ConnectionRequest = 0
-    ConnectionResponse= 1
-    NSPName=            2
-    Start=              3
-    NSPData=            4
-    NSPContent=         5
-    NSPTicket=          6
-    Finish=             7
-  
+    ListSystemDrives = 0
+    GetEnvironmentPaths = 1
+    GetPathType = 2
+    ListDirectories = 3
+    ListFiles = 4
+    GetFileSize = 5
+    FileRead = 6
+    FileWrite = 7
+    CreateFile = 8
+    CreateDirectory = 9
+    DeleteFile = 10
+    DeleteDirectory = 11
+    RenameFile = 12
+    RenameDirectory = 13
+    GetDriveTotalSpace = 14
+    GetDriveFreeSpace = 15
+    GetNSPContents = 16
+    Max = 17
+
+class CommandReadResult:
+    Success = 0
+    InvalidMagic = 1
+    InvalidCommandId = 2
+
 class Goldleaf:
     @staticmethod
     def connect_usb():
-        dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-        dev.set_configuration()
-        intf = dev.get_active_configuration()[(0,0)]
+        Goldleaf.dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+        Goldleaf.dev.set_configuration()
+        intf = Goldleaf.dev.get_active_configuration()[(0,0)]
         Goldleaf.gold_out = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_OUT)
         Goldleaf.gold_in = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_IN)
             
@@ -824,125 +760,211 @@ class Goldleaf:
     def reset():
         Goldleaf.GLUC         = b"GLUC"
         Goldleaf.magic        = b"GLUC"
-        Goldleaf.ticket_index = 0
         Goldleaf.cmd_id       = 0
-        Goldleaf.nsp_path = ""
+        Goldleaf.drives       = {}
+        
         
     @staticmethod
     def write(buffer):
         Goldleaf.gold_out.write(buffer,timeout=3000)
 
     @staticmethod
+    def read(length):
+        return Goldleaf.gold_in.read(length,timeout=0).tobytes()
+        
+    @staticmethod
+    def write_u32(x):
+        Goldleaf.gold_out.write(struct.pack("<I", x))
+        
+    @staticmethod
+    def write_u64(x):
+        Goldleaf.gold_out.write(struct.pack("<Q", x))
+        
+    @staticmethod
+    def write_string(x):
+        Goldleaf.write_u32(len(x))
+        Goldleaf.write(x.encode())
+        
+    @staticmethod
+    def read_u32():
+        return struct.unpack("<I", Goldleaf.read(4))[0]
+    
+    @staticmethod
+    def read_u64():
+        return struct.unpack("<Q", Goldleaf.read(8))[0]
+    
+    @staticmethod
+    def read_string():
+        return Goldleaf.read(Goldleaf.read_u32() + 1)[:-1].decode()
+    
+    @staticmethod
     def magic_ok():
         return Goldleaf.GLUC == Goldleaf.magic
-    
+        
     @staticmethod
     def is_id(a_cmd):
         return a_cmd == Goldleaf.cmd_id
     
     @staticmethod
-    def read(length):
-        return Goldleaf.gold_in.read(length,timeout=3000).tobytes()
-    
-    @staticmethod
     def read_cmd():
-        data = Goldleaf.read(4)+Goldleaf.read(4)
-        Goldleaf.magic = data[:4]
-        Goldleaf.cmd_id = struct.unpack("<I",data[4:])[0]
-
+        Goldleaf.magic = Goldleaf.read(4)
+        Goldleaf.cmd_id = Goldleaf.read_u32()
     @staticmethod
     def write_cmd(a_cmd):
-        Goldleaf.gold_out.write(Goldleaf.magic,timeout=3000)
-        Goldleaf.gold_out.write(struct.pack("<I",a_cmd),timeout=3000)
+        Goldleaf.write(Goldleaf.magic)
+        Goldleaf.write_u32(a_cmd)
+
+    @staticmethod
+    def read_path():
+        path = Goldleaf.read_string()
+        drive = path.split(":", 1)[0]
+        try:
+            path = path.replace(drive + ":", Goldleaf.drives[drive])
+        except KeyError:
+            pass
+        if ':/' in path:
+            path = path.replace(':/','/')
+        return path
     
     @staticmethod
-    def Goldleaf_USB():
-        Goldleaf.write_cmd(CommandId.ConnectionRequest)
+    def goldleaf_usb():
         while True:
             if is_exiting:
                 pid = os.getpid()
                 os.kill(pid, signal.SIGTERM)
             try:
-                
-                Goldleaf.read_cmd()
-                
-                if Goldleaf.is_id(CommandId.ConnectionResponse) and Goldleaf.magic_ok():
-                    print('got resp')
-                    Goldleaf.write_cmd(CommandId.NSPName)
-                    base_name = os.path.basename(Goldleaf.nsp_path)
-                    Goldleaf.write(struct.pack("<I",len(base_name)))
-                    Goldleaf.write(base_name.encode())
-                
-                elif Goldleaf.is_id(CommandId.Start) and Goldleaf.magic_ok():
-                    Goldleaf.write_cmd(CommandId.NSPData)
-                    PFS0.open(Goldleaf.nsp_path)
-                    Goldleaf.write(struct.pack("<I",len(PFS0.file_array)))
-                    for i in range(len(PFS0.file_array)):
-                        Goldleaf.write(struct.pack("<I",len(PFS0.file_names[i])))
-                        Goldleaf.write(PFS0.file_names[i].encode())
-                        Goldleaf.write(struct.pack("<Q",PFS0.body_length+PFS0.file_array[i][0]))
-                        Goldleaf.write(struct.pack("<Q",PFS0.file_array[i][1]))
-                        if '.tik' in PFS0.file_names[i].lower():
-                            Goldleaf.ticket_index = i
-                    complete_loading()
-
-                elif Goldleaf.is_id(CommandId.NSPContent) and Goldleaf.magic_ok():
-                    index = struct.unpack("<I", Goldleaf.read(4))[0]
-                    try:
-                        set_nca_name(PFS0.file_names[index])
-                        set_nca_count(index+1, len(PFS0.file_array))
-                    except:
-                        pass
-                    for buffer in PFS0.read_chunks(index):
-                        while True:
-                            if is_exiting:
-                                pid = os.getpid()
-                                os.kill(pid, signal.SIGTERM)
-                            try:
-                                Goldleaf.write(buffer)
-                                break
-                            except:
-                                pass
-
-                elif Goldleaf.is_id(CommandId.NSPTicket) and Goldleaf.magic_ok():
-                    while True:
+                try:
+                    Goldleaf.read_cmd()
+                except:
+                    pass
+                if Goldleaf.magic_ok():
+                    if Goldleaf.is_id(CommandId.ListSystemDrives):
+                        if "win" not in sys.platform:
+                            Goldleaf.drives["ROOT"] = "/"
+                        else:
+                            import string
+                            from ctypes import windll
+                            bitmask = windll.kernel32.GetLogicalDrives()
+                            for letter in string.ascii_uppercase:
+                                if bitmask & 1:
+                                    print(letter)
+                                    Goldleaf.drives[letter] = letter + ":"
+                                bitmask >>= 1
+                        for d in sys.argv[1:]:
+                            folder = os.path.abspath(d)
+                            if os.path.isfile(folder):
+                                folder = os.path.dirname(folder)
+                            Goldleaf.drives[os.path.basename(folder)] = folder
+                        Goldleaf.write_u32(len(Goldleaf.drives))
+                        for d in Goldleaf.drives:
+                            Goldleaf.write_string(d)
+                            Goldleaf.write_string(d)
+                    elif Goldleaf.is_id(CommandId.GetEnvironmentPaths):
+                        env_paths = {x:os.path.expanduser("~/"+x) for x in ["Desktop", "Documents"]}
+                        Goldleaf.write_u32(len(env_paths))
+                        for env in env_paths:
+                            Goldleaf.write_string(env)
+                            Goldleaf.write_string(env_paths[env])
+                            print(env, env_paths[env])
+                    elif Goldleaf.is_id(CommandId.GetPathType):
+                        ptype = 0
+                        path = Goldleaf.read_path()
+                        if os.path.isfile(path):
+                            ptype = 1
+                        elif os.path.isdir(path):
+                            ptype = 2
+                        Goldleaf.write_u32(ptype)
+                    elif Goldleaf.is_id(CommandId.ListDirectories):
+                        path = Goldleaf.read_path()
+                        ents = [x for x in os.listdir(path) if os.path.isdir(os.path.join(path, x))]
+                        Goldleaf.write_u32(len(ents))
+                        for name in ents:
+                            Goldleaf.write_string(name)
+                    elif Goldleaf.is_id(CommandId.ListFiles):
+                        path = Goldleaf.read_path()
+                        ents = [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))]
+                        Goldleaf.write_u32(len(ents))
+                        for name in ents:
+                            Goldleaf.write_string(name)
+                    elif Goldleaf.is_id(CommandId.GetFileSize):
+                        path = Goldleaf.read_path()
+                        Goldleaf.write_u64(os.path.getsize(path))
+                    elif Goldleaf.is_id(CommandId.FileRead):
+                        complete_loading()
+                        offset = Goldleaf.read_u64()
+                        size = Goldleaf.read_u64()
+                        path = Goldleaf.read_path()
+                        with open(path, "rb") as f:
+                            f.seek(offset)
+                            data = f.read(size)
+                        Goldleaf.write_u64(len(data))
+                        Goldleaf.write(data)
+                    elif Goldleaf.is_id(CommandId.FileWrite):
+                        path = Goldleaf.read_path()
+                        offset = Goldleaf.read_u64()
+                        size = Goldleaf.read_u64()
+                        data = Goldleaf.read(size)
+                        with open(path, "rwb") as f:
+                            cont=bytearray(f.read())
+                            cont[offset:offset + size] = data
+                            f.write(cont)
+                    elif Goldleaf.is_id(CommandId.CreateFile):
+                        path = Goldleaf.read_path()
+                        open(path, "a").close()
+                    elif Goldleaf.is_id(CommandId.CreateDirectory):
+                        path = Goldleaf.read_path()
                         try:
-                            Goldleaf.write(PFS0.read_nca(Goldleaf.ticket_index))
-                            break
-                        except:
+                            os.mkdir(path)
+                        except os.FileExistsError:
                             pass
- 
-
-                elif Goldleaf.is_id(CommandId.Finish) and Goldleaf.magic_ok():
-                    set_progress(100,100)
-                    complete_install()
-                    sys.exit()
-            except:
-                pass
+                    elif Goldleaf.is_id(CommandId.DeleteFile):
+                        path = Goldleaf.read_path()
+                        os.remove(path)
+                    elif Goldleaf.is_id(CommandId.DeleteDirectory):
+                        path = Goldleaf.read_path()
+                        shutil.rmtree(path)
+                    elif Goldleaf.is_id(CommandId.RenameFile) or Goldleaf.is_id(CommandId.RenameDirectory):
+                        path = Goldleaf.read_path()
+                        new_name = Goldleaf.read_string()
+                        os.rename(path, new_name)
+                    elif Goldleaf.is_id(CommandId.GetDriveTotalSpace):
+                        path = Goldleaf.read_path()
+                        Goldleaf.write_u64(psutil.disk_usage(path).total)
+                    elif Goldleaf.is_id(CommandId.GetDriveFreeSpace):
+                        path = Goldleaf.read_path()
+                        Goldleaf.write_u64(psutil.disk_usage(path).free)
+                    else:
+                        set_progress(100,100)
+                        complete_install()
+                        sys.exit()
+            except Exception as e:
+                if is_logging:
+                    logging.error(e, exc_info=True)
+                throw_error(0)
+                try:
+                    usb.util.dispose_resources(Goldleaf.dev)
+                    Goldleaf.dev.reset()
+                except:
+                    pass
+                sys.exit()
         return 0
 
 def init_goldleaf_usb_install():
-    Goldleaf.reset()
-    PFS0.reset()
-    for file in selected_files:
+    try:
+        Goldleaf.reset()
+        Goldleaf.connect_usb()
+    except Exception as e:
+        if is_logging:
+            logging.error(e, exc_info=True)
+        throw_error(0)
         try:
-            set_cur_nsp(os.path.basename(file))
-            Goldleaf.nsp_path = str(file)
-            Goldleaf.connect_usb()
-            Goldleaf.Goldleaf_USB()
-        except Exception as e:
-            if is_logging:
-                logging.error(e, exc_info=True)
-            throw_error(0)
-            try:
-                usb.util.dispose_resources(dev)
-                dev.reset()
-            except:
-                pass
-            sys.exit()
-        usb.util.dispose_resources(dev)
-        dev.reset()
+            usb.util.dispose_resources(Goldleaf.dev)
+            Goldleaf.dev.reset()
+        except:
+            pass
         sys.exit()
+    Goldleaf.goldleaf_usb()
+
 
 # Tinfoil Network
 netrlist = []
@@ -1310,6 +1332,9 @@ try:
         net_radio.setVisible(True)
         set_goldleaf(False)
         split_check.setEnabled(True)
+        l_status.setText(Language.CurrentDict[9])
+        btn_header.setEnabled(False)
+        btn_nsp.setEnabled(True)
         
     def gold_radio_cmd():
         txt_ip.setEnabled(False)
@@ -1323,6 +1348,9 @@ try:
         split_check.setCheckState(False)
         split_check.setEnabled(False)
         list_nsp.clear()
+        l_status.setText(Language.CurrentDict[9])
+        btn_header.setEnabled(True)
+        btn_nsp.setEnabled(False)
         
     def usb_radio_cmd():
         txt_ip.setEnabled(False)
@@ -1393,10 +1421,13 @@ try:
         else:
             l_switch.setText(Language.CurrentDict[11]+"!")
             l_switch.setStyleSheet(GREEN)
-            if list_nsp.count() > 0:
-                btn_header.setEnabled(True)
+            if not is_goldleaf:
+                if list_nsp.count() > 0:
+                    btn_header.setEnabled(True)
+                else:
+                    btn_header.setEnabled(False)
             else:
-                btn_header.setEnabled(False)
+                btn_header.setEnabled(True)
                     
     #Init Widgets
     l_host = QtWidgets.QLabel(Language.CurrentDict[3]+":")
@@ -1420,7 +1451,7 @@ try:
     btn_header = QtWidgets.QPushButton(Language.CurrentDict[1])
     l_rate = QtWidgets.QLabel(Language.CurrentDict[4])
     l_github = QtWidgets.QLabel("v" + VERSION)
-    l_status = QtWidgets.QLabel(Language.CurrentDict[9]+".")
+    l_status = QtWidgets.QLabel(Language.CurrentDict[9])
     l_switch = QtWidgets.QLabel(Language.CurrentDict[10]+"!")
     list_nsp = QtWidgets.QListWidget()
     combo = QComboBox()
@@ -1471,7 +1502,10 @@ try:
     # Language Init
     def init_language():
         l_nsp.setText("")
-        l_status.setText(Language.CurrentDict[9]+".")
+        if list_nsp.count() > 0:
+            l_status.setText(str(total_nsp) + " " + Language.CurrentDict[14])
+        else:
+            l_status.setText(Language.CurrentDict[9])
         l_switch.setText(Language.CurrentDict[10]+"!")
         l_ip.setText(Language.CurrentDict[2]+":")
         dark_check.setText(Language.CurrentDict[20])
