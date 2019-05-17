@@ -30,7 +30,7 @@
 * USB: Switch connected indicator.
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
 * Support for UI scaling on 4K, 1080P, and 720P displays.
-* Switch Firmware 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>, choose 'Safe Mode')
+* Switch Firmware 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a> for finding this fix, choose 'Safe Mode')
 * Tasty pink donut.
 
 ## Differences between other NSP installers.
