@@ -14,20 +14,23 @@
 
 ## Features
 * Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
-* Support for languages: <b>English, Chinese, Vietnamese, Spanish, French, Brazilian Portuguese, Turkish, Italian, German and Bahasa Indonesia</b>!
-* Ability to abort an installation in queue.
-* USB and Network Install, display transfer rate in MB/s and progress percentage.
-* USB and Network Install, display current NSP being installed.
-* Goldleaf: Display current NCA being installed.
-* Goldleaf: Display current NCA queue. 
-* Transfer modes between "Normal" and "Safe".
+* Support for languages: <b>English, Chinese, Vietnamese, Spanish, French, Brazilian Portuguese, Turkish, Italian, German, and Bahasa Indonesia</b>!
+* USB and Network: Display live transfer rate in MB/s with progress percentage.
+* USB and Network: Display current NSP being installed and numbered queue.
+* USB and Network: Batch NSP install support with individual selection.
+* USB and Network: Consecutive installs without restart. 
+* USB and Network: Exception/Error handling, no restart required when an installation fails.
+* USB and Network: Ability to abort an installation in queue.
+* Network: Spoof file URL's to fix lengthy file name bug in Tinfoil's code.
+* Network: Randomized port selection for consecutive installs.
+* Goldleaf: Display current NCA being installed and numbered queue.
+* Goldleaf: Compatible with Goldleaf v0.5.
+* USB: Selectable transfer rates between "Normal Mode" and "Safe Mode".
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
 * Support for UI scaling on 4K, 1080P, and 720P displays.
-* Show current NSP being installed.
-* Individual NSP selection with batch NSP install for both Network and USB.
-* Tasty donut.
 * Switch connected indicator.
-* 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>)
+* Switch Firmware 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a>, choose 'Safe Mode')
+* Tasty pink donut.
 
 ## Differences between other NSP installers.
 * Fluffy has <i>the most</i> stable and feature-rich NSP network install available.
