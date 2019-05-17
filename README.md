@@ -23,7 +23,7 @@
 * USB and Network: Exception/Error handling, no restart required when an installation fails.
 * USB and Network: Ability to abort an installation in queue.
 * Network: Spoof file URL's to fix lengthy file name bug in Tinfoil's code.
-* Network: Randomized port selection for consecutive installs.
+* Network: Randomized port selection.
 * Goldleaf: Display name of current NCA being installed and numbered queue.
 * Goldleaf: Goldleaf v0.5 Compatible.
 * USB: Selectable transfer rates between "Normal Mode" and "Safe Mode".
