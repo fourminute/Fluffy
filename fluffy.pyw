@@ -678,7 +678,7 @@ def reset_install():
     else:
         usb_radio_cmd()
     if is_goldleaf:
-        btn_nsp.setEnabled(False)
+        btn_header.setEnabled(True)
 
 def throw_error(_type):
     global last_error
@@ -896,11 +896,26 @@ class Goldleaf:
                         offset = Goldleaf.read_u64()
                         size = Goldleaf.read_u64()
                         path = Goldleaf.read_path()
+                        set_cur_nsp(str(os.path.basename(path)))
                         with open(path, "rb") as f:
                             f.seek(offset)
                             data = f.read(size)
                         Goldleaf.write_u64(len(data))
                         Goldleaf.write(data)
+                        try:
+                            if offset+size >= int(os.path.getsize(path)):
+                                set_progress(100)
+                                complete_install()
+                            else:
+                                set_progress(int(offset), int(os.path.getsize(path)))
+                                elapsed_time = time.time() - start_time
+                                if elapsed_time >= 1:
+                                    set_cur_transfer_rate(int(offset) - last_transfer_rate)
+                                    set_last_transfer_rate(int(offset))
+                                    set_start_time()
+                        except Exception as e:
+                            print(str(e))
+                            pass
                     elif Goldleaf.is_id(CommandId.FileWrite):
                         path = Goldleaf.read_path()
                         offset = Goldleaf.read_u64()
@@ -1397,8 +1412,11 @@ try:
             
     def set_done_text():
         tmp_string = str(total_nsp)
-        reset_install()
-        l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
+        if not is_goldleaf:
+            reset_install()
+            l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
+        else:
+            l_nsp.setText(Language.CurrentDict[8] + "1 NSP!")
         
 
     def set_loading_text():
@@ -1416,20 +1434,10 @@ try:
         if not is_goldleaf:
             l_status.setText(Language.CurrentDict[27] + " " + str(cur_nsp_count) + " / " + str(total_nsp) + " NSP(s).")
         else:
-            l_status.setText(Language.CurrentDict[27] + " " + str(cur_nca_count) + " / " + str(max_nca_count) + " NCAs.")
+            l_status.setText(Language.CurrentDict[27] + " " + str(cur_nsp_count) + " / 1 NSP(s).")
         l_switch.setText(Language.CurrentDict[28] + ": " + str(n_rate) + "MB/s.")
         l_switch.setStyleSheet(GREEN)
         l_status.setStyleSheet(GREEN)
-        if not is_goldleaf:
-            if len(cur_nsp_name) > 13:
-                l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name[:13] + "...\"")
-            else:
-                l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
-        else:
-            if len(cur_nca_name) > 13:
-                l_nsp.setText(Language.CurrentDict[29] + ": \"..." + cur_nca_name[-13:] + "\"")
-            else:
-                l_nsp.setText(Language.CurrentDict[29] + ": \"" + cur_nca_name + "\"")
 
     def set_switch_text():
         dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
@@ -1700,6 +1708,7 @@ try:
         if sent_header and not is_installing and not is_done:
             btn_header.setEnabled(True)
             btn_header.setText(Language.CurrentDict[16])
+            
         if sent_header and is_installing and not is_done:
             btn_header.setEnabled(False)
             
