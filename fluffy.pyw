@@ -1078,7 +1078,7 @@ class Goldleaf:
                             else:                         
                                 time.sleep(1)
                         if qresponse:
-                            os.rename(path, new_name)
+                            os.rename(path, f"{os.path.dirname(path)}/{new_name}")
                         reset_response()
                     elif Goldleaf.is_id(CommandId.GetDriveTotalSpace):
                         path = Goldleaf.read_path()
