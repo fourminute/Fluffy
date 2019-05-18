@@ -107,7 +107,6 @@ is_exiting = False
 selected_dir = None
 selected_files = None
 sent_header = False
-cur_nca_name = "NA"
 start_time = time.time()
 cur_transfer_rate = 0
 last_transfer_rate = 0
@@ -116,8 +115,6 @@ end_progress = 0
 cur_nsp_count = 1
 total_nsp = 0
 cur_nsp_name = "NA"
-max_nca_count = 0
-cur_nca_count = 1
 initial_dir = os.getcwd()
 switch_ip = "0.0.0.0"
 host_ip = "0.0.0.0"
@@ -638,10 +635,6 @@ def complete_goldleaf_transfer():
     cur_progress = 0
     end_progress = 100
     progressbar.setValue(0)
-    l_switch.setText(Language.CurrentDict[9] + ".")
-    l_switch.setStyleSheet(BLUE)
-    l_status.setText('')
-    btn_header.setEnabled(True)
     
 def reset_install():
     global is_installing
@@ -650,10 +643,8 @@ def reset_install():
     global cur_progress
     global end_progress
     global cur_nsp_name
-    global cur_nca_name
     global cur_transfer_rate
     global last_transfer_rate
-    global max_nca_count
     global selected_files
     global selected_dir
     global total_nsp
@@ -674,15 +665,14 @@ def reset_install():
     l_switch.setText("")
     l_switch.setStyleSheet("")
     l_status.setStyleSheet("")
+    if is_goldleaf:
+        l_status.setText('')
     progressbar.setValue(0)
     cur_nsp_count = 1
     total_nsp = 0
     selected_files = None
     selected_dir = None
-    cur_nca_count = 0
-    max_nca_count = 0
     cur_nsp_name = "NA"
-    cur_nca_name = "NA"
     cur_transfer_rate = 0
     last_transfer_rate = 0
     is_done = False
@@ -730,11 +720,6 @@ def set_port(v):
     global net_port
     net_port = int(v)
 
-def set_nca_count(c, m):
-    global cur_nca_count
-    global max_nca_count
-    cur_nca_count = c
-    max_nca_count = m
     
 def set_goldleaf(v):
     global is_goldleaf
@@ -841,150 +826,168 @@ class Goldleaf:
             path = path.replace(drive + ":", Goldleaf.drives[drive])
         except KeyError:
             pass
-        if ':/' in path:
-            path = path.replace(':/','/')
         return path
     
     @staticmethod
     def goldleaf_usb():
         while True:
             if not is_goldleaf_active:
-                break
-            if is_exiting:
-                pid = os.getpid()
-                os.kill(pid, signal.SIGTERM)
-            try:
-                try:
-                    Goldleaf.read_cmd()
-                except:
-                    pass
-                if Goldleaf.magic_ok():
-                    if Goldleaf.is_id(CommandId.ListSystemDrives):
-                        if "win" not in sys.platform:
-                            Goldleaf.drives["ROOT"] = "/"
-                        else:
-                            import string
-                            from ctypes import windll
-                            bitmask = windll.kernel32.GetLogicalDrives()
-                            for letter in string.ascii_uppercase:
-                                if bitmask & 1:
-                                    print(letter)
-                                    Goldleaf.drives[letter] = letter + ":"
-                                bitmask >>= 1
-                        for d in sys.argv[1:]:
-                            folder = os.path.abspath(d)
-                            if os.path.isfile(folder):
-                                folder = os.path.dirname(folder)
-                            Goldleaf.drives[os.path.basename(folder)] = folder
-                        Goldleaf.write_u32(len(Goldleaf.drives))
-                        for d in Goldleaf.drives:
-                            Goldleaf.write_string(d)
-                            Goldleaf.write_string(d)
-                    elif Goldleaf.is_id(CommandId.GetEnvironmentPaths):
-                        env_paths = {x:os.path.expanduser("~/"+x) for x in ["Desktop", "Documents"]}
-                        Goldleaf.write_u32(len(env_paths))
-                        for env in env_paths:
-                            Goldleaf.write_string(env)
-                            Goldleaf.write_string(env_paths[env])
-                            print(env, env_paths[env])
-                    elif Goldleaf.is_id(CommandId.GetPathType):
-                        ptype = 0
-                        path = Goldleaf.read_path()
-                        if os.path.isfile(path):
-                            ptype = 1
-                        elif os.path.isdir(path):
-                            ptype = 2
-                        Goldleaf.write_u32(ptype)
-                    elif Goldleaf.is_id(CommandId.ListDirectories):
-                        path = Goldleaf.read_path()
-                        ents = [x for x in os.listdir(path) if os.path.isdir(os.path.join(path, x))]
-                        Goldleaf.write_u32(len(ents))
-                        for name in ents:
-                            Goldleaf.write_string(name)
-                    elif Goldleaf.is_id(CommandId.ListFiles):
-                        complete_goldleaf_transfer()
-                        path = Goldleaf.read_path()
-                        ents = [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))]
-                        Goldleaf.write_u32(len(ents))
-                        for name in ents:
-                            Goldleaf.write_string(name)
-                    elif Goldleaf.is_id(CommandId.GetFileSize):
-                        path = Goldleaf.read_path()
-                        Goldleaf.write_u64(os.path.getsize(path))
-                    elif Goldleaf.is_id(CommandId.FileRead):
-                        complete_loading()
-                        offset = Goldleaf.read_u64()
-                        size = Goldleaf.read_u64()
-                        path = Goldleaf.read_path()
-                        set_cur_nsp(str(os.path.basename(path)))
-                        with open(path, "rb") as f:
-                            f.seek(offset)
-                            data = f.read(size)
-                        Goldleaf.write_u64(len(data))
-                        Goldleaf.write(data)
-                        try:
-                            if int(offset) + int(size) >= int(os.path.getsize(path)):
-                                set_progress(100,100)
-                            else:
-                                set_progress(int(offset), int(os.path.getsize(path)))
-                                elapsed_time = time.time() - start_time
-                                if elapsed_time >= 1:
-                                    set_cur_transfer_rate(int(offset) - last_transfer_rate)
-                                    set_last_transfer_rate(int(offset))
-                                    set_start_time()
-                        except Exception as e:
-                            print(str(e))
-                            pass
-                    elif Goldleaf.is_id(CommandId.FileWrite):
-                        path = Goldleaf.read_path()
-                        offset = Goldleaf.read_u64()
-                        size = Goldleaf.read_u64()
-                        data = Goldleaf.read(size)
-                        with open(path, "rwb") as f:
-                            cont=bytearray(f.read())
-                            cont[offset:offset + size] = data
-                            f.write(cont)
-                    elif Goldleaf.is_id(CommandId.CreateFile):
-                        path = Goldleaf.read_path()
-                        open(path, "a").close()
-                    elif Goldleaf.is_id(CommandId.CreateDirectory):
-                        path = Goldleaf.read_path()
-                        try:
-                            os.mkdir(path)
-                        except os.FileExistsError:
-                            pass
-                    elif Goldleaf.is_id(CommandId.DeleteFile):
-                        path = Goldleaf.read_path()
-                        os.remove(path)
-                    elif Goldleaf.is_id(CommandId.DeleteDirectory):
-                        path = Goldleaf.read_path()
-                        shutil.rmtree(path)
-                    elif Goldleaf.is_id(CommandId.RenameFile) or Goldleaf.is_id(CommandId.RenameDirectory):
-                        path = Goldleaf.read_path()
-                        new_name = Goldleaf.read_string()
-                        os.rename(path, new_name)
-                    elif Goldleaf.is_id(CommandId.GetDriveTotalSpace):
-                        path = Goldleaf.read_path()
-                        Goldleaf.write_u64(psutil.disk_usage(path).total)
-                    elif Goldleaf.is_id(CommandId.GetDriveFreeSpace):
-                        path = Goldleaf.read_path()
-                        Goldleaf.write_u64(psutil.disk_usage(path).free)
-            except Exception as e:
-                if is_logging:
-                    logging.error(e, exc_info=True)
-                throw_error(0)
                 try:
                     usb.util.dispose_resources(Goldleaf.dev)
                     Goldleaf.dev.reset()
                 except:
                     pass
                 sys.exit()
+                return 0
+            if is_exiting:
+                pid = os.getpid()
+                os.kill(pid, signal.SIGTERM)
+            try:
+                Goldleaf.read_cmd()
+            except:
+                pass
+            if Goldleaf.magic_ok():
+                if Goldleaf.is_id(CommandId.ListSystemDrives):
+                    drive_labels = {}
+                    if "win" not in sys.platform:
+                        Goldleaf.drives["ROOT"] = "/"
+                    else:
+                        import string
+                        import ctypes
+                        kernel32 = ctypes.windll.kernel32
+                        bitmask = kernel32.GetLogicalDrives()
+                        for letter in string.ascii_uppercase:
+                            if bitmask & 1:
+                                Goldleaf.drives[letter] = letter + ":/"
+                                label_buf = ctypes.create_unicode_buffer(1024)
+                                kernel32.GetVolumeInformationW(
+                                    ctypes.c_wchar_p(letter + ":\\"),
+                                    label_buf,
+                                    ctypes.sizeof(label_buf),
+                                    None,
+                                    None,
+                                    None,
+                                    None,
+                                    0
+                                    )
+                                if label_buf.value:
+                                    drive_labels[letter] = label_buf.value
+                        bitmask >>= 1
+                    Goldleaf.write_u32(len(Goldleaf.drives))
+                    for d in Goldleaf.drives:
+                        try:
+                            Goldleaf.write_string(drive_labels[d])
+                        except KeyError:
+                            Goldleaf.write_string(d)
+                        Goldleaf.write_string(d)
+                elif Goldleaf.is_id(CommandId.GetEnvironmentPaths):
+                    env_paths = {x:os.path.expanduser("~/"+x) for x in ["Desktop", "Documents"]}
+                    for arg in sys.argv[1:]: # Add arguments as environment paths
+                        folder = os.path.abspath(arg)
+                        if os.path.isfile(folder):
+                            folder = os.path.dirname(folder)
+                        env_paths[os.path.basename(folder)] = folder
+                    Goldleaf.write_u32(len(env_paths))
+                    for env in env_paths:
+                        env_paths[env] = env_paths[env].replace("\\", "/")
+                        Goldleaf.write_string(env)
+                        if env_paths[env][1:3] != ":/":
+                            env_paths[env] = "ROOT:" + env_paths[env]
+                        Goldleaf.write_string(env_paths[env])
+                elif Goldleaf.is_id(CommandId.GetPathType):
+                    ptype = 0
+                    path = Goldleaf.read_path()
+                    if os.path.isfile(path):
+                        ptype = 1
+                    elif os.path.isdir(path):
+                        ptype = 2
+                    Goldleaf.write_u32(ptype)
+                elif Goldleaf.is_id(CommandId.ListDirectories):
+                    path = Goldleaf.read_path()
+                    ents = [x for x in os.listdir(path) if os.path.isdir(os.path.join(path, x))]
+                    Goldleaf.write_u32(len(ents))
+                    for name in ents:
+                        Goldleaf.write_string(name)
+                elif Goldleaf.is_id(CommandId.ListFiles):
+                    complete_goldleaf_transfer()
+                    path = Goldleaf.read_path()
+                    ents = [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))]
+                    Goldleaf.write_u32(len(ents))
+                    for name in ents:
+                        Goldleaf.write_string(name)
+                elif Goldleaf.is_id(CommandId.GetFileSize):
+                    path = Goldleaf.read_path()
+                    Goldleaf.write_u64(os.path.getsize(path))
+                elif Goldleaf.is_id(CommandId.FileRead):
+                    complete_loading()
+                    offset = Goldleaf.read_u64()
+                    size = Goldleaf.read_u64()
+                    path = Goldleaf.read_path()
+                    set_cur_nsp(str(os.path.basename(path)))
+                    with open(path, "rb") as f:
+                        f.seek(offset)
+                        data = f.read(size)
+                    Goldleaf.write_u64(len(data))
+                    Goldleaf.write(data)
+                    try:
+                        if int(offset) + int(size) >= int(os.path.getsize(path)):
+                            set_progress(100,100)
+                        else:
+                            set_progress(int(offset), int(os.path.getsize(path)))
+                            elapsed_time = time.time() - start_time
+                            if elapsed_time >= 1:
+                                set_cur_transfer_rate(int(offset) - last_transfer_rate)
+                                set_last_transfer_rate(int(offset))
+                                set_start_time()
+                    except Exception as e:
+                        print(str(e))
+                        pass
+                elif Goldleaf.is_id(CommandId.FileWrite):
+                    offset = Goldleaf.read_u64()
+                    size = Goldleaf.read_u64()
+                    path = Goldleaf.read_path()
+                    data = Goldleaf.read(size)
+                    cont = bytearray()
+                    try:
+                        with open(path, "rb") as f:
+                            cont=bytearray(f.read())
+                    except FileNotFoundError:
+                        pass
+                    cont[offset:offset + size] = data
+                    with open(path, "wb") as f:
+                        f.write(cont)
+                elif Goldleaf.is_id(CommandId.CreateFile):
+                    path = Goldleaf.read_path()
+                    open(path, "a").close()
+                elif Goldleaf.is_id(CommandId.CreateDirectory):
+                    path = Goldleaf.read_path()
+                    try:
+                        os.mkdir(path)
+                    except os.FileExistsError:
+                        pass
+                elif Goldleaf.is_id(CommandId.DeleteFile):
+                    path = Goldleaf.read_path()
+                    os.remove(path)
+                elif Goldleaf.is_id(CommandId.DeleteDirectory):
+                    path = Goldleaf.read_path()
+                    shutil.rmtree(path)
+                elif Goldleaf.is_id(CommandId.RenameFile) or Goldleaf.is_id(CommandId.RenameDirectory):
+                    path = Goldleaf.read_path()
+                    new_name = Goldleaf.read_string()
+                    os.rename(path, new_name)
+                elif Goldleaf.is_id(CommandId.GetDriveTotalSpace):
+                    path = Goldleaf.read_path()
+                    Goldleaf.write_u64(psutil.disk_usage(path).total)
+                elif Goldleaf.is_id(CommandId.GetDriveFreeSpace):
+                    path = Goldleaf.read_path()
+                    Goldleaf.write_u64(psutil.disk_usage(path).free)
         return 0
 
 def init_goldleaf_usb_install():
     try:
         Goldleaf.reset()
         Goldleaf.connect_usb()
+        Goldleaf.goldleaf_usb()
     except Exception as e:
         if is_logging:
             logging.error(e, exc_info=True)
@@ -995,7 +998,6 @@ def init_goldleaf_usb_install():
         except:
             pass
         sys.exit()
-    Goldleaf.goldleaf_usb()
 
 
 # Tinfoil Network
@@ -1426,12 +1428,6 @@ try:
         split_check.setCheckState(False)
         split_check.setEnabled(False)
         
-    #Unused
-    def split_cmd():
-        if split_check.checkState():
-            btn_nsp.setText("Select Folder")
-        else:
-            btn_nsp.setText("NSP Selection")
             
     def set_done_text():
         tmp_string = str(total_nsp)
@@ -1439,7 +1435,6 @@ try:
             reset_install()
             l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
         
-
     def set_loading_text():
         l_nsp.setText("")
         l_status.setText("")
@@ -1544,7 +1539,6 @@ try:
     h_group.addButton(gold_radio)
     h2_box.addWidget(tin_radio)
     h2_box.addWidget(gold_radio)
-    split_check.stateChanged.connect(split_cmd)
     dark_check.stateChanged.connect(dark_mode_cmd)
     usb_radio.setChecked(True)
     usb_radio.toggled.connect(usb_radio_cmd)
@@ -1583,7 +1577,6 @@ try:
         combo.addItem(Language.CurrentDict[6])
         l_host.setText(Language.CurrentDict[3]+":")
         lang_menu.setTitle(Language.CurrentDict[22])
-        #git_menu.setTitle(Language.CurrentDict[23])
         window.setWindowTitle(Language.CurrentDict[0])
         
     # Menu Bar
@@ -1600,7 +1593,6 @@ try:
                 
     lang_menu = window.menuBar().addMenu(Language.CurrentDict[22])
     #opt_menu = window.menuBar().addMenu(Language.CurrentDict[21])
-    #git_menu = window.menuBar().addMenu(Language.CurrentDict[23])
     lang_group = QActionGroup(lang_menu)
     lang_group.setExclusive(True)
     lang_group.addAction(QAction('English',lang_group,checkable=True))
@@ -1616,7 +1608,6 @@ try:
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(lang_menu_cmd)
     #opt_menu.triggered.connect(opt_menu_cmd)
-    #git_menu.triggered.connect(git_menu_cmd)
 
     # Set Language
     aix = 0
@@ -1637,11 +1628,8 @@ try:
     v_box.addWidget(txt_ip)
     v_box.addWidget(l_host)
     v_box.addWidget(txt_ip2)
-    #v_box.addWidget(l_port)
-    #v_box.addWidget(txt_port)
     v_box.addWidget(l_rate)
     v_box.addWidget(combo)
-    #v_box.addWidget(split_check)
     v_box.addWidget(btn_nsp)
     v_box.addWidget(btn_header)
     v_box.addWidget(l_nsp)
@@ -1682,13 +1670,15 @@ try:
         dark_check.setChecked(False)
     
     # Main loop
-    
     while True:
+        # Error Handling
         if last_error != "NA":
             msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
             reset_last_error()
             set_goldleaf_active(False)
             reset_install()
+            
+        # Logging
         if is_logging:
             if os.path.isfile(initial_dir + '/fluffy.log'):
                 if os.path.getsize(initial_dir + '/fluffy.log') > 250000:
@@ -1701,8 +1691,7 @@ try:
                     
         QApplication.processEvents()
         
-
-    
+        # Save progress and close
         if not window.isVisible():
             try:
                 switch_ip = txt_ip.text()
@@ -1710,12 +1699,17 @@ try:
                 pass
             close_program()
             pid = os.getpid()
-            os.kill(pid, signal.SIGTERM)
-            
+            os.kill(pid, signal.SIGTERM) 
         if is_exiting:
             pid = os.getpid()
             os.kill(pid, signal.SIGTERM)
             
+                
+        # Switch Indicator
+        if not is_installing and not is_network and usb_success and not sent_header:
+            set_switch_text()
+                    
+        # Tinfoil Network Mode
         if not sent_header and not is_installing and is_network:
             l_switch.setText(Language.CurrentDict[12])
             l_switch.setStyleSheet(BLUE)
@@ -1723,11 +1717,8 @@ try:
                 btn_header.setEnabled(True)
             else:
                 btn_header.setEnabled(False)
-            
-        if not is_installing and not is_network and usb_success and not sent_header:
-            set_switch_text()
-                    
-        # Tinfoil Network Mode 
+                
+        # Network Header Sent
         if sent_header and is_network:
             try:
                 if is_done:
@@ -1742,10 +1733,12 @@ try:
             except:
                 pass
             
+        # Cancel Button
         if sent_header and not is_installing and not is_done:
             btn_header.setEnabled(True)
             btn_header.setText(Language.CurrentDict[16])
-            
+
+        # Installation in progress, no cancel
         if sent_header and is_installing and not is_done:
             btn_header.setEnabled(False)
             
