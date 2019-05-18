@@ -11,7 +11,7 @@
 
 ### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.8.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
-The Arch package is no longer recommended. Do not use until future notice.†
+
 
 ## Features
 * Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
