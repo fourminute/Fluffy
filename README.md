@@ -9,8 +9,9 @@
 
 ![License](https://img.shields.io/badge/License-GPLv3-blue.svg) [![Releases](https://img.shields.io/github/downloads/fourminute/fluffy/total.svg)]() [![LatestVer](https://img.shields.io/github/release-pre/fourminute/fluffy.svg)]()
 
-### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.8.0</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.9.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
+
 
 ## Features
 * Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
@@ -25,7 +26,8 @@
 * Network: Spoof file URL's to fix lengthy file name bug in Tinfoil's code.
 * Network: Randomized port selection.
 * Goldleaf: Display name of current NCA being installed and numbered queue.
-* Goldleaf: Goldleaf v0.5 Compatible.
+* Goldleaf: <b>Goldleaf v0.6 Compatible</b> with all of the file handling features.
+* Goldleaf: File access security in the event Goldleaf is compromised(e.g. a fake Goldleaf.nro is used).
 * USB: Selectable transfer rates between "Normal Mode" and "Safe Mode".
 * USB: Switch connected indicator.
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
@@ -33,9 +35,12 @@
 * Switch Firmware 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a> for finding this fix, choose 'Safe Mode')
 * Tasty pink donut.
 
-# Screenshot
+# Screenshot (Tinfoil)
 
 <img src="https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui3.png?raw=true" width="650"/>
+
+# Screenshot (Goldleaf)
+<img src="https://github.com/fourminute/Fluffy/blob/master/misc/uigoldleaf.png?raw=true" width="375"/>
 
 # Multi-Language Screenshot
 ![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui2.png?raw=true)
@@ -114,11 +119,7 @@ sudo apt-get install idle3
 ```
 Open IDLE > Open Fluffy.pyw then select Run > Run Module.
 
-### Arch/Manjaro/Antergos
-<b>Warning: This repo may be outdated, check repo version before installing. It is always recommended to use the latest version of Fluffy.</b>
-
-Install the AUR package <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> maintained by <a href="https://github.com/YoyPa">YoyPa</a>.
-
+<b>Arch users read here.</b>†
 
 ### Installation and Application Launcher (Optional)
 You may wish to Install Fluffy. Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and 'icon.ico' and 'install.sh' from <a href="https://github.com/fourminute/Fluffy/tree/master/linux">here</a>. Extract and move each file into a single folder.
@@ -208,7 +209,7 @@ I would like to extend my thanks to the people below for helping make Fluffy wha
 
 * <a href="https://github.com/wendyliga">wendyliga</a> for their Bahasa Indonesia translation.
 * <a href="https://github.com/TheLastZombie">TheLastZombie</a> for their German translation.
-* <a href="https://github.com/YoyPa">YoyPa</a> for their many and various code contributions, creating and maintaining the Fluffy Arch Linux repository, as well as their Spanish and French translations.
+* <a href="https://github.com/YoyPa">YoyPa</a> for their many and various code contributions, as well as their Spanish and French translations.
 * <a href="https://github.com/friedkeenan">friedkeenan</a> for their Goldleaf v0.5 compatibility fixes.
 * <a href="https://github.com/TorpedoXL">TorpedoXL</a> for their Turkish translation.
 * <a href="https://github.com/DavidOliM">DavidOliM</a> for their Brazilian Portuguese translation.
@@ -218,3 +219,5 @@ I would like to extend my thanks to the people below for helping make Fluffy wha
 To anyone else that I missed, thank you.
 
 <i>Disclaimer: The "Pink Donut" design was designed by fourminute exclusively for Fluffy and infringes on no copyright. The font used in "intro.png" is also 100% royalty free.</i>
+
+† Due to recent adverse reports from users the Arch package is no longer recommended and advised against usage, even if it is up-to-date with the latest version of Fluffy. Furthermore, do not download/install Fluffy from any repository unless it is listed on this Github page. <b>I am not the creator nor maintainer for any Fluffy package on any repository.</b>
