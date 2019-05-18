@@ -1523,6 +1523,8 @@ try:
         l_host.setVisible(False)
         usb_radio.setVisible(False)
         gold_img_label.setVisible(True)
+        window.adjustSize() 
+        
         
         
     def usb_radio_cmd():
@@ -1573,12 +1575,12 @@ try:
         l_status.setStyleSheet(GREEN)
         if len(cur_nsp_name) > 13:
             if is_goldleaf:
-                l_status.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name[:13] + "...\"")
+                l_status.setText("\"" + cur_nsp_name[:13] + "...\"")
             else:
                 l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name[:13] + "...\"")
         else:
             if is_goldleaf:
-                l_status.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
+                l_status.setText("\"" + cur_nsp_name + "\"")
             else:
                 l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
 
@@ -1762,6 +1764,7 @@ try:
     btn_header.clicked.connect(send_header_cmd)
     window.setWindowIcon(QIcon(iconpixmap))
     gold_img_label.setVisible(False)
+    window.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
     window.show()
 
     # Revert to network mode
