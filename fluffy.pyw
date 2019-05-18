@@ -969,10 +969,6 @@ class Goldleaf:
                     elif Goldleaf.is_id(CommandId.GetDriveFreeSpace):
                         path = Goldleaf.read_path()
                         Goldleaf.write_u64(psutil.disk_usage(path).free)
-                    else:
-                        set_progress(100,100)
-                        complete_install()
-                        sys.exit()
             except Exception as e:
                 if is_logging:
                     logging.error(e, exc_info=True)
@@ -1569,10 +1565,11 @@ try:
     # Language Init
     def init_language():
         l_nsp.setText("")
-        if list_nsp.count() > 0:
-            l_status.setText(str(total_nsp) + " " + Language.CurrentDict[14])
-        else:
-            l_status.setText(Language.CurrentDict[9])
+        if not is_goldleaf:
+            if list_nsp.count() > 0:
+                l_status.setText(str(total_nsp) + " " + Language.CurrentDict[14])
+            else:
+                l_status.setText(Language.CurrentDict[9])
         l_switch.setText(Language.CurrentDict[10]+"!")
         l_ip.setText(Language.CurrentDict[2]+":")
         dark_check.setText(Language.CurrentDict[20])
@@ -1704,6 +1701,8 @@ try:
                     
         QApplication.processEvents()
         
+
+    
         if not window.isVisible():
             try:
                 switch_ip = txt_ip.text()
