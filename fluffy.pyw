@@ -122,6 +122,7 @@ initial_dir = os.getcwd()
 switch_ip = "0.0.0.0"
 host_ip = "0.0.0.0"
 language = 0
+is_goldleaf_active = False
 
 # Load Settings
 if os.path.isfile(initial_dir + '/fluffy.conf'):
@@ -623,7 +624,25 @@ def complete_install():
     global is_done
     is_done = True
 
+def set_goldleaf_active(x):
+    global is_goldleaf_active
+    is_goldleaf_active = x
 
+def complete_goldleaf_transfer():
+    global is_installing
+    global cur_nsp_name
+    global cur_progress
+    global end_progress
+    is_installing = False
+    cur_nsp_name = "NA"
+    cur_progress = 0
+    end_progress = 100
+    progressbar.setValue(0)
+    l_switch.setText(Language.CurrentDict[9] + ".")
+    l_switch.setStyleSheet(BLUE)
+    l_status.setText('')
+    btn_header.setEnabled(True)
+    
 def reset_install():
     global is_installing
     global sent_header
@@ -677,8 +696,6 @@ def reset_install():
         net_radio_cmd()
     else:
         usb_radio_cmd()
-    if is_goldleaf:
-        btn_header.setEnabled(True)
 
 def throw_error(_type):
     global last_error
@@ -831,6 +848,8 @@ class Goldleaf:
     @staticmethod
     def goldleaf_usb():
         while True:
+            if not is_goldleaf_active:
+                break
             if is_exiting:
                 pid = os.getpid()
                 os.kill(pid, signal.SIGTERM)
@@ -883,6 +902,7 @@ class Goldleaf:
                         for name in ents:
                             Goldleaf.write_string(name)
                     elif Goldleaf.is_id(CommandId.ListFiles):
+                        complete_goldleaf_transfer()
                         path = Goldleaf.read_path()
                         ents = [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))]
                         Goldleaf.write_u32(len(ents))
@@ -903,9 +923,8 @@ class Goldleaf:
                         Goldleaf.write_u64(len(data))
                         Goldleaf.write(data)
                         try:
-                            if offset+size >= int(os.path.getsize(path)):
-                                set_progress(100)
-                                complete_install()
+                            if int(offset) + int(size) >= int(os.path.getsize(path)):
+                                set_progress(100,100)
                             else:
                                 set_progress(int(offset), int(os.path.getsize(path)))
                                 elapsed_time = time.time() - start_time
@@ -1287,6 +1306,7 @@ try:
                 threading.Thread(target = init_tinfoil_net_install).start()
             else:
                 if is_goldleaf:
+                    set_goldleaf_active(True)
                     set_sent_header()
                     set_start_time()
                     threading.Thread(target = init_goldleaf_usb_install).start()
@@ -1295,6 +1315,7 @@ try:
                     set_start_time()
                     threading.Thread(target = init_tinfoil_usb_install).start()
         else:
+            set_goldleaf_active(False)
             reset_install()
         
     def nsp_file_dialog():
@@ -1342,6 +1363,9 @@ try:
             set_dark_mode(1)
         
     def tin_radio_cmd():
+        l_nsp.setVisible(True)
+        combo.setVisible(True)
+        l_rate.setVisible(True)
         txt_ip.setEnabled(False)
         txt_ip2.setEnabled(False)
         txt_port.setEnabled(False)
@@ -1364,6 +1388,9 @@ try:
         
         
     def gold_radio_cmd():
+        l_nsp.setVisible(False)
+        combo.setVisible(False)
+        l_rate.setVisible(False)
         txt_ip.setEnabled(False)
         txt_ip2.setEnabled(False)
         txt_port.setEnabled(False)
@@ -1375,7 +1402,7 @@ try:
         split_check.setCheckState(False)
         split_check.setEnabled(False)
         list_nsp.clear()
-        l_status.setText(Language.CurrentDict[9])
+        l_status.setText('')
         btn_nsp.setVisible(False)
         l_ip.setVisible(False)
         txt_ip.setVisible(False)
@@ -1415,15 +1442,17 @@ try:
         if not is_goldleaf:
             reset_install()
             l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
-        else:
-            l_nsp.setText(Language.CurrentDict[8] + "1 NSP!")
         
 
     def set_loading_text():
         l_nsp.setText("")
         l_status.setText("")
-        l_switch.setText(str(total_nsp) + " " + Language.CurrentDict[26] + ".")
-        l_switch.setStyleSheet(PURPLE)
+        if not is_goldleaf:
+            l_switch.setText(str(total_nsp) + " " + Language.CurrentDict[26] + ".")
+            l_switch.setStyleSheet(PURPLE)
+        else:
+            l_switch.setText(Language.CurrentDict[9] + ".")
+            l_switch.setStyleSheet(BLUE)
 
     def set_progress_text():
         v = (int(cur_progress) / int(end_progress)) * 100
@@ -1433,11 +1462,19 @@ try:
             n_rate = 0.0
         if not is_goldleaf:
             l_status.setText(Language.CurrentDict[27] + " " + str(cur_nsp_count) + " / " + str(total_nsp) + " NSP(s).")
-        else:
-            l_status.setText(Language.CurrentDict[27] + " " + str(cur_nsp_count) + " / 1 NSP(s).")
         l_switch.setText(Language.CurrentDict[28] + ": " + str(n_rate) + "MB/s.")
         l_switch.setStyleSheet(GREEN)
         l_status.setStyleSheet(GREEN)
+        if len(cur_nsp_name) > 13:
+            if is_goldleaf:
+                l_status.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name[:13] + "...\"")
+            else:
+                l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name[:13] + "...\"")
+        else:
+            if is_goldleaf:
+                l_status.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
+            else:
+                l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
 
     def set_switch_text():
         dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
@@ -1653,6 +1690,7 @@ try:
         if last_error != "NA":
             msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
             reset_last_error()
+            set_goldleaf_active(False)
             reset_install()
         if is_logging:
             if os.path.isfile(initial_dir + '/fluffy.log'):
