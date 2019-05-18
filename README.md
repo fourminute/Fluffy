@@ -215,4 +215,4 @@ To anyone else that I missed, thank you.
 
 <i>Disclaimer: The "Pink Donut" design was designed by fourminute exclusively for Fluffy and infringes on no copyright. The font used in "intro.png" is also 100% royalty free.</i>
 
-† Due to recent adverse reports from users the Arch package is no longer recommended and advised against usage, even if it is up-to-date with the latest version of Fluffy. Furthermore, do not download/install Fluffy from any repository unless it is listed on this Github page. <b>I am not the creator nor a maintainer for any Fluffy package on any repository.</b>
+† Due to recent adverse reports from users the Arch package is no longer recommended and advised against usage, even if it is up-to-date with the latest version of Fluffy. Furthermore, do not download/install Fluffy from any repository unless it is listed on this Github page. <b>I am not the creator nor maintainer for any Fluffy package on any repository.</b>
