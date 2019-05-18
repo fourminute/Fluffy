@@ -16,19 +16,19 @@
 ## Features
 * Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
 * Support for languages: <b>English, Chinese, Vietnamese, Spanish, French, Brazilian Portuguese, Turkish, Italian, German, and Bahasa Indonesia</b>!
-* Cross platform, Fluffy works natively on <b>Windows</b>, <b>Linux</b>, and <b>MacOS</b>!
+* Cross platform: Fluffy works natively on <b>Windows</b>, <b>Linux</b>, and <b>MacOS</b>!
 * USB and Network: Display live transfer rate in MB/s with progress percentage.
 * USB and Network: Display current NSP being installed and numbered queue.
 * USB and Network: Batch NSP install support with individual selection.
 * USB and Network: Consecutive installs without restart. 
 * USB and Network: Exception/Error handling, no restart required when an installation fails.
 * USB and Network: Ability to abort an installation in queue.
-* Network: Spoof file URL's to fix lengthy file name bug in Tinfoil's code.
-* Network: Randomized port selection.
+* Tinfoil Network: Spoof file URL's to fix lengthy file name bug in Tinfoil's code.
+* Tinfoil Network: Randomized port selection.
 * Goldleaf: Display name of current NCA being installed and numbered queue.
 * Goldleaf: <b>Goldleaf v0.6 Compatible</b> with all of the file handling features.
 * Goldleaf: File access security in the event Goldleaf is compromised(e.g. a fake Goldleaf.nro is used).
-* USB: Selectable transfer rates between "Normal Mode" and "Safe Mode".
+* Tinfoil USB: Selectable transfer rates between "Normal Mode" and "Safe Mode".
 * USB: Switch connected indicator.
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
 * Support for UI scaling on 4K, 1080P, and 720P displays.
