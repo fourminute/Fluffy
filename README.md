@@ -11,6 +11,7 @@
 
 ### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.8.0</a></b>
 ### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
+The Arch package is no longer recommended. Do not use until future notice.†
 
 ## Features
 * Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
@@ -213,3 +214,5 @@ I would like to extend my thanks to the people below for helping make Fluffy wha
 To anyone else that I missed, thank you.
 
 <i>Disclaimer: The "Pink Donut" design was designed by fourminute exclusively for Fluffy and infringes on no copyright. The font used in "intro.png" is also 100% royalty free.</i>
+
+† Due to recent adverse reports from users the Arch package is no longer recommended and advised against usage, even if it is up-to-date with the latest version of Fluffy. Furthermore, do not download/install Fluffy from any repository unless it is listed on this Github page.
