@@ -115,6 +115,7 @@ sudo apt-get install idle3
 ```
 Open IDLE > Open Fluffy.pyw then select Run > Run Module.
 
+<b>Arch users read here.</b>†
 
 ### Installation and Application Launcher (Optional)
 You may wish to Install Fluffy. Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and 'icon.ico' and 'install.sh' from <a href="https://github.com/fourminute/Fluffy/tree/master/linux">here</a>. Extract and move each file into a single folder.
