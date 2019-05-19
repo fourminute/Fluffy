@@ -4,13 +4,9 @@ echo "Installing Fluffy."
 echo "Installing Python3."
 sudo apt install python3
 echo "Installing Python3-pip."
-sudo apt install python3-pip
+sudo apt install python3 python3-pip python3-tk
 echo "Installing pip dependencies."
-pip3 install pyusb
-pip3 install pyqt5
-pip3 install libusb
-pip3 install libusb1
-pip3 install qdarkstyle
+pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 echo "Saving desktop icon."
 sudo echo "[Desktop Entry]
 Type=Application
