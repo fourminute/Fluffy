@@ -941,7 +941,7 @@ class Goldleaf:
                 if Goldleaf.magic_ok():
                     if Goldleaf.is_id(CommandId.ListSystemDrives):
                         drive_labels = {}
-                        if "win" not in sys.platform:
+                        if "linux" in sys.platform or "darwin" in sys.platform or "freebsd" in sys.platform or "openbsd" in sys.platform:
                             Goldleaf.drives["ROOT"] = "/"
                         else:
                             import string
