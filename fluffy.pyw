@@ -941,9 +941,7 @@ class Goldleaf:
                 if Goldleaf.magic_ok():
                     if Goldleaf.is_id(CommandId.ListSystemDrives):
                         drive_labels = {}
-                        if "linux" in sys.platform or "darwin" in sys.platform or "freebsd" in sys.platform or "openbsd" in sys.platform:
-                            Goldleaf.drives["ROOT"] = "/"
-                        else:
+                        if "win" in sys.platform[:3].lower():
                             import string
                             import ctypes
                             kernel32 = ctypes.windll.kernel32
@@ -964,7 +962,9 @@ class Goldleaf:
                                         )
                                     if label_buf.value:
                                         drive_labels[letter] = label_buf.value
-                            bitmask >>= 1
+                                bitmask >>= 1
+                        else:
+                            Goldleaf.drives["ROOT"] = "/"
                         Goldleaf.write_u32(len(Goldleaf.drives))
                         for d in Goldleaf.drives:
                             try:
