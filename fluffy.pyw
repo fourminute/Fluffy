@@ -524,23 +524,32 @@ def set_dark_mode(v):
         dark_mode = 0
         l_github.setStyleSheet("QLabel { color: rgba(255, 255, 255, 50%) }")
         pixmap = QPixmap(dinlaypixmap)
+        gold_res = QPixmap(goldpixmap)
         screen = app.primaryScreen()
         if screen.size().width() <= 2560:
             if screen.size().width() <= 1920:
                 if screen.size().width() <= 1366:
                     lowresfix = pixmap.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    lowresfix2 = gold_res.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
+                    gold_img_label.setPixmap(lowresfix2)
                 else:
                     lowresfix = pixmap.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    lowresfix2 = gold_res.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
+                    gold_img_label.setPixmap(lowresfix2)
             else:
                 lowresfix = pixmap.scaled(350, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                lowresfix2 = gold_res.scaled(350, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 img_label.setPixmap(lowresfix)
+                gold_img_label.setPixmap(lowresfix2)
         else:
             img_label.setPixmap(pixmap)
+            gold_img_label.setPixmap(gold_res)
     else:
         dark_mode = 1
         pixmap = QPixmap(inlaypixmap)
+        gold_res = QPixmap(goldpixmap)
         screen = app.primaryScreen()
         app.setStyleSheet("")
         l_github.setStyleSheet("QLabel { color: rgba(0, 0, 0, 50%) }")
@@ -548,15 +557,22 @@ def set_dark_mode(v):
             if screen.size().width() <= 1920:
                 if screen.size().width() <= 1366:
                     lowresfix = pixmap.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    lowresfix2 = gold_res.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
+                    gold_img_label.setPixmap(lowresfix2)
                 else:
                     lowresfix = pixmap.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    lowresfix2 = gold_res.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
+                    gold_img_label.setPixmap(lowresfix2)
             else:
                 lowresfix = pixmap.scaled(350, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                lowresfix2 = gold_res.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 img_label.setPixmap(lowresfix)
+                gold_img_label.setPixmap(lowresfix2)
         else:
             img_label.setPixmap(pixmap)
+            gold_img_label.setPixmap(gold_res)
 
 def turn_off_logging():
     global is_logging
@@ -1497,6 +1513,7 @@ try:
         txt_ip2.setVisible(True)
         l_host.setVisible(True)
         usb_radio.setVisible(True)
+        window.adjustSize()
         
         
     def gold_radio_cmd():
