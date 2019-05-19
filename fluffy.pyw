@@ -124,7 +124,7 @@ qresponse = False
 needresponse = False
 qrespnum = 0
 haveresponse = False
-allow_read_non_nsp = 0
+allow_access_non_nsp = 0
 ignore_warning_prompt = 0
 global_dev = None
 global_in = None
@@ -140,20 +140,20 @@ if os.path.isfile(initial_dir + '/fluffy.conf'):
             switch_ip = configp.get('DEFAULT', 'switch_ip')
             dark_mode = int(configp.get('DEFAULT', 'dark_mode'))
             language = int(configp.get('DEFAULT', 'language'))
-            allow_read_non_nsp = int(configp.get('DEFAULT', 'allow_read_non_nsp'))
+            allow_access_non_nsp = int(configp.get('DEFAULT', 'allow_access_non_nsp'))
             ignore_warning_prompt = int(configp.get('DEFAULT', 'ignore_warning_prompt'))
     except:
         switch_ip = "0.0.0.0"
         dark_mode = 0
         language = 0
-        allow_read_non_nsp = 0
+        allow_access_non_nsp = 0
         ignore_warning_prompt = 0
         pass
 else:
     switch_ip = "0.0.0.0"
     dark_mode = 0
     language = 0
-    allow_read_non_nsp = 0
+    allow_access_non_nsp = 0
     ignore_warning_prompt = 0
     
 net_port = 2000 #Unused, saved for future reference (Ie. Goldleaf Network)
@@ -644,7 +644,7 @@ def close_program():
         configp['DEFAULT'] = {'switch_ip': switch_ip,
                               'language': language,
                               'dark_mode': dark_mode,
-                              'allow_read_non_nsp': allow_read_non_nsp,
+                              'allow_access_non_nsp': allow_access_non_nsp,
                               'ignore_warning_prompt': ignore_warning_prompt}
         with open(initial_dir + '/fluffy.conf', 'w') as cfgfile:
             configp.write(cfgfile)
@@ -704,6 +704,11 @@ def set_cur_nsp(nsp):
             cur_nsp_name = nsp
             set_start_time()
             last_progress = 0
+            
+def cancel_task():
+    set_goldleaf_active(False)
+    set_canceled(True)
+    reset_install()
 
 def set_total_nsp(n):
     global total_nsp
@@ -1019,7 +1024,7 @@ class Goldleaf:
                         path = Goldleaf.read_path()
                         set_cur_nsp(str(os.path.basename(path)))
                         if not os.path.basename(path).lower().endswith('.nsp'):
-                            if allow_read_non_nsp:
+                            if allow_access_non_nsp:
                                 can_read = True
                             else:
                                 can_read = False
@@ -1040,7 +1045,11 @@ class Goldleaf:
                                 print(str(e))
                                 pass
                         else:
-                            print("Error: File-read denied. \nReason: Goldleaf tried to read a non-NSP file(to change this default behavior, change \'allow_read_non_nsp\' to 1 in fluffy.conf).")
+                            logging.debug("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
+                            print("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
+                            cancel_task()
+                            sys.exit()
+                            break
                     elif Goldleaf.is_id(CommandId.FileWrite):
                         offset = Goldleaf.read_u64()
                         size = Goldleaf.read_u64()
@@ -1463,9 +1472,7 @@ try:
                     set_start_time()
                     threading.Thread(target = init_tinfoil_usb_install).start()
         else:
-            set_goldleaf_active(False)
-            set_canceled(True)
-            reset_install()
+            cancel_task()
         
     def nsp_file_dialog():
         try:
