@@ -126,6 +126,10 @@ qrespnum = 0
 haveresponse = False
 allow_read_non_nsp = 0
 ignore_warning_prompt = 0
+global_dev = None
+global_in = None
+global_out = None
+cancel_clicked = False
 
 # Load Settings
 if os.path.isfile(initial_dir + '/fluffy.conf'):
@@ -585,6 +589,10 @@ def set_nca_name(v):
 def set_start_time():
     global start_time
     start_time = time.time()
+
+def set_canceled(x):
+    global cancel_clicked
+    cancel_clicked = x
     
 def set_cur_transfer_rate(v):
     global cur_transfer_rate
@@ -597,6 +605,37 @@ def set_sent_header():
 def set_last_transfer_rate(v):
     global last_transfer_rate
     last_transfer_rate = v
+
+def detach_switch():
+    global global_dev
+    global global_out
+    global global_in
+    try:
+        usb.util.dispose_resources(global_dev)
+        global_dev.reset()
+    except:
+        pass
+    global_in = None
+    global_out = None
+    global_dev = None
+        
+def connect_switch():
+    global global_dev
+    global global_out
+    global global_in
+    global_dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+    if global_dev is not None:
+        try:
+            global_dev.set_configuration()
+            intf = global_dev.get_active_configuration()[(0,0)]
+            global_out = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_OUT)
+            global_in = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_IN)
+            return True
+        except:
+            return False
+            pass
+    else:
+        return False
 
 def close_program():
     global is_exiting
@@ -797,15 +836,7 @@ class CommandReadResult:
     InvalidMagic = 1
     InvalidCommandId = 2
 
-class Goldleaf:
-    @staticmethod
-    def connect_usb():
-        Goldleaf.dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-        Goldleaf.dev.set_configuration()
-        intf = Goldleaf.dev.get_active_configuration()[(0,0)]
-        Goldleaf.gold_out = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_OUT)
-        Goldleaf.gold_in = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_IN)
-            
+class Goldleaf:          
     @staticmethod
     def reset():
         Goldleaf.GLUC         = b"GLUC"
@@ -817,25 +848,25 @@ class Goldleaf:
     @staticmethod
     def write(buffer):
         try:
-            Goldleaf.gold_out.write(buffer,timeout=3000)
+            global_out.write(buffer,timeout=3000)
         except:
             pass
 
     @staticmethod
     def read(length):
-        return Goldleaf.gold_in.read(length,timeout=0).tobytes()
+        return global_in.read(length,timeout=0).tobytes()
         
     @staticmethod
     def write_u32(x):
         try:
-            Goldleaf.gold_out.write(struct.pack("<I", x))
+            global_out.write(struct.pack("<I", x))
         except:
             pass
         
     @staticmethod
     def write_u64(x):
         try:
-            Goldleaf.gold_out.write(struct.pack("<Q", x))
+            global_out.write(struct.pack("<Q", x))
         except:
             pass
         
@@ -898,11 +929,6 @@ class Goldleaf:
         try:
             while True:
                 if not is_goldleaf_active:
-                    try:
-                        usb.util.dispose_resources(Goldleaf.dev)
-                        Goldleaf.dev.reset()
-                    except:
-                        pass
                     sys.exit()
                     return 0
                 if is_exiting:
@@ -1116,7 +1142,8 @@ class Goldleaf:
 def init_goldleaf_usb_install():
     try:
         Goldleaf.reset()
-        Goldleaf.connect_usb()
+        detach_switch()
+        connect_switch()
     except Exception as e:
         if is_logging:
             logging.error(e, exc_info=True)
@@ -1377,18 +1404,10 @@ class Tinfoil:
 def init_tinfoil_usb_install():
     try:
         nsp_dir = selected_dir
-        dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-        dev.reset()
-        dev.set_configuration()
-        cfg = dev.get_active_configuration()
-        is_out_ep = lambda ep: usb.util.endpoint_direction(ep.bEndpointAddress) == usb.util.ENDPOINT_OUT
-        is_in_ep = lambda ep: usb.util.endpoint_direction(ep.bEndpointAddress) == usb.util.ENDPOINT_IN
-        out_ep = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_out_ep)
-        in_ep = usb.util.find_descriptor(cfg[(0,0)], custom_match=is_in_ep)
-        assert out_ep is not None
-        assert in_ep is not None
-        Tinfoil.send_nsp_list(selected_files, nsp_dir, out_ep)
-        Tinfoil.poll_commands(nsp_dir, in_ep, out_ep)
+        detach_switch()
+        connect_switch()
+        Tinfoil.send_nsp_list(selected_files, nsp_dir, global_out)
+        Tinfoil.poll_commands(nsp_dir, global_in, global_out)
         complete_install()
         sys.exit()
     except Exception as e:
@@ -1410,6 +1429,7 @@ try:
     # Widget Functions
     def send_header_cmd():
         if not sent_header:
+            set_canceled(False)
             btn_header.setEnabled(False)
             btn_nsp.setEnabled(False)
             combo.setEnabled(False)
@@ -1444,6 +1464,7 @@ try:
                     threading.Thread(target = init_tinfoil_usb_install).start()
         else:
             set_goldleaf_active(False)
+            set_canceled(True)
             reset_install()
         
     def nsp_file_dialog():
@@ -1602,12 +1623,7 @@ try:
                 l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
 
     def set_switch_text():
-        dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-        if dev is None:
-            l_switch.setText(Language.CurrentDict[10]+"!")
-            btn_header.setEnabled(False)
-            l_switch.setStyleSheet(RED)
-        else:
+        if connect_switch():
             l_switch.setText(Language.CurrentDict[11]+"!")
             l_switch.setStyleSheet(GREEN)
             if not is_goldleaf:
@@ -1617,6 +1633,14 @@ try:
                     btn_header.setEnabled(False)
             else:
                 btn_header.setEnabled(True)
+        else:
+            l_switch.setText(Language.CurrentDict[10]+"!")
+            btn_header.setEnabled(False)
+            l_switch.setStyleSheet(RED)
+            try:
+                detach_switch()
+            except:
+                pass
                     
     #Init Widgets
     l_host = QtWidgets.QLabel(Language.CurrentDict[3]+":")
@@ -1860,7 +1884,8 @@ try:
                 time.sleep(1)
         # Error Handling
         if last_error != "NA":
-            msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
+            if not cancel_clicked:
+                msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
             reset_last_error()
             set_goldleaf_active(False)
             reset_install()
