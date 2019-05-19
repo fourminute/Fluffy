@@ -102,8 +102,7 @@ is_installing = False
 last_error = "NA"
 is_done = False
 is_network = False
-is_goldleaf = False
-is_exiting = False 
+is_goldleaf = False 
 selected_dir = None
 selected_files = None
 sent_header = False
@@ -119,7 +118,6 @@ initial_dir = os.getcwd()
 switch_ip = "0.0.0.0"
 host_ip = "0.0.0.0"
 language = 0
-is_goldleaf_active = False
 qresponse = False
 needresponse = False
 qrespnum = 0
@@ -129,7 +127,7 @@ ignore_warning_prompt = 0
 global_dev = None
 global_in = None
 global_out = None
-cancel_clicked = False
+task_canceled = False
 
 # Load Settings
 if os.path.isfile(initial_dir + '/fluffy.conf'):
@@ -591,8 +589,8 @@ def set_start_time():
     start_time = time.time()
 
 def set_canceled(x):
-    global cancel_clicked
-    cancel_clicked = x
+    global task_canceled
+    task_canceled = x
     
 def set_cur_transfer_rate(v):
     global cur_transfer_rate
@@ -637,8 +635,7 @@ def connect_switch():
     else:
         return False
 
-def close_program():
-    global is_exiting
+def save_config():
     try:
         configp = configparser.ConfigParser()
         configp['DEFAULT'] = {'switch_ip': switch_ip,
@@ -650,8 +647,6 @@ def close_program():
             configp.write(cfgfile)
     except:
         pass
-    is_exiting = True
-    sys.exit()
                 
 def set_transfer_rate(v):
     global transfer_rate
@@ -706,7 +701,6 @@ def set_cur_nsp(nsp):
             last_progress = 0
             
 def cancel_task():
-    set_goldleaf_active(False)
     set_canceled(True)
     reset_install()
 
@@ -717,10 +711,6 @@ def set_total_nsp(n):
 def complete_install():
     global is_done
     is_done = True
-
-def set_goldleaf_active(x):
-    global is_goldleaf_active
-    is_goldleaf_active = x
 
 def complete_goldleaf_transfer():
     global is_installing
@@ -932,13 +922,7 @@ class Goldleaf:
     @staticmethod
     def goldleaf_usb():
         try:
-            while True:
-                if not is_goldleaf_active:
-                    sys.exit()
-                    return 0
-                if is_exiting:
-                    pid = os.getpid()
-                    os.kill(pid, signal.SIGTERM)
+            while global_dev is not None:
                 try:
                     Goldleaf.read_cmd()
                 except:
@@ -1049,18 +1033,14 @@ class Goldleaf:
                             print("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
                             cancel_task()
                             sys.exit()
-                            break
                     elif Goldleaf.is_id(CommandId.FileWrite):
                         offset = Goldleaf.read_u64()
                         size = Goldleaf.read_u64()
                         path = Goldleaf.read_path()
                         data = Goldleaf.read(size)
                         get_response_qmessage(1)
-                        while True:
-                            if haveresponse:
-                                break
-                            else:                         
-                                time.sleep(1)
+                        while not haveresponse and global_dev is not None:                    
+                            time.sleep(1)
                         if qresponse:
                             cont = bytearray()
                             try:
@@ -1075,22 +1055,16 @@ class Goldleaf:
                     elif Goldleaf.is_id(CommandId.CreateFile):
                         path = Goldleaf.read_path()
                         get_response_qmessage(2)
-                        while True:
-                            if haveresponse:
-                                break
-                            else:
-                                time.sleep(1)
+                        while not haveresponse and global_dev is not None:                    
+                            time.sleep(1)
                         if qresponse:
                             open(path, "a").close()
                         reset_response()
                     elif Goldleaf.is_id(CommandId.CreateDirectory):
                         path = Goldleaf.read_path()
                         get_response_qmessage(3)
-                        while True:
-                            if haveresponse:
-                                break
-                            else:
-                                time.sleep(1)
+                        while not haveresponse and global_dev is not None:                    
+                            time.sleep(1)
                         if qresponse:
                             try:
                                 os.mkdir(path)
@@ -1100,22 +1074,16 @@ class Goldleaf:
                     elif Goldleaf.is_id(CommandId.DeleteFile):
                         path = Goldleaf.read_path()
                         get_response_qmessage(4)
-                        while True:
-                            if haveresponse:
-                                break
-                            else:                         
-                                time.sleep(1)
+                        while not haveresponse and global_dev is not None:                    
+                            time.sleep(1)
                         if qresponse:
                             os.remove(path)
                         reset_response()
                     elif Goldleaf.is_id(CommandId.DeleteDirectory):
                         path = Goldleaf.read_path()
                         get_response_qmessage(5)
-                        while True:
-                            if haveresponse:
-                                break
-                            else:                         
-                                time.sleep(1)
+                        while not haveresponse and global_dev is not None:                    
+                            time.sleep(1)
                         if qresponse:
                             shutil.rmtree(path)
                         reset_response()
@@ -1123,11 +1091,8 @@ class Goldleaf:
                         path = Goldleaf.read_path()
                         new_name = Goldleaf.read_string()
                         get_response_qmessage(6)
-                        while True:
-                            if haveresponse:
-                                break
-                            else:                         
-                                time.sleep(1)
+                        while not haveresponse and global_dev is not None:                    
+                            time.sleep(1)
                         if qresponse:
                             os.rename(path, f"{os.path.dirname(path)}/{new_name}")
                         reset_response()
@@ -1141,11 +1106,6 @@ class Goldleaf:
             if is_logging:
                 logging.error(e, exc_info=True)
             throw_error(0)
-            try:
-                usb.util.dispose_resources(Goldleaf.dev)
-                Goldleaf.dev.reset()
-            except:
-                pass
             sys.exit()
 
 def init_goldleaf_usb_install():
@@ -1157,11 +1117,6 @@ def init_goldleaf_usb_install():
         if is_logging:
             logging.error(e, exc_info=True)
         throw_error(0)
-        try:
-            usb.util.dispose_resources(Goldleaf.dev)
-            Goldleaf.dev.reset()
-        except:
-            pass
         sys.exit()
     Goldleaf.goldleaf_usb()
 
@@ -1226,12 +1181,10 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
             self.send_response(200)
         self.send_header('Content-type', ctype)
         self.send_header('Accept-Ranges', 'bytes')
-        self.send_header('Content-Range',
-                         'bytes %s-%s/%s' % (start, end, size))
+        self.send_header('Content-Range','bytes %s-%s/%s' % (start, end, size))
         self.send_header('Content-Length', str(cont_length))
         self.send_header('Last-Modified', self.date_time_string(fs.st_mtime))
         self.end_headers()
-
         return f
 
     def copyfile(self, infile, outfile):
@@ -1244,9 +1197,6 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
         infile.seek(start)
         bufsize = 64 * 1024  # 64KB
         while True:
-            if is_exiting:
-                pid = os.getpid()
-                os.kill(pid, signal.SIGTERM)
             buf = infile.read(bufsize)
             if not buf:
                 break
@@ -1272,9 +1222,6 @@ class MyServer(TCPServer):
         self.socket.bind(self.server_address)
     def serve_forever(self):
         while not self.stopped:
-            if is_exiting:
-                pid = os.getpid()
-                os.kill(pid, signal.SIGTERM)
             self.handle_request()             
     def force_stop(self):
         self.server_close()
@@ -1303,22 +1250,21 @@ def init_tinfoil_net_install():
         os.chdir(directory)
     server = MyServer((host_ip, hostPort), RangeHTTPRequestHandler)
     thread = threading.Thread(target=server.serve_forever)
+    thread.daemon = True
     thread.start()
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((target_ip, 2000))
         sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
         while len(sock.recv(1)) < 1:
-            if is_exiting:
-                pid = os.getpid()
-                os.kill(pid, signal.SIGTERM)
+            time.sleep(0.1)
         sock.close()
     except Exception as e:
         if is_logging:
             logging.error(e, exc_info=True)
         server.force_stop()
         throw_error(1)
-        sys.exit(1)
+        sys.exit()
     complete_install()
     server.force_stop()
     try:
@@ -1354,9 +1300,6 @@ class Tinfoil:
             end_off = range_size
             read_size = transfer_rate
             while curr_off < end_off:
-                if is_exiting:
-                    pid = os.getpid()
-                    os.kill(pid, signal.SIGTERM)
                 if curr_off + read_size >= end_off:
                     read_size = end_off - curr_off
                     try:
@@ -1378,9 +1321,6 @@ class Tinfoil:
     @staticmethod
     def poll_commands(nsp_dir, in_ep, out_ep):
         while True:
-            if is_exiting:
-                pid = os.getpid()
-                os.kill(pid, signal.SIGTERM)
             cmd_header = bytes(in_ep.read(0x20, timeout=0))
             magic = cmd_header[:4]
             if magic != b'TUC0': 
@@ -1424,7 +1364,6 @@ def init_tinfoil_usb_install():
             logging.error(e, exc_info=True)
         throw_error(2)
         sys.exit()
-        pass
 
 
 # Main
@@ -1460,17 +1399,22 @@ try:
                 set_port(txt_port.text())
                 set_sent_header()
                 set_start_time()
-                threading.Thread(target = init_tinfoil_net_install).start()
+                t = threading.Thread(target = init_tinfoil_net_install)
+                t.daemon = True
+                t.start()
             else:
                 if is_goldleaf:
-                    set_goldleaf_active(True)
                     set_sent_header()
                     set_start_time()
-                    threading.Thread(target = init_goldleaf_usb_install).start()
+                    t = threading.Thread(target = init_goldleaf_usb_install)
+                    t.daemon = True
+                    t.start()
                 else:
                     set_sent_header()
                     set_start_time()
-                    threading.Thread(target = init_tinfoil_usb_install).start()
+                    t = threading.Thread(target = init_tinfoil_usb_install)
+                    t.daemon = True
+                    t.start()
         else:
             cancel_task()
         
@@ -1891,10 +1835,9 @@ try:
                 time.sleep(1)
         # Error Handling
         if last_error != "NA":
-            if not cancel_clicked:
+            if not task_canceled:
                 msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
             reset_last_error()
-            set_goldleaf_active(False)
             reset_install()
             
         # Logging
@@ -1910,18 +1853,16 @@ try:
                     
         QApplication.processEvents()
         
-        # Save progress and close
+        # Save config and close
         if not window.isVisible():
             try:
                 switch_ip = txt_ip.text()
             except:
                 pass
-            close_program()
-            pid = os.getpid()
-            os.kill(pid, signal.SIGTERM) 
-        if is_exiting:
+            save_config()
             pid = os.getpid()
             os.kill(pid, signal.SIGTERM)
+            sys.exit()
             
                 
         # Switch Indicator
@@ -1977,6 +1918,7 @@ try:
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
-    close_program()
+    save_config()
     pid = os.getpid()
     os.kill(pid, signal.SIGTERM)
+    sys.exit()
