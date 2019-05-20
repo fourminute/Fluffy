@@ -90,9 +90,6 @@ GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
 PURPLE = "QLabel {color: #7F0CE8;}"
-CMD_ID_EXIT = 0
-CMD_ID_FILE_RANGE = 1
-CMD_TYPE_RESPONSE = 1
 goldpixmap = QPixmap()
 iconpixmap = QPixmap()
 inlaypixmap = QPixmap()
@@ -806,7 +803,7 @@ def set_goldleaf(v):
     is_goldleaf = v
     
 # Goldleaf            
-class CommandId:
+class GoldleafCommandId:
     ListSystemDrives = 0
     GetEnvironmentPaths = 1
     GetPathType = 2
@@ -826,314 +823,328 @@ class CommandId:
     GetNSPContents = 16
     Max = 17
 
-class CommandReadResult:
+class GoldleafCommandReadResult:
     Success = 0
     InvalidMagic = 1
-    InvalidCommandId = 2
+    InvalidGoldleafCommandId = 2
 
-class Goldleaf:          
-    @staticmethod
-    def reset():
-        Goldleaf.GLUC         = b"GLUC"
-        Goldleaf.magic        = b"GLUC"
-        Goldleaf.cmd_id       = 0
-        Goldleaf.drives       = {}
-        
-        
-    @staticmethod
-    def write(buffer):
-        try:
-            global_out.write(buffer,timeout=3000)
-        except:
-            pass
-
-    @staticmethod
-    def read(length):
-        return global_in.read(length,timeout=0).tobytes()
-        
-    @staticmethod
-    def write_u32(x):
-        try:
-            global_out.write(struct.pack("<I", x))
-        except:
-            pass
-        
-    @staticmethod
-    def write_u64(x):
-        try:
-            global_out.write(struct.pack("<Q", x))
-        except:
-            pass
-        
-    @staticmethod
-    def write_string(x):
-        try:
-            Goldleaf.write_u32(len(x))
-            Goldleaf.write(x.encode())
-        except:
-            pass
-        
-    @staticmethod
-    def read_u32():
-        return struct.unpack("<I", Goldleaf.read(4))[0]
+class Goldleaf:
+    GLUC         = b"GLUC"
+    magic        = b"GLUC"
+    cmd_id       = 0
+    drives       = {}
     
-    @staticmethod
-    def read_u64():
-        return struct.unpack("<Q", Goldleaf.read(8))[0]
-    
-    @staticmethod
-    def read_string():
-        return Goldleaf.read(Goldleaf.read_u32() + 1)[:-1].decode()
-    
-    @staticmethod
-    def magic_ok():
-        return Goldleaf.GLUC == Goldleaf.magic
-        
-    @staticmethod
-    def is_id(a_cmd):
-        return a_cmd == Goldleaf.cmd_id
-    
-    @staticmethod
-    def read_cmd():
+    def init(self):
         try:
-            Goldleaf.magic = Goldleaf.read(4)
-            Goldleaf.cmd_id = Goldleaf.read_u32()
-        except:
-            pass
-        
-    @staticmethod
-    def write_cmd(a_cmd):
-        try:
-            Goldleaf.write(Goldleaf.magic)
-            Goldleaf.write_u32(a_cmd)
-        except:
-            pass
-
-    @staticmethod
-    def read_path():
-        path = Goldleaf.read_string()
-        drive = path.split(":", 1)[0]
-        try:
-            path = path.replace(drive + ":", Goldleaf.drives[drive])
-        except KeyError:
-            pass
-        return path
-    
-    @staticmethod
-    def goldleaf_usb():
-        try:
-            while global_dev is not None:
-                try:
-                    Goldleaf.read_cmd()
-                except:
-                    pass
-                if Goldleaf.magic_ok():
-                    if Goldleaf.is_id(CommandId.ListSystemDrives):
-                        drive_labels = {}
-                        if "win" in sys.platform[:3].lower():
-                            import string
-                            import ctypes
-                            kernel32 = ctypes.windll.kernel32
-                            bitmask = kernel32.GetLogicalDrives()
-                            for letter in string.ascii_uppercase:
-                                if bitmask & 1:
-                                    Goldleaf.drives[letter] = letter + ":/"
-                                    label_buf = ctypes.create_unicode_buffer(1024)
-                                    kernel32.GetVolumeInformationW(
-                                        ctypes.c_wchar_p(letter + ":\\"),
-                                        label_buf,
-                                        ctypes.sizeof(label_buf),
-                                        None,
-                                        None,
-                                        None,
-                                        None,
-                                        0
-                                        )
-                                    if label_buf.value:
-                                        drive_labels[letter] = label_buf.value
-                                bitmask >>= 1
-                        else:
-                            Goldleaf.drives["ROOT"] = "/"
-                        Goldleaf.write_u32(len(Goldleaf.drives))
-                        for d in Goldleaf.drives:
-                            try:
-                                Goldleaf.write_string(drive_labels[d])
-                            except KeyError:
-                                Goldleaf.write_string(d)
-                            Goldleaf.write_string(d)
-                    elif Goldleaf.is_id(CommandId.GetEnvironmentPaths):
-                        env_paths = {x:os.path.expanduser("~/"+x) for x in ["Desktop", "Documents"]}
-                        for arg in sys.argv[1:]: # Add arguments as environment paths
-                            folder = os.path.abspath(arg)
-                            if os.path.isfile(folder):
-                                folder = os.path.dirname(folder)
-                            env_paths[os.path.basename(folder)] = folder
-                        Goldleaf.write_u32(len(env_paths))
-                        for env in env_paths:
-                            env_paths[env] = env_paths[env].replace("\\", "/")
-                            Goldleaf.write_string(env)
-                            if env_paths[env][1:3] != ":/":
-                                env_paths[env] = "ROOT:" + env_paths[env]
-                            Goldleaf.write_string(env_paths[env])
-                    elif Goldleaf.is_id(CommandId.GetPathType):
-                        ptype = 0
-                        path = Goldleaf.read_path()
-                        if os.path.isfile(path):
-                            ptype = 1
-                        elif os.path.isdir(path):
-                            ptype = 2
-                        Goldleaf.write_u32(ptype)
-                    elif Goldleaf.is_id(CommandId.ListDirectories):
-                        path = Goldleaf.read_path()
-                        ents = [x for x in os.listdir(path) if os.path.isdir(os.path.join(path, x))]
-                        Goldleaf.write_u32(len(ents))
-                        for name in ents:
-                            Goldleaf.write_string(name)
-                    elif Goldleaf.is_id(CommandId.ListFiles):
-                        if is_installing:
-                            complete_goldleaf_transfer()
-                        path = Goldleaf.read_path()
-                        ents = [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))]
-                        Goldleaf.write_u32(len(ents))
-                        for name in ents:
-                            Goldleaf.write_string(name)
-                    elif Goldleaf.is_id(CommandId.GetFileSize):
-                        path = Goldleaf.read_path()
-                        Goldleaf.write_u64(os.path.getsize(path))
-                    elif Goldleaf.is_id(CommandId.FileRead):
-                        complete_loading()
-                        can_read = True
-                        offset = Goldleaf.read_u64()
-                        size = Goldleaf.read_u64()
-                        path = Goldleaf.read_path()
-                        set_cur_nsp(str(os.path.basename(path)))
-                        if not os.path.basename(path).lower().endswith('.nsp'):
-                            if allow_access_non_nsp:
-                                can_read = True
-                            else:
-                                can_read = False
-                        if can_read:
-                            with open(path, "rb") as f:
-                                f.seek(offset)
-                                data = f.read(size)
-                            Goldleaf.write_u64(len(data))
-                            Goldleaf.write(data)
-                            try:
-                                set_progress(int(offset), int(os.path.getsize(path)))
-                                elapsed_time = time.time() - start_time
-                                if elapsed_time >= 1:
-                                    set_cur_transfer_rate(int(offset) - last_transfer_rate)
-                                    set_last_transfer_rate(int(offset))
-                                    set_start_time()
-                            except Exception as e:
-                                print(str(e))
-                                pass
-                        else:
-                            logging.debug("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
-                            print("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
-                            cancel_task()
-                            sys.exit()
-                    elif Goldleaf.is_id(CommandId.FileWrite):
-                        offset = Goldleaf.read_u64()
-                        size = Goldleaf.read_u64()
-                        path = Goldleaf.read_path()
-                        data = Goldleaf.read(size)
-                        get_response_qmessage(1)
-                        while not haveresponse and global_dev is not None:                    
-                            time.sleep(1)
-                        if qresponse:
-                            cont = bytearray()
-                            try:
-                                with open(path, "rb") as f:
-                                    cont=bytearray(f.read())
-                            except FileNotFoundError:
-                                pass
-                            cont[offset:offset + size] = data
-                            with open(path, "wb") as f:
-                                f.write(cont)
-                        reset_response()
-                    elif Goldleaf.is_id(CommandId.CreateFile):
-                        path = Goldleaf.read_path()
-                        get_response_qmessage(2)
-                        while not haveresponse and global_dev is not None:                    
-                            time.sleep(1)
-                        if qresponse:
-                            open(path, "a").close()
-                        reset_response()
-                    elif Goldleaf.is_id(CommandId.CreateDirectory):
-                        path = Goldleaf.read_path()
-                        get_response_qmessage(3)
-                        while not haveresponse and global_dev is not None:                    
-                            time.sleep(1)
-                        if qresponse:
-                            try:
-                                os.mkdir(path)
-                            except os.FileExistsError:
-                                pass
-                        reset_response()
-                    elif Goldleaf.is_id(CommandId.DeleteFile):
-                        path = Goldleaf.read_path()
-                        get_response_qmessage(4)
-                        while not haveresponse and global_dev is not None:                    
-                            time.sleep(1)
-                        if qresponse:
-                            os.remove(path)
-                        reset_response()
-                    elif Goldleaf.is_id(CommandId.DeleteDirectory):
-                        path = Goldleaf.read_path()
-                        get_response_qmessage(5)
-                        while not haveresponse and global_dev is not None:                    
-                            time.sleep(1)
-                        if qresponse:
-                            shutil.rmtree(path)
-                        reset_response()
-                    elif Goldleaf.is_id(CommandId.RenameFile) or Goldleaf.is_id(CommandId.RenameDirectory):
-                        path = Goldleaf.read_path()
-                        new_name = Goldleaf.read_string()
-                        get_response_qmessage(6)
-                        while not haveresponse and global_dev is not None:                    
-                            time.sleep(1)
-                        if qresponse:
-                            os.rename(path, f"{os.path.dirname(path)}/{new_name}")
-                        reset_response()
-                    elif Goldleaf.is_id(CommandId.GetDriveTotalSpace):
-                        path = Goldleaf.read_path()
-                        Goldleaf.write_u64(psutil.disk_usage(path).total)
-                    elif Goldleaf.is_id(CommandId.GetDriveFreeSpace):
-                        path = Goldleaf.read_path()
-                        Goldleaf.write_u64(psutil.disk_usage(path).free)
+            detach_switch()
+            connect_switch()
+            self.goldleaf_usb()
         except Exception as e:
             if is_logging:
                 logging.error(e, exc_info=True)
             throw_error(0)
             sys.exit()
+        
+    def write(self,buffer):
+        try:
+            global_out.write(buffer,timeout=3000)
+        except:
+            pass
 
-def init_goldleaf_usb_install():
-    try:
-        Goldleaf.reset()
-        detach_switch()
-        connect_switch()
-    except Exception as e:
-        if is_logging:
-            logging.error(e, exc_info=True)
-        throw_error(0)
-        sys.exit()
-    Goldleaf.goldleaf_usb()
+    def read(self,length):
+        return global_in.read(length,timeout=0).tobytes()
+        
+    def write_u32(self,x):
+        try:
+            global_out.write(struct.pack("<I", x))
+        except:
+            pass
+        
+    def write_u64(self,x):
+        try:
+            global_out.write(struct.pack("<Q", x))
+        except:
+            pass
+        
+    def write_string(self,x):
+        try:
+            self.write_u32(len(x))
+            self.write(x.encode())
+        except:
+            pass
+        
+    def read_u32(self):
+        return struct.unpack("<I", self.read(4))[0]
+    
+    def read_u64(self):
+        return struct.unpack("<Q", self.read(8))[0]
+    
+    def read_string(self):
+        return self.read(self.read_u32() + 1)[:-1].decode()
+    
+    def magic_ok(self):
+        return self.GLUC == self.magic
+        
+    def is_id(self,a_cmd):
+        return a_cmd == self.cmd_id
+    
+    def read_cmd(self):
+        try:
+            self.magic = self.read(4)
+            self.cmd_id = self.read_u32()
+        except:
+            pass
+        
+    def write_cmd(self,a_cmd):
+        try:
+            self.write(self.magic)
+            self.write_u32(a_cmd)
+        except:
+            pass
 
+    def read_path(self):
+        path = self.read_string()
+        drive = path.split(":", 1)[0]
+        try:
+            path = path.replace(drive + ":", self.drives[drive])
+        except KeyError:
+            pass
+        return path
+    
+    def goldleaf_usb(self):
+        while global_dev is not None:
+            self.read_cmd()
+            if self.magic_ok():
+                if self.is_id(GoldleafCommandId.ListSystemDrives):
+                    drive_labels = {}
+                    if "win" in sys.platform[:3].lower():
+                        import string
+                        import ctypes
+                        kernel32 = ctypes.windll.kernel32
+                        bitmask = kernel32.GetLogicalDrives()
+                        for letter in string.ascii_uppercase:
+                            if bitmask & 1:
+                                self.drives[letter] = letter + ":/"
+                                label_buf = ctypes.create_unicode_buffer(1024)
+                                kernel32.GetVolumeInformationW(
+                                    ctypes.c_wchar_p(letter + ":\\"),
+                                    label_buf,
+                                    ctypes.sizeof(label_buf),
+                                    None,
+                                    None,
+                                    None,
+                                    None,
+                                    0
+                                    )
+                                if label_buf.value:
+                                    drive_labels[letter] = label_buf.value
+                            bitmask >>= 1
+                    else:
+                        self.drives["ROOT"] = "/"
+                    self.write_u32(len(self.drives))
+                    for d in self.drives:
+                        try:
+                            self.write_string(drive_labels[d])
+                        except KeyError:
+                            self.write_string(d)
+                        self.write_string(d)
+                elif self.is_id(GoldleafCommandId.GetEnvironmentPaths):
+                    env_paths = {x:os.path.expanduser("~/"+x) for x in ["Desktop", "Documents"]}
+                    for arg in sys.argv[1:]: # Add arguments as environment paths
+                        folder = os.path.abspath(arg)
+                        if os.path.isfile(folder):
+                            folder = os.path.dirname(folder)
+                        env_paths[os.path.basename(folder)] = folder
+                    self.write_u32(len(env_paths))
+                    for env in env_paths:
+                        env_paths[env] = env_paths[env].replace("\\", "/")
+                        self.write_string(env)
+                        if env_paths[env][1:3] != ":/":
+                            env_paths[env] = "ROOT:" + env_paths[env]
+                        self.write_string(env_paths[env])
+                elif self.is_id(GoldleafCommandId.GetPathType):
+                    ptype = 0
+                    path = self.read_path()
+                    if os.path.isfile(path):
+                        ptype = 1
+                    elif os.path.isdir(path):
+                        ptype = 2
+                    self.write_u32(ptype)
+                elif self.is_id(GoldleafCommandId.ListDirectories):
+                    path = self.read_path()
+                    ents = [x for x in os.listdir(path) if os.path.isdir(os.path.join(path, x))]
+                    self.write_u32(len(ents))
+                    for name in ents:
+                        self.write_string(name)
+                elif self.is_id(GoldleafCommandId.ListFiles):
+                    if is_installing:
+                        complete_goldleaf_transfer()
+                    path = self.read_path()
+                    ents = [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))]
+                    self.write_u32(len(ents))
+                    for name in ents:
+                        self.write_string(name)
+                elif self.is_id(GoldleafCommandId.GetFileSize):
+                    path = self.read_path()
+                    self.write_u64(os.path.getsize(path))
+                elif self.is_id(GoldleafCommandId.FileRead):
+                    complete_loading()
+                    can_read = True
+                    offset = self.read_u64()
+                    size = self.read_u64()
+                    path = self.read_path()
+                    set_cur_nsp(str(os.path.basename(path)))
+                    if not os.path.basename(path).lower().endswith('.nsp'):
+                        if allow_access_non_nsp:
+                            can_read = True
+                        else:
+                            can_read = False
+                    if can_read:
+                        with open(path, "rb") as f:
+                            f.seek(offset)
+                            data = f.read(size)
+                        self.write_u64(len(data))
+                        self.write(data)
+                        try:
+                            set_progress(int(offset), int(os.path.getsize(path)))
+                            elapsed_time = time.time() - start_time
+                            if elapsed_time >= 1:
+                                set_cur_transfer_rate(int(offset) - last_transfer_rate)
+                                set_last_transfer_rate(int(offset))
+                                set_start_time()
+                        except Exception as e:
+                            print(str(e))
+                            pass
+                    else:
+                        logging.debug("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
+                        print("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
+                        cancel_task()
+                        sys.exit()
+                elif self.is_id(GoldleafCommandId.FileWrite):
+                    offset = self.read_u64()
+                    size = self.read_u64()
+                    path = self.read_path()
+                    data = self.read(size)
+                    get_response_qmessage(1)
+                    while not haveresponse and global_dev is not None:                    
+                        time.sleep(1)
+                    if qresponse:
+                        cont = bytearray()
+                        try:
+                            with open(path, "rb") as f:
+                                cont=bytearray(f.read())
+                        except FileNotFoundError:
+                            pass
+                        cont[offset:offset + size] = data
+                        with open(path, "wb") as f:
+                            f.write(cont)
+                    reset_response()
+                elif self.is_id(GoldleafCommandId.CreateFile):
+                    path = self.read_path()
+                    get_response_qmessage(2)
+                    while not haveresponse and global_dev is not None:                    
+                        time.sleep(1)
+                    if qresponse:
+                        open(path, "a").close()
+                    reset_response()
+                elif self.is_id(GoldleafCommandId.CreateDirectory):
+                    path = self.read_path()
+                    get_response_qmessage(3)
+                    while not haveresponse and global_dev is not None:                    
+                        time.sleep(1)
+                    if qresponse:
+                        try:
+                            os.mkdir(path)
+                        except os.FileExistsError:
+                            pass
+                    reset_response()
+                elif self.is_id(GoldleafCommandId.DeleteFile):
+                    path = self.read_path()
+                    get_response_qmessage(4)
+                    while not haveresponse and global_dev is not None:                    
+                        time.sleep(1)
+                    if qresponse:
+                        os.remove(path)
+                    reset_response()
+                elif self.is_id(GoldleafCommandId.DeleteDirectory):
+                    path = self.read_path()
+                    get_response_qmessage(5)
+                    while not haveresponse and global_dev is not None:                    
+                        time.sleep(1)
+                    if qresponse:
+                        shutil.rmtree(path)
+                    reset_response()
+                elif self.is_id(GoldleafCommandId.RenameFile) or self.is_id(GoldleafCommandId.RenameDirectory):
+                    path = self.read_path()
+                    new_name = self.read_string()
+                    get_response_qmessage(6)
+                    while not haveresponse and global_dev is not None:                    
+                        time.sleep(1)
+                    if qresponse:
+                        os.rename(path, f"{os.path.dirname(path)}/{new_name}")
+                    reset_response()
+                elif self.is_id(GoldleafCommandId.GetDriveTotalSpace):
+                    path = self.read_path()
+                    self.write_u64(psutil.disk_usage(path).total)
+                elif self.is_id(GoldleafCommandId.GetDriveFreeSpace):
+                    path = self.read_path()
+                    self.write_u64(psutil.disk_usage(path).free)
 
 # Tinfoil Network
 netrlist = []
-
 def reset_netrlist():
     global netrlist
     netrlist = None
     netrlist = []
-    
 def append_netrlist(v, v2):
     global netrlist
     netrlist.append((v, v2))
-    
-class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
+class TinfoilNetwork:
+    def init(self):
+        reset_netrlist()
+        accepted_extension = ('.nsp')
+        hostPort = random.randint(26490,26999)
+        target_ip = switch_ip
+        hostIp = host_ip
+        target_path = str(selected_dir).strip()
+        baseUrl = hostIp + ':' + str(hostPort) + '/'
+        directory = target_path
+        file_list_payload = ''  
+        for file in [file for file in next(os.walk(target_path))[2] if file.endswith(accepted_extension)]:
+            for y in selected_files:
+                if str(file).find(os.path.basename(y)) != -1:
+                    n = random.randint(1,10000000)
+                    fake_file = str(n) + ".nsp"
+                    append_netrlist(fake_file, str(y))
+                    file_list_payload += baseUrl + fake_file + '\n'
+        file_list_payloadBytes = file_list_payload.encode('ascii')
+        if directory and directory != '.':
+            os.chdir(directory)
+        server = TinfoilServer((host_ip, hostPort), TinfoilHTTPHandler)
+        thread = threading.Thread(target=server.serve_forever)
+        thread.daemon = True
+        thread.start()
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((target_ip, 2000))
+            sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
+            while len(sock.recv(1)) < 1:
+                time.sleep(0.1)
+            sock.close()
+        except Exception as e:
+            if is_logging:
+                logging.error(e, exc_info=True)
+            server.force_stop()
+            throw_error(1)
+            sys.exit()
+        complete_install()
+        server.force_stop()
+        try:
+            server.shutdown()
+        except:
+            pass
+        sys.exit()
+class TinfoilHTTPHandler(SimpleHTTPRequestHandler):
     def send_head(self):
         for s in range(len(netrlist)):
             if netrlist[s][0] == str(self.path)[1:]:
@@ -1212,9 +1223,8 @@ class RangeHTTPRequestHandler(SimpleHTTPRequestHandler):
                 except:
                     pass
             except BrokenPipeError:
-                pass
-            
-class MyServer(TCPServer):
+                pass    
+class TinfoilServer(TCPServer):
     stopped = False
     def server_bind(self):
         import socket
@@ -1228,71 +1238,43 @@ class MyServer(TCPServer):
         self.stopped = True
         sys.exit()
         
-def init_tinfoil_net_install():
-    reset_netrlist()
-    accepted_extension = ('.nsp')
-    hostPort = random.randint(26490,26999)
-    target_ip = switch_ip
-    hostIp = host_ip
-    target_path = str(selected_dir).strip()
-    baseUrl = hostIp + ':' + str(hostPort) + '/'
-    directory = target_path
-    file_list_payload = ''  
-    for file in [file for file in next(os.walk(target_path))[2] if file.endswith(accepted_extension)]:
-        for y in selected_files:
-            if str(file).find(os.path.basename(y)) != -1:
-                n = random.randint(1,10000000)
-                fake_file = str(n) + ".nsp"
-                append_netrlist(fake_file, str(y))
-                file_list_payload += baseUrl + fake_file + '\n'
-    file_list_payloadBytes = file_list_payload.encode('ascii')
-    if directory and directory != '.':
-        os.chdir(directory)
-    server = MyServer((host_ip, hostPort), RangeHTTPRequestHandler)
-    thread = threading.Thread(target=server.serve_forever)
-    thread.daemon = True
-    thread.start()
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((target_ip, 2000))
-        sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
-        while len(sock.recv(1)) < 1:
-            time.sleep(0.1)
-        sock.close()
-    except Exception as e:
-        if is_logging:
-            logging.error(e, exc_info=True)
-        server.force_stop()
-        throw_error(1)
-        sys.exit()
-    complete_install()
-    server.force_stop()
-    try:
-        server.shutdown()
-    except:
-        pass
-    sys.exit()
     
 # Tinfoil USB
 class Tinfoil:
-    @staticmethod
-    def send_response_header(out_ep, cmd_id, data_size):
-        out_ep.write(b'TUC0')
-        out_ep.write(struct.pack('<B', CMD_TYPE_RESPONSE))
-        out_ep.write(b'\x00' * 3)
-        out_ep.write(struct.pack('<I', cmd_id))
-        out_ep.write(struct.pack('<Q', data_size))
-        out_ep.write(b'\x00' * 0xC)
+    CMD_ID_EXIT = 0
+    CMD_ID_FILE_RANGE = 1
+    CMD_TYPE_RESPONSE = 1
+    
+    def init(self):
+        try:
+            detach_switch()
+            connect_switch()
+            self.send_nsp_list()
+            self.poll_commands()
+            complete_install()
+            sys.exit()
+        except Exception as e:
+            if is_logging:
+                logging.error(e, exc_info=True)
+            throw_error(2)
+            sys.exit()
         
-    @staticmethod
-    def file_range_cmd(nsp_dir, in_ep, out_ep, data_size):
-        file_range_header = in_ep.read(0x20)
+    def send_response_header(self, cmd_id, data_size):
+        global_out.write(b'TUC0')
+        global_out.write(struct.pack('<B', self.CMD_TYPE_RESPONSE))
+        global_out.write(b'\x00' * 3)
+        global_out.write(struct.pack('<I', cmd_id))
+        global_out.write(struct.pack('<Q', data_size))
+        global_out.write(b'\x00' * 0xC)
+        
+    def file_range_cmd(self, data_size):
+        file_range_header = global_in.read(0x20)
         range_size = struct.unpack('<Q', file_range_header[:8])[0]
         range_offset = struct.unpack('<Q', file_range_header[8:16])[0]
         nsp_name_len = struct.unpack('<Q', file_range_header[16:24])[0]
-        nsp_name = bytes(in_ep.read(nsp_name_len)).decode('utf-8')
+        nsp_name = bytes(global_in.read(nsp_name_len)).decode('utf-8')
         set_cur_nsp(str(os.path.basename(nsp_name)))
-        Tinfoil.send_response_header(out_ep, CMD_ID_FILE_RANGE, range_size)
+        self.send_response_header(self.CMD_ID_FILE_RANGE, range_size)
         with open(nsp_name, 'rb') as f:
             complete_loading()
             f.seek(range_offset)
@@ -1307,7 +1289,7 @@ class Tinfoil:
                     except:
                         pass
                 buf = f.read(read_size)
-                out_ep.write(data=buf, timeout=0)
+                global_out.write(data=buf, timeout=0)
                 curr_off += read_size
                 try:
                     set_progress(int(curr_off), int(end_off))
@@ -1318,54 +1300,38 @@ class Tinfoil:
                         set_start_time()
                 except:
                     pass
-    @staticmethod
-    def poll_commands(nsp_dir, in_ep, out_ep):
+                
+    def poll_commands(self):
         while True:
-            cmd_header = bytes(in_ep.read(0x20, timeout=0))
+            cmd_header = bytes(global_in.read(0x20, timeout=0))
             magic = cmd_header[:4]
             if magic != b'TUC0': 
                 continue
             cmd_type = struct.unpack('<B', cmd_header[4:5])[0]
             cmd_id = struct.unpack('<I', cmd_header[8:12])[0]
             data_size = struct.unpack('<Q', cmd_header[12:20])[0]
-            if cmd_id == CMD_ID_EXIT:
+            if cmd_id == self.CMD_ID_EXIT:
                 complete_install()
                 sys.exit()
-            elif cmd_id == CMD_ID_FILE_RANGE:
-                Tinfoil.file_range_cmd(nsp_dir, in_ep, out_ep, data_size)
-    @staticmethod
-    def send_nsp_list(s_f, nsp_dir, out_ep):
+            elif cmd_id == self.CMD_ID_FILE_RANGE:
+                self.file_range_cmd(data_size)
+
+    def send_nsp_list(self):
         nsp_path_list = list()
         nsp_path_list_len = 0
-        for nsp_path in os.listdir(nsp_dir):
+        for nsp_path in os.listdir(selected_dir):
             if nsp_path.endswith(".nsp"):
-                for y in s_f:
+                for y in selected_files:
                     if str(nsp_path).find(os.path.basename(y)) != -1:
                         print(str(nsp_path))
-                        nsp_path_list.append(nsp_dir + "/" + nsp_path.__str__() + '\n')
-                        nsp_path_list_len += len(nsp_dir + "/" + nsp_path.__str__()) + 1
-        out_ep.write(b'TUL0')
-        out_ep.write(struct.pack('<I', nsp_path_list_len))
-        out_ep.write(b'\x00' * 0x8) 
+                        nsp_path_list.append(selected_dir + "/" + nsp_path.__str__() + '\n')
+                        nsp_path_list_len += len(selected_dir + "/" + nsp_path.__str__()) + 1
+        global_out.write(b'TUL0')
+        global_out.write(struct.pack('<I', nsp_path_list_len))
+        global_out.write(b'\x00' * 0x8) 
         for nsp_path in nsp_path_list:
-            out_ep.write(nsp_path)
+            global_out.write(nsp_path)
         
-def init_tinfoil_usb_install():
-    try:
-        nsp_dir = selected_dir
-        detach_switch()
-        connect_switch()
-        Tinfoil.send_nsp_list(selected_files, nsp_dir, global_out)
-        Tinfoil.poll_commands(nsp_dir, global_in, global_out)
-        complete_install()
-        sys.exit()
-    except Exception as e:
-        if is_logging:
-            logging.error(e, exc_info=True)
-        throw_error(2)
-        sys.exit()
-
-
 # Main
 try:
     # Images
@@ -1399,31 +1365,32 @@ try:
                 set_port(txt_port.text())
                 set_sent_header()
                 set_start_time()
-                t = threading.Thread(target = init_tinfoil_net_install)
-                t.daemon = True
-                t.start()
+                tinnet = TinfoilNetwork()
+                thread = threading.Thread(target=tinnet.init)
+                thread.daemon = True
+                thread.start()
             else:
                 if is_goldleaf:
                     set_sent_header()
                     set_start_time()
-                    t = threading.Thread(target = init_goldleaf_usb_install)
-                    t.daemon = True
-                    t.start()
+                    gold = Goldleaf()
+                    thread = threading.Thread(target=gold.init)
+                    thread.daemon = True
+                    thread.start()
+
                 else:
                     set_sent_header()
                     set_start_time()
-                    t = threading.Thread(target = init_tinfoil_usb_install)
-                    t.daemon = True
-                    t.start()
+                    tin = Tinfoil()
+                    thread = threading.Thread(target=tin.init)
+                    thread.daemon = True
+                    thread.start()
         else:
             cancel_task()
         
     def nsp_file_dialog():
         try:
-            if not is_goldleaf:
-                d = filedialog.askopenfilenames(parent=root,title=Language.CurrentDict[13],filetypes=[("NSP files", "*.nsp")])
-            else:
-                d = filedialog.askopenfilename(parent=root,title=Language.CurrentDict[13],filetypes=[("NSP files", "*.nsp")])
+            d = filedialog.askopenfilenames(parent=root,title=Language.CurrentDict[13],filetypes=[("NSP files", "*.nsp")])
             tmp = list()
             list_nsp.clear()
             i = 0
