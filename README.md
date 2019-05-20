@@ -210,6 +210,7 @@ I would like to extend my thanks to the people below for helping make Fluffy wha
 * <a href="https://github.com/wendyliga">wendyliga</a> for their Bahasa Indonesia translation.
 * <a href="https://github.com/TheLastZombie">TheLastZombie</a> for their German translation.
 * <a href="https://github.com/YoyPa">YoyPa</a> for their many and various code contributions, creating and maintaining the <a href="https://aur.archlinux.org/packages/fluffy-switch/">fluffy-switch</a> AUR package, as well as their Spanish and French translations.
+* LoOkYe for testing and debugging Fluffy in its various stages of development on MacOS.
 * <a href="https://github.com/friedkeenan">friedkeenan</a> for their tremendous help on Goldleaf v0.6 compatibility.
 * <a href="https://github.com/TorpedoXL">TorpedoXL</a> for their Turkish translation.
 * <a href="https://github.com/DavidOliM">DavidOliM</a> for their Brazilian Portuguese translation.
