@@ -35,12 +35,9 @@
 * Switch Firmware 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a> for finding this fix, choose 'Safe Mode')
 * Tasty pink donut.
 
-# Screenshot (Tinfoil)
+# Screenshot
 
-<img src="https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui3.png?raw=true" width="650"/>
-
-# Screenshot (Goldleaf)
-<img src="https://github.com/fourminute/Fluffy/blob/master/misc/uigoldleaf.png?raw=true" width="375"/>
+<img src="https://github.com/fourminute/Fluffy/blob/master/misc/ui290.png?raw=true" width="800"/>
 
 # Multi-Language Screenshot
 ![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui2.png?raw=true)
