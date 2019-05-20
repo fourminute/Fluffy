@@ -106,7 +106,7 @@ except:
 # Variables
 VERSION = "2.9.0"
 MONERO_ADDRESS = "4APPsi7nnAs4ZjGC58V5CjVnceEvnZbY1WCBSjmcQsKhGPWLL2EaoUDU2RVFnuLEnASRA2ECXD4YvQ8hyVyZg1raJ482yei"
-thanks = ["YoyPa","Sev73n","wendyliga","TheZoc","TheLastZombie","friedkeenan","danypava", "DavidOliM","TorpedoXL","gut5"]
+thanks = ["YoyPa","Sev73n","LoOkYe","wendyliga","TheZoc","TheLastZombie","friedkeenan","danypava", "DavidOliM","TorpedoXL","gut5"]
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
@@ -277,7 +277,7 @@ class Language:
                   29: "当前的NCA游戏文件包",
                   30: "学分",
                   31: "谢谢",
-                  32: "Donate",
+                  32: "捐赠给我",
                    }
 
     VietDict = {  0: "Fluffy",
@@ -310,9 +310,9 @@ class Language:
                   27: "Đang Tải",
                   28: "Tốc Độ",
                   29: "Đang Chuyển NCA",
-                  30: "About",
-                  31: "Special Thanks",
-                  32: "Donate",
+                  30: "Thông Tin",
+                  31: "Cảm ơn bạn",
+                  32: "Tặng Tôi",
                    }
     
     BrazilianDict = {0: "Fluffy",
@@ -345,9 +345,9 @@ class Language:
                   27: "Instalando",
                   28: "Velocidade de transferência",
                   29: "NCA atual",
-                  30: "About",
-                  31: "Special Thanks",
-                  32: "Donate",
+                  30: "Informação",
+                  31: "Obrigado",
+                  32: "Doe Para Mim",
                    }
     
     ItalianDict = {0: "Fluffy",
@@ -380,9 +380,9 @@ class Language:
                   27: "Installazione in Corso",
                   28: "Velocità di Trasferimento",
                   29: "NCA Corrente",
-                  30: "About",
-                  31: "Special Thanks",
-                  32: "Donate",
+                  30: "Informazione",
+                  31: "Grazie",
+                  32: "Dona A Me",
                   }
 
 
@@ -416,9 +416,9 @@ class Language:
                   27: "Yükleniyor",
                   28: "Aktarma Hızı",
                   29: "Şu anki NCA",
-                  30: "About",
-                  31: "Special Thanks",
-                  32: "Donate",
+                  30: "Bilgi",
+                  31: "Teşekkür Ederim",
+                  32: "Bağış",
                    }
     
     FrenchDict = {0: "Fluffy",
@@ -451,9 +451,9 @@ class Language:
                   27: "En Cours d'Installation",
                   28: "Débit",
                   29: "NCA Actuel",
-                  30: "About",
-                  31: "Special Thanks",
-                  32: "Donate",
+                  30: "Crédits",
+                  31: "Je Vous Remercie",
+                  32: "Faites Un Don À Moi",
                    }
     
     SpanishDict = {0: "Fluffy",
@@ -488,7 +488,7 @@ class Language:
                   29: "NCA Actual",
                   30: "Creditos",
                   31: "Muchas Gracias",
-                  32: "Donate",
+                  32: "Dona A Mi",
                    }
 
     GermanDict = {0: "Fluffy",
@@ -520,10 +520,10 @@ class Language:
                   26: "NSP(s) in Warteschlange",
                   27: "Installiere",
                   28: "Transferrate",
-                  29: "Momentane NCA",
-                  30: "About",
-                  31: "Special Thanks",
-                  32: "Donate",
+                  29: "Aktuelle NCA",
+                  30: "Über",
+                  31: "Besonderer Dank",
+                  32: "Spenden",
                    }
 
     IndonesiaDict = {0: "Fluffy",
@@ -556,9 +556,9 @@ class Language:
                   27: "Menerapkan",
                   28: "Kecepatan Transfer",
                   29: "NCA Saat Ini",
-                  30: "About",
-                  31: "Special Thanks",
-                  32: "Donate",
+                  30: "Tentang",
+                  31: "Terima Kasih",
+                  32: "Donasi Untukku",
                    }
                    
 				   
