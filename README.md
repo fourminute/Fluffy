@@ -40,7 +40,7 @@
 <img src="https://github.com/fourminute/Fluffy/blob/master/misc/ui290.png?raw=true" width="800"/>
 
 # Multi-Language Screenshot
-![screenshot](https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui2.png?raw=true)
+<img src="https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui2.png?raw=true" width="800"/>
 
 # Instructions For Use
 
