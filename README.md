@@ -30,7 +30,8 @@
 * Goldleaf: File access security in the event Goldleaf is compromised(e.g. a fake Goldleaf.nro is used).
 * Tinfoil USB: Selectable transfer rates between "Normal Mode" and "Safe Mode".
 * USB: Switch connected indicator.
-* UI: Light mode and Dark mode.
+* User-Interface: Light Mode and Dark Mode.
+* General: Auto saves to config Switch IP Address, Light/Dark Mode Settings, and Language Selection.
 * Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
 * Support for UI scaling up to 4K resolution.
 * Switch Firmware 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a> for finding this fix, choose 'Safe Mode')
