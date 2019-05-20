@@ -234,6 +234,8 @@ class Language:
                   27: "Installing",
                   28: "Transfer Rate",
                   29: "Current NCA",
+                  30: "About",
+                  31: "Special Thanks",
                    }
     
     ChineseDict = {0: "Fluffy 卷卷安装器",
@@ -266,6 +268,8 @@ class Language:
                   27: "NSP游戏文件 安装中",
                   28: "传输速率",
                   29: "当前的NCA游戏文件包",
+                  30: "学分",
+                  31: "谢谢",
                    }
 
     VietDict = {  0: "Fluffy",
@@ -298,6 +302,8 @@ class Language:
                   27: "Đang Tải",
                   28: "Tốc Độ",
                   29: "Đang Chuyển NCA",
+                  30: "About",
+                  31: "Special Thanks",
                    }
     
     BrazilianDict = {0: "Fluffy",
@@ -330,6 +336,8 @@ class Language:
                   27: "Instalando",
                   28: "Velocidade de transferência",
                   29: "NCA atual",
+                  30: "About",
+                  31: "Special Thanks",
                    }
     
     ItalianDict = {0: "Fluffy",
@@ -362,6 +370,8 @@ class Language:
                   27: "Installazione in Corso",
                   28: "Velocità di Trasferimento",
                   29: "NCA Corrente",
+                  30: "About",
+                  31: "Special Thanks",
                   }
 
 
@@ -395,6 +405,8 @@ class Language:
                   27: "Yükleniyor",
                   28: "Aktarma Hızı",
                   29: "Şu anki NCA",
+                  30: "About",
+                  31: "Special Thanks",
                    }
     
     FrenchDict = {0: "Fluffy",
@@ -427,6 +439,8 @@ class Language:
                   27: "En Cours d'Installation",
                   28: "Débit",
                   29: "NCA Actuel",
+                  30: "About",
+                  31: "Special Thanks",
                    }
     
     SpanishDict = {0: "Fluffy",
@@ -459,6 +473,8 @@ class Language:
                   27: "Instalando",
                   28: "Velocidad",
                   29: "NCA Actual",
+                  30: "Creditos",
+                  31: "Muchas Gracias",
                    }
 
     GermanDict = {0: "Fluffy",
@@ -491,6 +507,8 @@ class Language:
                   27: "Installiere",
                   28: "Transferrate",
                   29: "Momentane NCA",
+                  30: "About",
+                  31: "Special Thanks",
                    }
 
     IndonesiaDict = {0: "Fluffy",
@@ -523,6 +541,8 @@ class Language:
                   27: "Menerapkan",
                   28: "Kecepatan Transfer",
                   29: "NCA Saat Ini",
+                  30: "About",
+                  31: "Special Thanks",
                    }
                    
 				   
@@ -1697,6 +1717,9 @@ try:
         l_host.setText(Language.CurrentDict[3]+":")
         lang_menu.setTitle(Language.CurrentDict[22])
         window.setWindowTitle(Language.CurrentDict[0])
+        about.setWindowTitle(Language.CurrentDict[30])
+        l_thanks.setText(Language.CurrentDict[31])
+        about_menu.setText(Language.CurrentDict[30])
         
     # Menu Bar
     def lang_menu_cmd():
@@ -1714,7 +1737,7 @@ try:
     about_v_box.setContentsMargins(0,0,0,0)
     credit_list = QtWidgets.QListWidget()
     about_img_label = QLabel()
-    l_thanks = QtWidgets.QLabel("Special Thanks")
+    l_thanks = QtWidgets.QLabel(Language.CurrentDict[31])
     about_img_label.setAlignment(Qt.AlignCenter)
     l_thanks.setAlignment(Qt.AlignCenter)
     about_img_label.setPixmap(aboutpixmap)
@@ -1723,7 +1746,7 @@ try:
     about_v_box.addWidget(credit_list)
     about.setCentralWidget(QWidget(about))
     about.centralWidget().setLayout(about_v_box)
-    about.setWindowTitle("About")
+    about.setWindowTitle(Language.CurrentDict[30])
     for a in thanks:
         credit_list.addItem(a)
     def about_menu_cmd():
@@ -1734,7 +1757,7 @@ try:
             print(str(e))
                 
     lang_menu = window.menuBar().addMenu(Language.CurrentDict[22])
-    about_menu = window.menuBar().addAction("About")
+    about_menu = window.menuBar().addAction(Language.CurrentDict[30])
     lang_group = QActionGroup(lang_menu)
     lang_group.setExclusive(True)
     lang_group.addAction(QAction('English',lang_group,checkable=True))
