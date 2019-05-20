@@ -573,7 +573,7 @@ def set_dark_mode(v):
                 if screen.size().width() <= 1366:
                     lowresfix = pixmap.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     lowresfix2 = gold_res.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                    lowresfix3 = about_res.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    lowresfix3 = about_res.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
                     gold_img_label.setPixmap(lowresfix2)
                     about_img_label.setPixmap(lowresfix3)
@@ -590,8 +590,8 @@ def set_dark_mode(v):
                     about_height = lowresfix3.size().height()
             else:
                 lowresfix = pixmap.scaled(350, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                lowresfix2 = gold_res.scaled(350, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                lowresfix3 = about_res.scaled(350, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                lowresfix2 = gold_res.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                lowresfix3 = about_res.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 img_label.setPixmap(lowresfix)
                 gold_img_label.setPixmap(lowresfix2)
                 about_img_label.setPixmap(lowresfix3)
@@ -616,7 +616,7 @@ def set_dark_mode(v):
                 if screen.size().width() <= 1366:
                     lowresfix = pixmap.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     lowresfix2 = gold_res.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                    lowresfix3 = about_res.scaled(230, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    lowresfix3 = about_res.scaled(270, 270, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     img_label.setPixmap(lowresfix)
                     gold_img_label.setPixmap(lowresfix2)
                     about_img_label.setPixmap(lowresfix3)
