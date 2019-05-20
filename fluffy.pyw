@@ -30,17 +30,30 @@ import threading
 import struct
 import random
 import re
-import configparser 
+import configparser
+try:
+    if "win" in sys.platform[:3].lower():
+        initial_dir = os.getcwd() + "/"
+    elif "linux" in sys.platform.lower():
+        if not os.path.exists(os.path.expanduser('~') + "/.fluffy"):
+            os.makedirs(os.path.expanduser('~') + "/.fluffy")
+        initial_dir = os.path.expanduser('~') + "/.fluffy/"
+    else: # MacOS. A little help here would be great.
+        initial_dir = os.getcwd() + "/"
+except:
+    initial_dir = os.getcwd() + "/"
+    pass
 try:
     import logging
-    if os.path.isfile('fluffy.log'):
-        os.remove('fluffy.log')
-    LOG_FILENAME = 'fluffy.log'
+    if os.path.isfile(initial_dir + 'fluffy.log'):
+        os.remove(initial_dir + 'fluffy.log')
+    LOG_FILENAME = initial_dir + 'fluffy.log'
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
     logging.debug("Fluffy Log: If you see nothing here. Good!")
     is_logging = True
 except:
     is_logging = False
+    print('Logging not possible. Possible permission issue.')
     pass
 try:
     import psutil
@@ -119,12 +132,6 @@ end_progress = 0
 cur_nsp_count = 1
 total_nsp = 0
 cur_nsp_name = "NA"
-if "win" in sys.platform[:3].lower():
-    initial_dir = os.getcwd() + "/"
-elif "linux" in sys.platform.lower():
-    initial_dir = os.path.expanduser('~') + "./config/"
-else: # MacOS. A little help here would be great.
-    initial_dir = os.getcwd() + "/"
 switch_ip = "0.0.0.0"
 host_ip = "0.0.0.0"
 language = 0
@@ -1900,11 +1907,7 @@ try:
         if is_logging:
             if os.path.isfile(initial_dir + 'fluffy.log'):
                 if os.path.getsize(initial_dir + 'fluffy.log') > 250000:
-                    logging.debug("Fluffy Log: Logging size reached, turning off logging.")
-                    turn_off_logging()
-            if os.path.isfile('fluffy.log'):
-                if os.path.getsize('fluffy.log') > 250000:
-                    logging.debug("Fluffy Log: Logging size reached, turning off logging.")
+                    logging.debug("Fluffy Log: Log size reached, turning off logging.")
                     turn_off_logging()
                     
         QApplication.processEvents()
