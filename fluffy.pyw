@@ -105,6 +105,7 @@ except:
 
 # Variables
 VERSION = "2.9.0"
+MONERO_ADDRESS = "4APPsi7nnAs4ZjGC58V5CjVnceEvnZbY1WCBSjmcQsKhGPWLL2EaoUDU2RVFnuLEnASRA2ECXD4YvQ8hyVyZg1raJ482yei"
 thanks = ["YoyPa","Sev73n","wendyliga","TheZoc","TheLastZombie","friedkeenan","danypava", "DavidOliM","TorpedoXL","gut5"]
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
@@ -241,6 +242,7 @@ class Language:
                   29: "Current NCA",
                   30: "About",
                   31: "Special Thanks",
+                  32: "Donate",
                    }
     
     ChineseDict = {0: "Fluffy 卷卷安装器",
@@ -275,6 +277,7 @@ class Language:
                   29: "当前的NCA游戏文件包",
                   30: "学分",
                   31: "谢谢",
+                  32: "Donate",
                    }
 
     VietDict = {  0: "Fluffy",
@@ -309,6 +312,7 @@ class Language:
                   29: "Đang Chuyển NCA",
                   30: "About",
                   31: "Special Thanks",
+                  32: "Donate",
                    }
     
     BrazilianDict = {0: "Fluffy",
@@ -343,6 +347,7 @@ class Language:
                   29: "NCA atual",
                   30: "About",
                   31: "Special Thanks",
+                  32: "Donate",
                    }
     
     ItalianDict = {0: "Fluffy",
@@ -377,6 +382,7 @@ class Language:
                   29: "NCA Corrente",
                   30: "About",
                   31: "Special Thanks",
+                  32: "Donate",
                   }
 
 
@@ -412,6 +418,7 @@ class Language:
                   29: "Şu anki NCA",
                   30: "About",
                   31: "Special Thanks",
+                  32: "Donate",
                    }
     
     FrenchDict = {0: "Fluffy",
@@ -446,6 +453,7 @@ class Language:
                   29: "NCA Actuel",
                   30: "About",
                   31: "Special Thanks",
+                  32: "Donate",
                    }
     
     SpanishDict = {0: "Fluffy",
@@ -480,6 +488,7 @@ class Language:
                   29: "NCA Actual",
                   30: "Creditos",
                   31: "Muchas Gracias",
+                  32: "Donate",
                    }
 
     GermanDict = {0: "Fluffy",
@@ -514,6 +523,7 @@ class Language:
                   29: "Momentane NCA",
                   30: "About",
                   31: "Special Thanks",
+                  32: "Donate",
                    }
 
     IndonesiaDict = {0: "Fluffy",
@@ -548,6 +558,7 @@ class Language:
                   29: "NCA Saat Ini",
                   30: "About",
                   31: "Special Thanks",
+                  32: "Donate",
                    }
                    
 				   
@@ -1629,6 +1640,7 @@ class UI:
         window.setWindowTitle(Language.CurrentDict[0])
         about.setWindowTitle(Language.CurrentDict[30])
         l_thanks.setText(Language.CurrentDict[31])
+        l_donate.setText(Language.CurrentDict[32])
         about_menu.setText(Language.CurrentDict[30])
         
 
@@ -1702,8 +1714,10 @@ try:
     about = QMainWindow()
     about_v_box = QtWidgets.QVBoxLayout()
     credit_list = QtWidgets.QListWidget()
+    monero_list = QtWidgets.QListWidget()
     about_img_label = QLabel()
     l_thanks = QtWidgets.QLabel(Language.CurrentDict[31])
+    l_donate = QtWidgets.QLabel(Language.CurrentDict[32])
     
     #Set Widgets
     try:
@@ -1751,15 +1765,20 @@ try:
     about_v_box.setContentsMargins(0,0,0,0)
     about_img_label.setAlignment(Qt.AlignCenter)
     l_thanks.setAlignment(Qt.AlignCenter)
+    l_donate.setAlignment(Qt.AlignCenter)
     about_img_label.setPixmap(aboutpixmap)
     about_v_box.addWidget(about_img_label)
     about_v_box.addWidget(l_thanks)
     about_v_box.addWidget(credit_list)
+    about_v_box.addWidget(l_donate)
+    about_v_box.addWidget(monero_list)
     about.setCentralWidget(QWidget(about))
     about.centralWidget().setLayout(about_v_box)
     about.setWindowTitle(Language.CurrentDict[30])
     for a in thanks:
         credit_list.addItem(a)
+    monero_list.addItem("Monero(XMR)")
+    monero_list.addItem(MONERO_ADDRESS)
 
     # Menu Bar
     lang_menu = window.menuBar().addMenu(Language.CurrentDict[22])
