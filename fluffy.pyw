@@ -897,6 +897,10 @@ class Goldleaf:
     magic        = b"GLUC"
     cmd_id       = 0
     drives       = {}
+    FW_DENIED = 0
+    FW_ACCEPTED = 1
+    FW_NOSTATUS = 2
+    fw_status = FW_NOSTATUS
     
     def init(self):
         try:
@@ -1042,23 +1046,32 @@ class Goldleaf:
                     for name in ents:
                         self.write_string(name)
                 elif self.is_id(GoldleafCommandId.ListFiles):
+                    self.fw_status = self.FW_NOSTATUS
                     if is_installing:
                         complete_goldleaf_transfer()
                     path = self.read_path()
                     ents = [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))]
-                    self.write_u32(len(ents))
-                    for name in ents:
-                        self.write_string(name)
+                    if not allow_access_non_nsp:
+                        len_nsps = 0
+                        for f in ents:
+                            if f.lower().endswith('.nsp'):
+                                len_nsps = len_nsps+1
+                        self.write_u32(len_nsps)
+                        for name in ents:
+                            if name.lower().endswith('.nsp'):
+                                self.write_string(name)
+                    else:
+                        self.write_u32(len(ents))
+                        for name in ents:
+                            self.write_string(name)
                 elif self.is_id(GoldleafCommandId.GetFileSize):
                     path = self.read_path()
                     self.write_u64(os.path.getsize(path))
                 elif self.is_id(GoldleafCommandId.FileRead):
-                    complete_loading()
                     can_read = True
                     offset = self.read_u64()
                     size = self.read_u64()
                     path = self.read_path()
-                    set_cur_nsp(str(os.path.basename(path)))
                     if not os.path.basename(path).lower().endswith('.nsp'):
                         if allow_access_non_nsp:
                             can_read = True
@@ -1071,14 +1084,18 @@ class Goldleaf:
                         self.write_u64(len(data))
                         self.write(data)
                         try:
-                            set_progress(int(offset), int(os.path.getsize(path)))
-                            elapsed_time = time.time() - start_time
-                            if elapsed_time >= 1:
-                                set_cur_transfer_rate(int(offset) - last_transfer_rate)
-                                set_last_transfer_rate(int(offset))
-                                set_start_time()
-                        except Exception as e:
-                            print(str(e))
+                            if self.fw_status != self.FW_DENIED:
+                                complete_loading()
+                                set_cur_nsp(str(os.path.basename(path)))
+                                set_progress(int(offset), int(os.path.getsize(path)))
+                                elapsed_time = time.time() - start_time
+                                if elapsed_time >= 1:
+                                    set_cur_transfer_rate(int(offset) - last_transfer_rate)
+                                    set_last_transfer_rate(int(offset))
+                                    set_start_time()
+                            else:
+                                complete_goldleaf_transfer()
+                        except:
                             pass
                     else:
                         logging.debug("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
@@ -1090,12 +1107,19 @@ class Goldleaf:
                     size = self.read_u64()
                     path = self.read_path()
                     data = self.read(size)
-                    if not os.path.basename(path).lower().endswith('.nsp'):
-                        if allow_access_non_nsp:
-                            can_read = True
+                    can_write = False
+                    if self.fw_status == self.FW_NOSTATUS:
+                        get_response_qmessage(1)
+                        while not haveresponse and global_dev is not None:                    
+                            time.sleep(1)
+                        if qresponse:
+                            self.fw_status = self.FW_ACCEPTED
+                            can_write = True
                         else:
-                            can_read = False
-                    if can_read:
+                            self.fw_status = self.FW_DENIED
+                    elif self.fw_status == self.FW_ACCEPTED:
+                        can_write = True
+                    if can_write:
                         cont = bytearray()
                         try:
                             with open(path, "rb") as f:
@@ -1105,6 +1129,7 @@ class Goldleaf:
                         cont[offset:offset + size] = data
                         with open(path, "wb") as f:
                             f.write(cont)
+                    reset_response()
                 elif self.is_id(GoldleafCommandId.CreateFile):
                     path = self.read_path()
                     get_response_qmessage(2)
@@ -1157,6 +1182,7 @@ class Goldleaf:
                         time.sleep(1)
                     if qresponse:
                         os.rename(path, new_name)
+                    reset_response()
                 elif self.is_id(GoldleafCommandId.GetDriveTotalSpace):
                     path = self.read_path()
                     disk = os.statvfs(path)
