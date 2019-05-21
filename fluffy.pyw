@@ -980,7 +980,7 @@ class Goldleaf:
         return path
     
     def goldleaf_usb(self):
-        while global_dev is not None:
+        while global_dev is not None and not task_canceled:
             self.read_cmd()
             if self.magic_ok():
                 if self.is_id(GoldleafCommandId.ListSystemDrives):
@@ -1193,6 +1193,7 @@ class Goldleaf:
                     disk = os.statvfs(path)
                     totalFreeSpace = float(disk.f_bsize*disk.f_bfree)
                     self.write_u64(int(totalFreeSpace))
+        sys.exit()
 
 # Tinfoil Network
 netrlist = []
@@ -1233,6 +1234,9 @@ class TinfoilNetwork:
             sock.connect((target_ip, 2000))
             sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
             while len(sock.recv(1)) < 1:
+                if task_canceled:
+                    server.force_stop()
+                    sys.exit()
                 time.sleep(0.1)
             sock.close()
         except Exception as e:
@@ -1243,10 +1247,6 @@ class TinfoilNetwork:
             sys.exit()
         complete_install()
         server.force_stop()
-        try:
-            server.shutdown()
-        except:
-            pass
         sys.exit()
 class TinfoilHTTPHandler(SimpleHTTPRequestHandler):
     def send_head(self):
@@ -1312,6 +1312,8 @@ class TinfoilHTTPHandler(SimpleHTTPRequestHandler):
         infile.seek(start)
         bufsize = 64 * 1024  # 64KB
         while True:
+            if task_canceled:
+                sys.exit()
             buf = infile.read(bufsize)
             if not buf:
                 break
@@ -1336,7 +1338,8 @@ class TinfoilServer(TCPServer):
         self.socket.bind(self.server_address)
     def serve_forever(self):
         while not self.stopped:
-            self.handle_request()             
+            self.handle_request()
+        sys.exit()
     def force_stop(self):
         self.server_close()
         self.stopped = True
@@ -1386,6 +1389,8 @@ class Tinfoil:
             end_off = range_size
             read_size = transfer_rate
             while curr_off < end_off:
+                if task_canceled:
+                    sys.exit()
                 if curr_off + read_size >= end_off:
                     read_size = end_off - curr_off
                     try:
@@ -1407,6 +1412,8 @@ class Tinfoil:
                 
     def poll_commands(self):
         while True:
+            if task_canceled:
+                sys.exit()
             cmd_header = bytes(global_in.read(0x20, timeout=0))
             magic = cmd_header[:4]
             if magic != b'TUC0': 
@@ -2011,13 +2018,13 @@ try:
                 pass
             
         # Cancel Button
-        if sent_header and not is_installing and not is_done:
+        if sent_header and not is_done:
             btn_header.setEnabled(True)
             btn_header.setText(Language.CurrentDict[16])
 
         # Installation in progress disable cancel
-        if sent_header and is_installing and not is_done:
-            btn_header.setEnabled(False)
+        #if sent_header and is_installing and not is_done:
+            #btn_header.setEnabled(False)
             
         # Goldleaf & Tinfoil USB Mode
         if sent_header and not is_network:
