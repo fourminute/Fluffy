@@ -25,6 +25,7 @@
 * USB and Network: Ability to abort an installation in queue.
 * Tinfoil Network: Spoof file URL's to fix lengthy file name bug in Tinfoil's code.
 * Tinfoil Network: Randomized port selection.
+* Tinfoil Network: By default fall-back to Network Mode in the event USB mode can't be used(e.g. missing libraries).
 * Goldleaf: Display current file being accessed.
 * Goldleaf: <b>Goldleaf v0.6 compatible</b> with all of the file handling features.
 * Goldleaf: File access security in the event Goldleaf is compromised(e.g. a fake Goldleaf.nro is used).
