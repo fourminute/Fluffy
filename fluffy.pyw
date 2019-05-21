@@ -53,7 +53,7 @@ try:
     is_logging = True
 except:
     is_logging = False
-    print('Logging not possible. Possible permission issue.')
+    print('Error: Logging not possible. Possible permission issue.')
     pass
 try:
     import psutil
@@ -71,7 +71,10 @@ try:
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
+        logging.debug("Error: Failed to import Tkinter.")
+        print('Error: Failed to import Tkinter.')
     else:
+        print('Error: Failed to import Tkinter.')
         print(str(e))
     exit()
 try:
@@ -92,7 +95,10 @@ try:
 except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
+        logging.debug("Error: Failed to import PyQt5.")
+        print('Error: Failed to import PyQt5.')
     else:
+        print('Error: Failed to import PyQt5.')
         print(str(e))
     exit()
 try:
@@ -100,6 +106,8 @@ try:
     import usb.util
     usb_success = True
 except:
+    logging.debug("Error: Failed to import modules required for USB install. Defaulting to Network Mode.")
+    print('Error: Failed to import modules required for USB install. Defaulting to Network Mode.')
     usb_success = False
     pass
 
@@ -158,6 +166,7 @@ if os.path.isfile(initial_dir + 'fluffy.conf'):
             language = int(configp.get('DEFAULT', 'language'))
             allow_access_non_nsp = int(configp.get('DEFAULT', 'allow_access_non_nsp'))
             ignore_warning_prompt = int(configp.get('DEFAULT', 'ignore_warning_prompt'))
+            print("Successfully loaded config: \'" + str(initial_dir) + "fluffy.conf\'")
     except:
         switch_ip = "0.0.0.0"
         dark_mode = 0
@@ -1547,6 +1556,7 @@ class UI:
         set_network(False)
         txt_port.setEnabled(False)
         split_check.setEnabled(True)
+        
     @staticmethod
     def net_radio_cmd():
         txt_ip.setEnabled(True)
@@ -1662,6 +1672,7 @@ class UI:
             about.setFixedSize(about.size().width(),about.size().height())
         except Exception as e:
             print(str(e))
+            
     @staticmethod
     def check_usb_success():
         if not usb_success:
@@ -1840,7 +1851,7 @@ try:
     window.show()
 
     # Revert to network mode
-    UI.check_usb_success
+    UI.check_usb_success()
 
     # Checkbox for Dark Mode
     if dark_mode == 0:
