@@ -68,7 +68,7 @@
 ### 3/3) Install Python Dependencies
 * Open Command-line/CMD (Start, search "CMD") and run the following:
 ```
-pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser psutil
+pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 ```
 
 ### Additional Windows Instructions
@@ -81,13 +81,13 @@ If you still receive this error, you can try installing LibUSB: [libusb installe
 ### Ubuntu/Debian based distributions
 
 #### 1/3) Install Python and Dependencies
-* Required: ```python3 python3-pyusb python3-pyqt5 python3-tk python3.6-tk libusb libusb1 qdarkstyle psutil```.
+* Required: ```python3 python3-pyusb python3-pyqt5 python3-tk python3.6-tk libusb libusb1 qdarkstyle```.
 * Install Python3:
 * ```sudo apt install python3 python3-pip python3-tk```.
 * Then open Terminal and run this command:
-* ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser psutil```.
+* ```pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser```.
 * If that doesn't work try
-* ```pip install pyusb pyqt5 libusb libusb1 qdarkstyle configparser psutil```.
+* ```pip install pyusb pyqt5 libusb libusb1 qdarkstyle configparser```.
 
 #### 2/3) Download Fluffy and Switch Rule
 Download the latest <a href="https://github.com/fourminute/Fluffy/releases/latest">Fluffy.pyw</a> and <a href="https://github.com/fourminute/Fluffy/blob/master/linux/80-fluffy-switch.rules">80-fluffy-switch.rules</a>.
@@ -135,7 +135,7 @@ sudo ./install.sh
 ```
 brew install tcl-tk
 brew reinstall python3
-pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser psutil
+pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 python3 ./fluffy.pyw
 ```
 <sub><i>For more info on brew, head to https://brew.sh/</i></sup>
