@@ -27,8 +27,12 @@
 * Tinfoil Network: Randomized port selection.
 * Tinfoil Network: By default fall-back to Network Mode in the event USB mode can't be used(e.g. missing libraries).
 * Goldleaf: Display current file being accessed.
-* Goldleaf: <b>Goldleaf v0.6 compatible</b> with all of the file handling features.
-* Goldleaf: File access security in the event Goldleaf is compromised(e.g. a fake Goldleaf.nro is used).
+* Goldleaf: Goldleaf v0.6 compatible with all of the file handling features.
+* Goldleaf: Default protections are place to safe-guard users from a potentially compromised Goldleaf file.
+	* Default: File operations such as file creation, deletion, renaming will result in a user-prompt(yes or no).
+	* Default: Read-only access for all files.
+	* Default: Read/write to non-NSP files are restricted.
+	* All of these security restrictions are changeable in fluffy.conf.
 * Tinfoil USB: Selectable transfer rates between "Normal Mode" and "Safe Mode".
 * USB: Switch connected indicator.
 * User-Interface: Light Mode and Dark Mode.
