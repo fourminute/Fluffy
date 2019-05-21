@@ -1019,6 +1019,7 @@ class Goldleaf:
                         if os.path.isfile(folder):
                             folder = os.path.dirname(folder)
                         env_paths[os.path.basename(folder)] = folder
+                    env_paths = {x:env_paths[x] for x in env_paths if os.path.exists(env_paths[x])}
                     self.write_u32(len(env_paths))
                     for env in env_paths:
                         env_paths[env] = env_paths[env].replace("\\", "/")
@@ -1139,7 +1140,7 @@ class Goldleaf:
                     if qresponse:
                         shutil.rmtree(path)
                     reset_response()
-                elif self.is_id(GoldleafCommandId.RenameFile) or self.is_id(GoldleafCommandId.RenameDirectory):
+                elif self.is_id(GoldleafCommandId.RenameFile):
                     path = self.read_path()
                     new_name = self.read_string()
                     get_response_qmessage(6)
@@ -1148,6 +1149,14 @@ class Goldleaf:
                     if qresponse:
                         os.rename(path, f"{os.path.dirname(path)}/{new_name}")
                     reset_response()
+                elif self.is_id(GoldleafCommandId.RenameDirectory):
+                    path = self.read_path()
+                    new_name = self.read_path()
+                    get_response_qmessage(6)
+                    while not haveresponse and global_dev is not None:                    
+                        time.sleep(1)
+                    if qresponse:
+                        os.rename(path, new_name)
                 elif self.is_id(GoldleafCommandId.GetDriveTotalSpace):
                     path = self.read_path()
                     disk = os.statvfs(path)
