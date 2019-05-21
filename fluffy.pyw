@@ -56,14 +56,6 @@ except:
     print('Error: Logging not possible. Possible permission issue.')
     pass
 try:
-    import psutil
-except:
-    if is_logging:
-        logging.error(e, exc_info=True)
-    else:
-        print(str(e))
-    exit()
-try:
     from tkinter import filedialog
     import tkinter as tk
     root = tk.Tk()
@@ -1158,10 +1150,14 @@ class Goldleaf:
                     reset_response()
                 elif self.is_id(GoldleafCommandId.GetDriveTotalSpace):
                     path = self.read_path()
-                    self.write_u64(psutil.disk_usage(path).total)
+                    disk = os.statvfs(path)
+                    totalBytes = float(disk.f_bsize*disk.f_blocks)
+                    self.write_u64(int(totalspace))
                 elif self.is_id(GoldleafCommandId.GetDriveFreeSpace):
                     path = self.read_path()
-                    self.write_u64(psutil.disk_usage(path).free)
+                    disk = os.statvfs(path)
+                    totalFreeSpace = float(disk.f_bsize*disk.f_bfree)
+                    self.write_u64(int(totalFreeSpace))
 
 # Tinfoil Network
 netrlist = []
