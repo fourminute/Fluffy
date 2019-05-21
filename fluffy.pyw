@@ -1699,6 +1699,10 @@ class UI:
     @staticmethod
     def about_menu_cmd():
         try:
+            random.shuffle(thanks)
+            credit_list.clear()
+            for a in thanks:
+                credit_list.addItem(a)
             about.show()
             about.setFixedSize(about.size().width(),about.size().height())
         except Exception as e:
