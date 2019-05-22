@@ -64,10 +64,8 @@ except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
         logging.debug("Error: Failed to import Tkinter.")
-        print('Error: Failed to import Tkinter.')
-    else:
-        print('Error: Failed to import Tkinter.')
-        print(str(e))
+    print('Error: Failed to import Tkinter.')
+    print(str(e))
     exit()
 try:
     from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -88,10 +86,8 @@ except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
         logging.debug("Error: Failed to import PyQt5.")
-        print('Error: Failed to import PyQt5.')
-    else:
-        print('Error: Failed to import PyQt5.')
-        print(str(e))
+    print('Error: Failed to import PyQt5.')
+    print(str(e))
     exit()
 try:
     import usb.core
@@ -160,6 +156,7 @@ if os.path.isfile(initial_dir + 'fluffy.conf'):
             ignore_warning_prompt = int(configp.get('DEFAULT', 'ignore_warning_prompt'))
             print("Successfully loaded config: \'" + str(initial_dir) + "fluffy.conf\'")
     except:
+        print("Config not found: \'" + str(initial_dir) + "fluffy.conf\'")
         switch_ip = "0.0.0.0"
         dark_mode = 0
         language = 0
@@ -167,6 +164,7 @@ if os.path.isfile(initial_dir + 'fluffy.conf'):
         ignore_warning_prompt = 0
         pass
 else:
+    print("Config not found: \'" + str(initial_dir) + "fluffy.conf\'")
     switch_ip = "0.0.0.0"
     dark_mode = 0
     language = 0
@@ -569,10 +567,10 @@ set_language(language)
 # Setters
 def set_dark_mode(v):
     global dark_mode
-    if v == 0:
+    if v == 1:
         import qdarkstyle
         app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-        dark_mode = 0
+        dark_mode = 1
         l_github.setStyleSheet("QLabel { color: rgba(255, 255, 255, 50%) }")
         pixmap = QPixmap(dinlaypixmap)
         gold_res = QPixmap(goldpixmap)
@@ -606,7 +604,7 @@ def set_dark_mode(v):
             gold_img_label.setPixmap(gold_res)
             about_img_label.setPixmap(about_res)
     else:
-        dark_mode = 1
+        dark_mode = 0
         pixmap = QPixmap(inlaypixmap)
         gold_res = QPixmap(goldpixmap)
         about_res = QPixmap(aboutpixmap)
@@ -1312,8 +1310,7 @@ class TinfoilHTTPHandler(SimpleHTTPRequestHandler):
         infile.seek(start)
         bufsize = 64 * 1024  # 64KB
         while True:
-            if task_canceled:
-                sys.exit()
+            if task_canceled: sys.exit()
             buf = infile.read(bufsize)
             if not buf:
                 break
@@ -1338,6 +1335,7 @@ class TinfoilServer(TCPServer):
         self.socket.bind(self.server_address)
     def serve_forever(self):
         while not self.stopped:
+            if task_canceled: sys.exit()
             self.handle_request()
         sys.exit()
     def force_stop(self):
@@ -1389,8 +1387,7 @@ class Tinfoil:
             end_off = range_size
             read_size = transfer_rate
             while curr_off < end_off:
-                if task_canceled:
-                    sys.exit()
+                if task_canceled: sys.exit()
                 if curr_off + read_size >= end_off:
                     read_size = end_off - curr_off
                     try:
@@ -1412,8 +1409,7 @@ class Tinfoil:
                 
     def poll_commands(self):
         while True:
-            if task_canceled:
-                sys.exit()
+            if task_canceled: sys.exit()
             cmd_header = bytes(global_in.read(0x20, timeout=0))
             magic = cmd_header[:4]
             if magic != b'TUC0': 
@@ -1526,12 +1522,17 @@ class UI:
     def dark_mode_cmd():
         if dark_check.isChecked():
             try:
-                set_dark_mode(0)
-            except:
-                dark_check.setChecked(False)
+                set_dark_mode(1)
+            except Exception as e:
+                if is_logging:
+                    logging.error(e, exc_info=True)
+                    logging.debug('Error: Failed to set Dark Mode')
+                print('Error: Failed to set Dark Mode')
+                print(str(e))
                 pass
         else:
-            set_dark_mode(1)
+            set_dark_mode(0)
+            
     @staticmethod
     def tin_radio_cmd():
         l_nsp.setVisible(True)
@@ -1611,6 +1612,7 @@ class UI:
         if not is_goldleaf:
             reset_install()
             l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
+            
     @staticmethod
     def set_loading_text():
         l_nsp.setText("")
@@ -1896,16 +1898,16 @@ try:
     UI.check_usb_success()
 
     # Checkbox for Dark Mode
-    if dark_mode == 0:
+    if dark_mode == 1:
         try:
-            set_dark_mode(0)
+            set_dark_mode(1)
             dark_check.setChecked(True)
         except:
-            set_dark_mode(1)
+            set_dark_mode(0)
             dark_check.setChecked(False)
             pass
     else:
-        set_dark_mode(1)
+        set_dark_mode(0)
         dark_check.setChecked(False)
     
     # Main loop
@@ -1967,16 +1969,19 @@ try:
             if not task_canceled:
                 msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
             reset_last_error()
-            reset_install()
+            cancel_task()
             
         # Check Log Size
         if is_logging:
             if os.path.isfile(initial_dir + 'fluffy.log'):
                 if os.path.getsize(initial_dir + 'fluffy.log') > 250000:
-                    logging.debug("Fluffy Log: Log size reached, turning off logging.")
+                    logging.debug("Error: Log size reached, turning off logging.")
                     turn_off_logging()
-                    
-        
+
+        # Fix Dark Mode CheckBox
+        if dark_mode == 0 and dark_check.isChecked():
+            dark_check.setChecked(False)
+            
         # Save config and close
         if not window.isVisible():
             try:
@@ -1984,9 +1989,8 @@ try:
             except:
                 pass
             save_config()
-            pid = os.getpid()
-            os.kill(pid, signal.SIGTERM)
-            sys.exit()
+            cancel_task()
+            exit()
             
                 
         # Switch Indicator
@@ -2043,6 +2047,4 @@ except Exception as e:
     if is_logging:
         logging.error(e, exc_info=True)
     save_config()
-    pid = os.getpid()
-    os.kill(pid, signal.SIGTERM)
     exit()
