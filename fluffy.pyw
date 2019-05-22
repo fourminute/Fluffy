@@ -179,8 +179,10 @@ else:
 if disable_generate_libusb == 0:
     try:
         if not os.path.exists(os.getcwd() + "/libusb-1.0.dll"):
-            print('Libusb doesn\'t exist. Creating libusb-1.0.dll. To disable auto-generating libusb switch \'disable_generate_libusb\' to 1.')
-            if "win" in sys.platform[:3].lower():
+             if "win" in sys.platform[:3].lower():
+                print('Libusb doesn\'t exist. Creating libusb-1.0.dll. To disable auto-generating libusb switch \'disable_generate_libusb\' to 1.')
+                if is_logging:
+                    logging.debug('Libusb doesn\'t exist. Creating libusb-1.0.dll. To disable auto-generating libusb switch \'disable_generate_libusb\' to 1.')
                 f = open(os.getcwd() + "/libusb-1.0.dll", 'wb')
                 f.write(LIBUSB_DLL)
                 f.close()
