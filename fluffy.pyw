@@ -92,7 +92,6 @@ except Exception as e:
 try:
     import usb.core
     import usb.util
-    usb_success = True
 except:
     logging.debug("Error: Failed to import modules required for USB install. Defaulting to Network Mode.")
     print('Error: Failed to import modules required for USB install. Defaulting to Network Mode.')
@@ -142,6 +141,7 @@ global_dev = None
 global_in = None
 global_out = None
 task_canceled = False
+usb_success = False
 
 # Load Settings
 if os.path.isfile(initial_dir + 'fluffy.conf'):
@@ -863,6 +863,10 @@ def set_ip(v, n):
 def set_goldleaf(v):
     global is_goldleaf
     is_goldleaf = v
+
+def set_usb_success(v):
+    global usb_success
+    usb_success = v
     
 # Goldleaf            
 class GoldleafCommandId:
@@ -1648,24 +1652,33 @@ class UI:
                 l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
     @staticmethod
     def set_switch_text():
-        if connect_switch():
-            l_switch.setText(Language.CurrentDict[11]+"!")
-            l_switch.setStyleSheet(GREEN)
-            if not is_goldleaf:
-                if list_nsp.count() > 0:
-                    btn_header.setEnabled(True)
+        try:
+            if connect_switch():
+                set_usb_success(True)
+                l_switch.setText(Language.CurrentDict[11]+"!")
+                l_switch.setStyleSheet(GREEN)
+                if not is_goldleaf:
+                    if list_nsp.count() > 0:
+                        btn_header.setEnabled(True)
+                    else:
+                        btn_header.setEnabled(False)
                 else:
-                    btn_header.setEnabled(False)
+                    btn_header.setEnabled(True)
             else:
-                btn_header.setEnabled(True)
-        else:
-            l_switch.setText(Language.CurrentDict[10]+"!")
-            btn_header.setEnabled(False)
-            l_switch.setStyleSheet(RED)
-            try:
-                detach_switch()
-            except:
-                pass
+                l_switch.setText(Language.CurrentDict[10]+"!")
+                btn_header.setEnabled(False)
+                l_switch.setStyleSheet(RED)
+                try:
+                    detach_switch()
+                except:
+                    pass
+        except Exception as e:
+            if is_logging:
+                logging.error(e, exc_info=True)
+            set_usb_success(False)
+            UI.check_usb_success()
+            pass
+        
     @staticmethod
     def init_language():
         l_nsp.setText("")
@@ -1719,6 +1732,14 @@ class UI:
             
     @staticmethod
     def check_usb_success():
+        try:
+            connect_switch()
+            set_usb_success(True)
+        except Exception as e:
+            if is_logging:
+                logging.error(e, exc_info=True)
+            set_usb_success(False)
+            pass
         if not usb_success:
             UI.net_radio_cmd()
             net_radio.setChecked(True)
