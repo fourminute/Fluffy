@@ -28,7 +28,7 @@
 * Tinfoil Network: By default fall-back to Network Mode in the event USB mode can't be used(e.g. missing libraries).
 * Goldleaf: Display current file being accessed.
 * Goldleaf: Goldleaf v0.6 compatible with all of the file handling features.
-* Goldleaf: Default protections are place to safe-guard users from a potentially compromised Goldleaf file.
+* Goldleaf: Default protections are in place to safe-guard users from a potentially compromised Goldleaf file.
 	* Default: File operations such as file creation, deletion, renaming will result in a user-prompt(yes or no).
 	* Default: Read-only access for all files.
 	* Default: Read/write to non-NSP files are restricted.
