@@ -1,5 +1,5 @@
 # Fluffy
-![intro](https://github.com/fourminute/Fluffy/blob/master/misc/may_inlay.png?raw=true)
+![intro](https://github.com/fourminute/Fluffy/blob/master/misc/may_intro.png?raw=true)
  <b><a href="https://github.com/fourminute/Fluffy/blob/master/README_CH.md">查看中文使用说明，请点击这里！</a></b>
  
 #### All donations are appreciated! Thank you if you decide to donate!
