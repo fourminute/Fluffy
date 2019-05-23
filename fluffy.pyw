@@ -1869,6 +1869,7 @@ try:
     about.setCentralWidget(QWidget(about))
     about.centralWidget().setLayout(about_v_box)
     about.setWindowTitle(Language.CurrentDict[30])
+    about.setWindowIcon(QIcon(iconpixmap))
     for a in thanks:
         credit_list.addItem(a)
     monero_list.addItem("Monero(XMR)")
