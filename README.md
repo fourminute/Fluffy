@@ -44,7 +44,7 @@
 
 # Screenshot
 
-<img src="https://github.com/fourminute/Fluffy/blob/master/misc/uifluffy-sq.PNG?raw=true" width="800"/>
+<img src="https://github.com/fourminute/Fluffy/blob/master/misc/uifluffy-sq3.png?raw=true" width="800"/>
 
 # Instructions For Use
 
