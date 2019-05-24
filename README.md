@@ -44,10 +44,7 @@
 
 # Screenshot
 
-<img src="https://github.com/fourminute/Fluffy/blob/master/misc/ui290-3.png?raw=true" width="800"/>
-
-# Multi-Language Screenshot
-<img src="https://github.com/fourminute/Fluffy/blob/master/misc/fluffyui2.png?raw=true" width="800"/>
+<img src="https://github.com/fourminute/Fluffy/blob/master/misc/uifluffy-sq.PNG?raw=true" width="800"/>
 
 # Instructions For Use
 
