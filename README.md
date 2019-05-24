@@ -51,8 +51,7 @@
 * <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
 * Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
 * Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
-<i>or</i> 
-* Download <a href="https://github.com/XorTroll/Goldleaf/releases">Goldleaf</a>
+* <i>or</i>  Download <a href="https://github.com/XorTroll/Goldleaf/releases">Goldleaf</a> by XorTroll.
 
 ### 2/3) Install and Setup Zadig Driver
 * Download Zadig: https://zadig.akeo.ie or [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) in case the website goes down.
@@ -82,8 +81,7 @@
 * <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
 * Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
 * Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
-<i>or</i> 
-* Download <a href="https://github.com/XorTroll/Goldleaf/releases">Goldleaf</a>
+* <i>or</i>  Download <a href="https://github.com/XorTroll/Goldleaf/releases">Goldleaf</a> by XorTroll.
 
 ### 2/5) Install and Setup Zadig Driver
 * Download Zadig: https://zadig.akeo.ie or [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) in case the website goes down.
