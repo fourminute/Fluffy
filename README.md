@@ -192,26 +192,21 @@ python3 fluffy.pyw
 
 Answer: This can be caused by 1-2 things.
 
-1) Not all USB type C cables will work with the Switch. If your Switch connects then frequently disconnects, then reconnects again, etc. Or if you receive this error, it's highly likely you will need a newer USB type C cable. Yes, there are differences despite being visually similar.
+1) Download <a href="https://github.com/fourminute/Fluffy/raw/master/windows/libusb-1.0.dll">libusb-1.0.dll</a> and place it in the same folder as Fluffy. If that doesn't work, install LibUSB using Zadig or <a href="https://github.com/fourminute/Fluffy/raw/master/windows/libusb-win32-devel-filter-1.2.6.0.exe">libusb-win32-devel-filter Installer</a>.
 
-2) LibUSB wasn't found. Install it with "pip3 install libusb" and "pip3 install libusb1". Also follow the above steps labeled "Additional Windows Instructions".
+2) Not all USB Type-C cables will work with the Switch. If your Switch connects then frequently disconnects, then reconnects again, etc. Or if you receive this error, it's highly likely you will need a newer USB Type-C cable. Yes, there are differences despite being visually similar.
 
 <b>Why do I keep getting the error: "No module named 'PyQt5'"?</b>
 
-Python by default *wants* to run in 64-bit mode, however, when this happens Fluffy won't work. As you may already know, Fluffy does not, will not, and cannot run in 64-bit Python. To bypass this behavior you can alternative open Fluffy.pyw in IDLE(32-bit mode) and click Run > Run Module.
-
+Ensure "PATH" is selected when installing Python. If that still doesn't solve it, try running Fluffy using IDLE(32-bit mode).
 
 <b>Why does network install hang/freeze?</b>
 
-Answer: This is normal. Network install can sometimes take a long time to work depending on your nework, how many devices are using your WiFi, your WiFi speed, etc. Give it some time and it will initiate the transfer. It may take several minutes.
-
-<b>PyUSB Not Found and I've followed all the steps!</b>
-
-Answer: **Fluffy only works with Python 3 32-bit version.** Also ensure that no previous versions of Python are installed. If necessary, uninstall them. For example, if you have Python 3.6.6 and Python 3.7.2 installed at the same time Fluffy may throw this error.
+Answer: This is normal. Network install can sometimes hang and take a long time to work depending on your nework, how many devices are using your WiFi, your WiFi speed, etc. Give it some time and it will initiate the transfer. It may take several minutes. Fluffy may seem frozen, but in most instances a little patience is advisable.
 
 <b>What kind of cable does the Switch use?</b>
 
-Answer: USB type C cable. Though, not all USB type C cables are the same. Some will not be compatible with the Switch.
+Answer: USB Type-C cable. Though, not all USB Type-C cables are the same. Some will not be compatible with the Switch. 
 
 <b>Does Fluffy work on MacOS and Linux?</b>
 
@@ -223,7 +218,7 @@ Answer: All of them will work the same. That is up to you.
 
 <b>Why does my install keep hanging and/or crashing?</b>
 
-Answer: Switch Transfer Mode to "Safe Mode".
+Answer: Switch Transfer Mode to "Safe Mode". If you're installing via Tinfoil Network, it is normal for the install to sometimes hang.
 
 <b>Why do I have unsufficient permission error (usb)(linux)? (credit: YoyPa)</b>
 
