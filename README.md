@@ -169,24 +169,15 @@ cd /path/to/files/
 sudo ./install.sh
 ```
 ## MacOS instructions
-<sub>Special thanks to <a href="https://github.com/GuillaumeJulien">GuillaumeJulien</a> for these instructions.</sup>
 ```
 brew install tcl-tk
 brew reinstall python3
 pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 python3 ./fluffy.pyw
 ```
+<sub>Special thanks to <a href="https://github.com/GuillaumeJulien">GuillaumeJulien</a> for these instructions.</sup>
 <sub><i>For more info on brew, head to https://brew.sh/</i></sup>
 
-## How-To-Use
-Complete beginner? No problem. 
-* <b>First follow the installation steps above. Done? Let's continue!</b>
-* On your Switch running Custom Firmware(for example, ReINX or Atmosphere) open TinFoil > Title Management > USB Install NSP.
-* Start Fluffy.pyw.
-* Click "NSP Selection" and select as many NSPs as you want to install.
-* Connect your Switch to your computer.
-* If "Switch Detected!" is visible. Click "Begin Transfer".
-* On your Switch, follow the on-screen instructions.
 
 ## Troubleshooting Tips
 <b>(Linux)Fluffy.pyw still shows up as an unknown file?</b>
