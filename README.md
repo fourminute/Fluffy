@@ -101,18 +101,19 @@ pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 ```
 
 ### 5/5) Run Fluffy and Install NSP(s)! (Tinfoil)
-* Connect your Switch and your PC with a USB Type-C cable.
-* Run Fluffy.pyw.
+* Connect your Switch and PC with a USB Type-C cable
+* Run Fluffy.pyw
 * On your Switch open Tinfoil > Title Management > USB Install NSP
 * On Fluffy click "NSP Selection" > Select your NSP(s)
-* On Fluffy's Tinfoil USB screen click "Begin Transfer".
+* On Fluffy's Tinfoil USB screen click "Begin Transfer"
 
 ### 5/5) Run Fluffy and Install NSP(s)! (Goldleaf)
-* Run Fluffy.pyw.
+* Connect your Switch and PC with a USB Type-C cable
+* Run Fluffy.pyw
 * On your Switch open Goldleaf > Explore Content
-* On Fluffy's Goldleaf screen click "Begin Transfer".
+* On Fluffy's Goldleaf screen click "Begin Transfer"
 * On your Switch select "PC Drive (via USB)"
-* Navigate to and install your NSP(s).
+* Navigate to and install your NSP(s)
 
 ## Linux instructions
 
