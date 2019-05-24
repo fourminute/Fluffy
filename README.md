@@ -221,4 +221,9 @@ I would like to extend my thanks to the people below for helping make Fluffy wha
 
 To anyone else that I missed, thank you.
 
-<i>Disclaimer: The "Cute Penguin Face" design was designed by github.com/fourminute exclusively for Fluffy and infringes on no copyright. The font used alongside this design is also 100% royalty free.</i>
+<i>"Cute Penguin Face" was designed by fourminute. The font
+used in the "Fluffy" logo is 100% royalty free.
+
+Fluffy(this program) and the "Cute Penguin Face"
+design is Copyright (c) 2019 fourminute
+(https://github.com/fourminute)</i>
