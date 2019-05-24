@@ -1065,7 +1065,6 @@ class Goldleaf:
                     n_ents = []
                     for e in ents:
                         try:
-                            print(os.path.join(path, e))
                             test = os.listdir(os.path.join(path, e))
                             n_ents.append(e)
                         except:
