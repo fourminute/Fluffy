@@ -176,6 +176,7 @@ pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 python3 ./fluffy.pyw
 ```
 <sub>Special thanks to <a href="https://github.com/GuillaumeJulien">GuillaumeJulien</a> for these instructions.</sup>
+
 <sub><i>For more info on brew, head to https://brew.sh/</i></sup>
 
 
