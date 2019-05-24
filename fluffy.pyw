@@ -1,10 +1,12 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 """""
-"Pink Donut" design was designed by fourminute exclusively for 
-Fluffy and does not infringe on any copyright.
+"Cute Penguin Face" was designed by fourminute. The font
+used in the "Fluffy" logo is 100% royalty free.
 
-Copyright (c) 2019 fourminute (https://github.com/fourminute)
+Fluffy(this program) and the "Cute Penguin Face"
+design is Copyright (c) 2019 fourminute
+(https://github.com/fourminute)
 
 Fluffy is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
