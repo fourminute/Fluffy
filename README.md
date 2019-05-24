@@ -221,4 +221,4 @@ I would like to extend my thanks to the people below for helping make Fluffy wha
 
 To anyone else that I missed, thank you.
 
-<i>Disclaimer: The "Pink Donut" design was designed by fourminute exclusively for Fluffy and infringes on no copyright. The font used in "intro.png" is also 100% royalty free.</i>
+<i>Disclaimer: The "Cute Penguin Face" design was designed by github.com/fourminute exclusively for Fluffy and infringes on no copyright. The font used alongside this design is also 100% royalty free.</i>
