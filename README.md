@@ -33,29 +33,28 @@
 	* Default: Read-only access for all files.
 	* Default: Read/write to non-NSP files are restricted.
 	* All of these security restrictions are changeable in fluffy.conf.
-* Tinfoil USB: Selectable transfer rates between "Normal Mode" and "Safe Mode".
+* Tinfoil USB: Selectable transfer rates between "Normal Mode" and "Safe Mode" for those with aging hardware(e.g. out of spec USB ports).
 * USB: Switch connected indicator.
 * User-Interface: Light Mode and Dark Mode.
 * General: Auto saves to config Switch IP Address, Light/Dark Mode Settings, and Language Selection.
-* Smart User-Interface, switches between Tkinter and PyQt depending on modules installed. (<b>v1.4.1 and below only</b>)
-* Support for UI scaling up to 4K resolution.
-* Switch Firmware 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a> for finding this fix, choose 'Safe Mode')
-* Tasty pink donut.
+* General Support for UI scaling up to 4K resolution.
+* Tinfoil USB: Switch Firmware 5.x USB Fix (Thanks to <a href="https://github.com/satelliteseeker">satelliteseeker</a> for finding this fix, choose 'Safe Mode')
+* Cute fluffy penguin.
 
 # Screenshot
 
 <img src="https://github.com/fourminute/Fluffy/blob/master/misc/uifluffy-sq3.png?raw=true" width="800"/>
 
-# Instructions For Use
+# [Windows] Instructions For Use (Fluffy.exe)
 
-## Install TinFoil on your Switch
+## 1/3) Install TinFoil or Goldleaf on your Switch
 * <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
 * Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
 * Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
+<i>or</i> 
+* Download <a href="https://github.com/XorTroll/Goldleaf/releases">Goldleaf</a>
 
-## Windows instructions
-
-### 1/3) Install and Setup Zadig Driver
+### 2/3) Install and Setup Zadig Driver
 * Download Zadig: https://zadig.akeo.ie or [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) in case the website goes down.
 * With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
 * Open Zadig > Options > List All Devices.
@@ -63,19 +62,59 @@
 * Click "Install Driver"
 * Done!
 
-### 2/3) Install Python
+### 3/3) Run Fluffy and Install NSP(s)! (Tinfoil)
+* Connect your Switch and your PC with a USB Type-C cable.
+* Run Fluffy.exe.
+* On your Switch open Tinfoil > Title Management > USB Install NSP
+* On Fluffy click "NSP Selection" > Select your NSP(s)
+* On Fluffy's Tinfoil USB screen click "Begin Transfer".
+
+### 3/3) Run Fluffy and Install NSP(s)! (Goldleaf)
+* Run Fluffy.exe.
+* On your Switch open Goldleaf > Explore Content
+* On Fluffy's Goldleaf screen click "Begin Transfer".
+* On your Switch select "PC Drive (via USB)"
+* Navigate to and install your NSP(s).
+
+# [Windows] Instructions For Use (Fluffy.pyw)
+
+## 1/5) Install TinFoil or Goldleaf on your Switch
+* <b>These steps apply for all custom firmware. This includes but not limited to: Kosmos, ReINX, SXOS, etc.</b>
+* Download <a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Recommended TinFoil</a>
+* Copy and paste "<b>TinFoil.nro</b>" to a folder named "Switch"(create it if necessary) on the root of your SD card.
+<i>or</i> 
+* Download <a href="https://github.com/XorTroll/Goldleaf/releases">Goldleaf</a>
+
+### 2/5) Install and Setup Zadig Driver
+* Download Zadig: https://zadig.akeo.ie or [github mirror](https://github.com/fourminute/Fluffy/blob/master/windows/zadig-2.4.exe) in case the website goes down.
+* With your Switch plugged in to your PC using a USB-C cable, open TinFoil(on your Switch). This will ensure your Switch is visible.
+* Open Zadig > Options > List All Devices.
+* In the scroll box above the button "Install Driver", tap the arrow until arriving at "libusbK".
+* Click "Install Driver"
+* Done!
+
+### 3/5) Install Python
 * Download and Install Python 3 from [Python Website](https://www.python.org/downloads/). Select the "PATH" option during install. <b>Ensure no previous version of Python is installed and do not use the 64-bit version of Python 3. This may cause an error "PyUSB not found".</b> Also be sure to include Tkinter with your installation(it should be a default option).
 
-### 3/3) Install Python Dependencies
+### 4/5) Install Python Dependencies
 * Open Command-line/CMD (Start, search "CMD") and run the following:
 ```
 pip3 install pyusb pyqt5 libusb libusb1 qdarkstyle configparser
 ```
 
-### Additional Windows Instructions
-Some users may receive the error "USB.Core No Backend Available". If you do, download this .DLL file [libusb.dll](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-1.0.dll) and place it in the same directory as Fluffy.pyw.
+### 5/5) Run Fluffy and Install NSP(s)! (Tinfoil)
+* Connect your Switch and your PC with a USB Type-C cable.
+* Run Fluffy.pyw.
+* On your Switch open Tinfoil > Title Management > USB Install NSP
+* On Fluffy click "NSP Selection" > Select your NSP(s)
+* On Fluffy's Tinfoil USB screen click "Begin Transfer".
 
-If you still receive this error, you can try installing LibUSB: [libusb installer](https://github.com/fourminute/Fluffy/blob/master/windows/libusb-win32-devel-filter-1.2.6.0.exe).
+### 5/5) Run Fluffy and Install NSP(s)! (Goldleaf)
+* Run Fluffy.pyw.
+* On your Switch open Goldleaf > Explore Content
+* On Fluffy's Goldleaf screen click "Begin Transfer".
+* On your Switch select "PC Drive (via USB)"
+* Navigate to and install your NSP(s).
 
 ## Linux instructions
 
