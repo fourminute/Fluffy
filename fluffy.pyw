@@ -1148,7 +1148,6 @@ class Goldleaf:
                     elif self.fw_status == self.FW_ACCEPTED:
                         can_write = True
                     if can_write:
-                        print('writing')
                         cont = bytearray()
                         try:
                             with open(path, "rb") as f:
