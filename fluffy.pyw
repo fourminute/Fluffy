@@ -1,10 +1,10 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 """""
-"Cute Penguin Face" was designed by fourminute. The font
+"Cute Penguin" was designed by fourminute. The font
 used in the "Fluffy" logo is 100% royalty free.
 
-Fluffy(this program) and the "Cute Penguin Face"
+Fluffy(this program) and the "Cute Penguin"
 design is Copyright (c) 2019 fourminute
 (https://github.com/fourminute)
 
