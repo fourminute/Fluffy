@@ -1872,7 +1872,7 @@ try:
     lang_menu = window.menuBar().addMenu(Language.CurrentDict[22])
     about_menu = window.menuBar().addAction(Language.CurrentDict[30])
     lang_group = QActionGroup(lang_menu)
-    lang_group.setExclusive(True)
+    #lang_group.setExclusive(True)
     lang_group.addAction(QAction('English',lang_group,checkable=True))
     lang_group.addAction(QAction('中文',lang_group,checkable=True))
     lang_group.addAction(QAction('Tiếng Việt',lang_group,checkable=True))
@@ -1886,6 +1886,7 @@ try:
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(UI.lang_menu_cmd)
     about_menu.triggered.connect(UI.about_menu_cmd)
+    window.menuBar().setNativeMenuBar(False) # Possible MacOS Fix
 
     # "And for gosh sake watch your language!" -Tony, May 1st 2015
     aix = 0
