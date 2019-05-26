@@ -10,8 +10,8 @@
 ![License](https://img.shields.io/badge/License-GPLv3-blue.svg) [![Releases](https://img.shields.io/github/downloads/fourminute/fluffy/total.svg)]() [![LatestVer](https://img.shields.io/github/release-pre/fourminute/fluffy.svg)]()
 
 ### <b><a href="https://github.com/fourminute/Fluffy/releases/latest">Latest Release v2.9.0</a></b>
-### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
-### <b><a href="https://github.com/fourminute/Fluffy/blob/master/Goldleaf.nro">Download Recommended Goldleaf.nro</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/raw/master/Tinfoil.nro">Download Recommended TinFoil.nro</a></b>
+### <b><a href="https://github.com/fourminute/Fluffy/raw/master/Goldleaf.nro">Download Recommended Goldleaf.nro</a></b>
 
 
 ## Features
