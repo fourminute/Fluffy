@@ -454,9 +454,9 @@ class Language:
                   27: "En Cours d'Installation",
                   28: "Débit",
                   29: "NCA Actuel",
-                  30: "Crédits",
-                  31: "Je Vous Remercie",
-                  32: "Faites Un Don À Moi",
+                  30: "À Propos",
+                  31: "Remerciements",
+                  32: "Faire Un Don",
                    }
     
     SpanishDict = {0: "Fluffy",
@@ -489,9 +489,9 @@ class Language:
                   27: "Instalando",
                   28: "Velocidad",
                   29: "NCA Actual",
-                  30: "Creditos",
+                  30: "Sobre Fluffy",
                   31: "Muchas Gracias",
-                  32: "Dona A Mi",
+                  32: "Hacer Una Donación",
                    }
 
     GermanDict = {0: "Fluffy",
