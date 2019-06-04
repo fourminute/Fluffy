@@ -1,7 +1,8 @@
 # Fluffy
 ![intro](https://github.com/fourminute/Fluffy/blob/master/misc/may_intro_v4.png?raw=true)
  <b><a href="https://github.com/fourminute/Fluffy/blob/master/README_CH.md">查看中文使用说明，请点击这里！</a></b>
- 
+ <b><a href="https://github.com/fourminute/Fluffy/blob/master/README_KR.md">한국어를 할 줄 알아요?</a></b>
+
 #### All donations are appreciated! Thank you if you decide to donate!
 
 <b>Monero</b>:  <sub>4APPsi7nnAs4ZjGC58V5CjVnceEvnZbY1WCBSjmcQsKhGPWLL2EaoUDU2RVFnuLEnASRA2ECXD4YvQ8hyVyZg1raJ482yei</sup>
