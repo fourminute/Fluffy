@@ -101,9 +101,9 @@ except:
     pass
 
 # Variables
-VERSION = "2.9.0"
+VERSION = "2.9.2"
 MONERO_ADDRESS = "4APPsi7nnAs4ZjGC58V5CjVnceEvnZbY1WCBSjmcQsKhGPWLL2EaoUDU2RVFnuLEnASRA2ECXD4YvQ8hyVyZg1raJ482yei"
-thanks = ["YoyPa","Sev73n","LoOkYe","wendyliga","TheZoc","TheLastZombie","friedkeenan","danypava", "DavidOliM","TorpedoXL","gut5"]
+thanks = ["DDinghoya", "YoyPa","Sev73n","LoOkYe","wendyliga","TheZoc","TheLastZombie","friedkeenan","danypava", "DavidOliM","TorpedoXL","gut5"]
 GREEN = "QLabel {color: #09A603;}"
 BLUE = "QLabel {color: #00A2FF;}"
 RED = "QLabel {color: #cc2249;}"
@@ -210,6 +210,8 @@ def set_language(v):
         Language.CurrentDict = Language.GermanDict
     elif v == 9:
         Language.CurrentDict = Language.IndonesiaDict
+    elif v == 10:
+        Language.CurrentDict = Language.KoreanDict
         
 class Language:
     CurrentDict = None
@@ -562,7 +564,44 @@ class Language:
                   30: "Tentang",
                   31: "Terima Kasih",
                   32: "Donasi Untukku",
+                  }
+
+    KoreanDict = {0: "Fluffy",
+                  1: "전송 시작",
+                  2: "스위치 IP",
+                  3: "이 컴퓨터의 IP",
+                  4: "USB 전송 모드",
+                  5: "일반 모드",
+                  6: "안전 모드",
+                  7: "현재 NSP",
+                  8: "성공적으로 설치되었습니다",
+                  9: "선택을 기다리고 있습니다",
+                  10: "스위치가 감지되지 않았습니다",
+                  11: "스위치가 감지되었습니다",
+                  12: "네트워크 모드",
+                  13: "NSP 선택",
+                  14: "선택된 NSP",
+                  15: "연결 요청 대기 중",
+                  16: "취소",
+                  17: "오류: Goldleaf에서 예외가 발생했습니다.",
+                  18: "오류: Tinfoil에서 예외가 발생했습니다.",
+                  19: "오류: 네트워크에서 예외가 발생했습니다.",
+                  20: "어두운 모드",
+                  21: "옵션",
+                  22: "언어",
+                  23: "Github",
+                  24: "네트워크",
+                  25: "헤더 보내기",
+                  26: "대기열의 NSP",
+                  27: "설치",
+                  28: "전송율",
+                  29: "현재 NCA",
+                  30: "소개",
+                  31: "특별 감사",
+                  32: "기부",
                    }
+
+
                    
 				   
 set_language(language)
@@ -1185,7 +1224,7 @@ class Goldleaf:
                     while not haveresponse and global_dev is not None:                    
                         time.sleep(1)
                     if qresponse:
-                        os.rename(path, f"{os.path.dirname(path)}/{new_name}")
+                        os.rename(path, new_name)
                     reset_response()
                 elif self.is_id(GoldleafCommandId.RenameDirectory):
                     path = self.read_path()
@@ -1883,6 +1922,7 @@ try:
     lang_group.addAction(QAction('Español',lang_group,checkable=True))
     lang_group.addAction(QAction('Deutsch',lang_group,checkable=True))
     lang_group.addAction(QAction('Bahasa Indonesia',lang_group,checkable=True))
+    lang_group.addAction(QAction('한국어',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(UI.lang_menu_cmd)
     about_menu.triggered.connect(UI.about_menu_cmd)
