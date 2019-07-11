@@ -34,14 +34,17 @@ import random
 import re
 import configparser
 try:
-    if "win" in sys.platform[:3].lower():
+    # https://docs.python.org/3/library/sys.html#sys.platform
+    if sys.platform in ('win32', 'cygwin'):  # windows
         initial_dir = os.getcwd() + "/"
-    elif "linux" in sys.platform.lower():
-        if not os.path.exists(os.path.expanduser('~') + "/.fluffy"):
-            os.makedirs(os.path.expanduser('~') + "/.fluffy")
-        initial_dir = os.path.expanduser('~') + "/.fluffy/"
-    else: # MacOS. A little help here would be great.
-        initial_dir = os.getcwd() + "/"
+    elif sys.platform == 'darwin':  # mac OS x
+	initial_dir = os.getcwd() + "/"
+    else:  # linux and any other Unix system
+	linux_path = os.path.expanduser('~') + "/.fluffy"
+	if not os.path.exists(linux_path):
+     	    os.makedirs(linux_path)
+        initial_dir = linux_path
+        
 except:
     initial_dir = os.getcwd() + "/"
     pass
