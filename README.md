@@ -18,7 +18,7 @@
 
 ## Features
 * Support for <b>XorTroll/Goldleaf</b> and <b>Adubbz/Tinfoil</b>
-* Support for languages: <b>English, Chinese, Vietnamese, Spanish, French, Brazilian Portuguese, Turkish, Italian, German, and Bahasa Indonesia</b>!
+* Support for languages: <b>English, Chinese, Vietnamese, Spanish, French, Brazilian Portuguese, Turkish, Italian, German, Bahasa Indonesia and Russian</b>!
 * Cross platform: Fluffy works natively on <b>Windows</b>, <b>Linux</b>, and <b>MacOS</b>!
 * USB and Network: Display live transfer rate in MB/s with progress percentage.
 * USB and Network: Display current NSP being installed and numbered queue.
