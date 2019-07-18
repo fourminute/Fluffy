@@ -212,6 +212,8 @@ def set_language(v):
         Language.CurrentDict = Language.IndonesiaDict
     elif v == 10:
         Language.CurrentDict = Language.KoreanDict
+    elif v == 11:
+        Language.CurrentDict = Language.RussianDict        
         
 class Language:
     CurrentDict = None
@@ -601,6 +603,40 @@ class Language:
                   32: "기부",
                    }
 
+    RussianDict = {0: "Fluffy",
+                  1: "Начать передачу",
+                  2: "IP Switch",
+                  3: "IP компьютера",
+                  4: "Режим передачи по USB",
+                  5: "Обычный",
+                  6: "Безопасный",
+                  7: "Текущий NSP",
+                  8: "Установка прошла успешно",
+                  9: "Статус подключения",
+                  10: "Switch не обнаружен",
+                  11: "Switch обнаружен",
+                  12: "Режим сети",
+                  13: "Выбор файлов NSP",
+                  14: "Выбранные файлы NSP",
+                  15: "Ожидание запроса на подключение",
+                  16: "Отмена",
+                  17: "Ошибка: Goldleaf выдал ошибку.",
+                  18: "Ошибка: Tinfoil выдал ошибку.",
+                  19: "Ошибка: Network выдал ошибку.",
+                  20: "Темная тема",
+                  21: "Опции",
+                  22: "Язык",
+                  23: "Github",
+                  24: "Сетевой режим",
+                  25: "Заголовки отправлены",
+                  26: "Файлы NSP в очереди",
+                  27: "Установка",
+                  28: "Скорость передачи",
+                  29: "Текущий NCA",
+                  30: "О программе",
+                  31: "Благодарность",
+                  32: "Пожертвовать средства",
+                   }
 
                    
 				   
@@ -1923,6 +1959,7 @@ try:
     lang_group.addAction(QAction('Deutsch',lang_group,checkable=True))
     lang_group.addAction(QAction('Bahasa Indonesia',lang_group,checkable=True))
     lang_group.addAction(QAction('한국어',lang_group,checkable=True))
+    lang_group.addAction(QAction('Русский',lang_group,checkable=True))
     lang_menu.addActions(lang_group.actions())
     lang_group.triggered.connect(UI.lang_menu_cmd)
     about_menu.triggered.connect(UI.about_menu_cmd)
