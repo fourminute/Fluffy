@@ -34,6 +34,7 @@ import re
 import configparser
 import goldleaf
 import tinfoil
+import nut
 
 class Context:
     def __init__(self):
@@ -78,6 +79,8 @@ class Context:
         self.global_out = None
         self.task_canceled = False
         self.usb_success = False
+        
+        self.installer_type = 0
 
 ctx = Context()
 
@@ -136,7 +139,6 @@ ctx.is_installing = False
 last_error = "NA"
 is_done = False
 is_network = False
-is_goldleaf = False 
 selected_dir = None
 selected_files = None
 sent_header = False
@@ -151,17 +153,36 @@ cur_nsp_name = "NA"
 
 language = 0
 
+def is_goldleaf():
+    return ctx.installer_type == 2
+
+def is_tinfoil():
+    return ctx.installer_type == 0
+    
+def is_nut():
+    return ctx.installer_type == 1
+    
+def set_goldleaf():
+    ctx.installer_type = 2
+    
+def set_tinfoil():
+    ctx.installer_type = 0
+    
+def set_nut():
+    ctx.installer_type = 1
+    
+
 # Load Settings
 if os.path.isfile(ctx.initial_dir + 'fluffy.conf'):
     try:
         with open(ctx.initial_dir + 'fluffy.conf') as cfgfile:
             configp = configparser.ConfigParser()
             configp.read_file(cfgfile)
-            ctx.switch_ip = configp.get('DEFAULT', 'ctx.switch_ip')
+            ctx.switch_ip = configp.get('DEFAULT', 'switch_ip')
             dark_mode = int(configp.get('DEFAULT', 'dark_mode'))
             language = int(configp.get('DEFAULT', 'language'))
-            ctx.allow_access_non_nsp = int(configp.get('DEFAULT', 'ctx.allow_access_non_nsp'))
-            ctx.ignore_warning_prompt = int(configp.get('DEFAULT', 'ctx.ignore_warning_prompt'))           
+            ctx.allow_access_non_nsp = int(configp.get('DEFAULT', 'allow_access_non_nsp'))
+            ctx.ignore_warning_prompt = int(configp.get('DEFAULT', 'ignore_warning_prompt'))           
             print("Successfully loaded config: \'" + str(ctx.initial_dir) + "fluffy.conf\'")
     except:
         print("Config not found: \'" + str(ctx.initial_dir) + "fluffy.conf\'")
@@ -748,11 +769,11 @@ def connect_switch():
 def save_config():
     try:
         configp = configparser.ConfigParser()
-        configp['DEFAULT'] = {'ctx.switch_ip': ctx.switch_ip,
+        configp['DEFAULT'] = {'switch_ip': ctx.switch_ip,
                               'language': language,
                               'dark_mode': dark_mode,
-                              'ctx.allow_access_non_nsp': ctx.allow_access_non_nsp,
-                              'ctx.ignore_warning_prompt': ctx.ignore_warning_prompt}
+                              'allow_access_non_nsp': ctx.allow_access_non_nsp,
+                              'ignore_warning_prompt': ctx.ignore_warning_prompt}
         with open(ctx.initial_dir + 'fluffy.conf', 'w') as cfgfile:
             configp.write(cfgfile)
     except:
@@ -845,13 +866,14 @@ def reset_install():
     usb_radio.setEnabled(True)
     txt_port.setEnabled(True)
     tin_radio.setEnabled(True)
+    nut_radio.setEnabled(True)
     gold_radio.setEnabled(True)
     l_nsp.setText("")
     l_nsp.setStyleSheet("")
     l_switch.setText("")
     l_switch.setStyleSheet("")
     l_status.setStyleSheet("")
-    if is_goldleaf:
+    if is_goldleaf():
         l_status.setText('')
     progressbar.setValue(0)
     cur_nsp_count = 1
@@ -902,9 +924,6 @@ def set_ip(v, n):
     else:
         ctx.host_ip = v
 
-def set_goldleaf(v):
-    global is_goldleaf
-    is_goldleaf = v
 
 def set_usb_success(v):
     global ctx
@@ -936,6 +955,7 @@ class UI:
             usb_radio.setEnabled(False)
             txt_port.setEnabled(False)
             tin_radio.setEnabled(False)
+            nut_radio.setEnabled(False)
             gold_radio.setEnabled(False)
             window.menuBar().setEnabled(False)
             if combo.currentText() == Language.CurrentDict[5]:
@@ -952,21 +972,30 @@ class UI:
                 thread.daemon = True
                 thread.start()
             else:
-                if is_goldleaf:
+                if is_goldleaf():
                     set_sent_header()
                     set_start_time()
-                    gold = goldleaf.Usb(config)
+                    gold = goldleaf.Usb(ctx)
                     thread = threading.Thread(target=gold.init)
                     thread.daemon = True
                     thread.start()
 
-                else:
+                elif is_tinfoil():
                     set_sent_header()
                     set_start_time()
-                    tin = tinfoil.Usb(config)
+                    tin = tinfoil.Usb(ctx)
                     thread = threading.Thread(target=tin.init)
                     thread.daemon = True
                     thread.start()
+                    
+                elif is_nut():
+                    set_sent_header()
+                    set_start_time()
+                    nutdz = nut.Usb(ctx)
+                    thread = threading.Thread(target=nutdz.init)
+                    thread.daemon = True
+                    thread.start()
+                
         else:
             cancel_task()
     @staticmethod
@@ -976,7 +1005,7 @@ class UI:
             tmp = list()
             list_nsp.clear()
             i = 0
-            if not is_goldleaf:
+            if is_tinfoil():
                 file_list = list(d)
                 for f in file_list:
                     if str(f).endswith(".nsp"):
@@ -1026,7 +1055,7 @@ class UI:
         net_radio.setChecked(False)
         usb_radio.setChecked(True)
         net_radio.setVisible(True)
-        set_goldleaf(False)
+        set_tinfoil()
         split_check.setEnabled(True)
         l_status.setText(Language.CurrentDict[9])
         gold_img_label.setVisible(False)
@@ -1042,6 +1071,33 @@ class UI:
         window.adjustSize()
         
     @staticmethod
+    def nut_radio_cmd():
+        l_nsp.setVisible(False)
+        combo.setVisible(False)
+        l_rate.setVisible(False)
+        txt_ip.setEnabled(False)
+        txt_ip2.setEnabled(False)
+        txt_port.setEnabled(False)
+        net_radio.setChecked(False)
+        usb_radio.setChecked(True)
+        net_radio.setVisible(False)
+        set_network(False)
+        set_nut()
+        split_check.setCheckState(False)
+        split_check.setEnabled(False)
+        list_nsp.clear()
+        l_status.setText('')
+        btn_nsp.setVisible(False)
+        l_ip.setVisible(False)
+        txt_ip.setVisible(False)
+        list_nsp.setVisible(False)
+        txt_ip2.setVisible(False)
+        l_host.setVisible(False)
+        usb_radio.setVisible(False)
+        gold_img_label.setVisible(True)
+        window.adjustSize() 
+        
+    @staticmethod
     def gold_radio_cmd():
         l_nsp.setVisible(False)
         combo.setVisible(False)
@@ -1053,7 +1109,7 @@ class UI:
         usb_radio.setChecked(True)
         net_radio.setVisible(False)
         set_network(False)
-        set_goldleaf(True)
+        set_goldleaf()
         split_check.setCheckState(False)
         split_check.setEnabled(False)
         list_nsp.clear()
@@ -1091,7 +1147,7 @@ class UI:
     @staticmethod 
     def set_done_text():
         tmp_string = str(total_nsp)
-        if not is_goldleaf:
+        if is_tinfoil():
             reset_install()
             l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
             
@@ -1099,7 +1155,7 @@ class UI:
     def set_loading_text():
         l_nsp.setText("")
         l_status.setText("")
-        if not is_goldleaf:
+        if is_tinfoil():
             l_switch.setText(str(total_nsp) + " " + Language.CurrentDict[26] + ".")
             l_switch.setStyleSheet(PURPLE)
         else:
@@ -1113,18 +1169,18 @@ class UI:
         n_rate = round((cur_transfer_rate /1000000),2)
         if n_rate < 0:
             n_rate = 0.0
-        if not is_goldleaf:
+        if is_tinfoil():
             l_status.setText(Language.CurrentDict[27] + " " + str(cur_nsp_count) + " / " + str(total_nsp) + " NSP(s).")
         l_switch.setText(Language.CurrentDict[28] + ": " + str(n_rate) + "MB/s.")
         l_switch.setStyleSheet(GREEN)
         l_status.setStyleSheet(GREEN)
         if len(cur_nsp_name) > 13:
-            if is_goldleaf:
+            if is_goldleaf():
                 l_status.setText("\"" + cur_nsp_name[:13] + "...\"")
             else:
                 l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name[:13] + "...\"")
         else:
-            if is_goldleaf:
+            if is_goldleaf():
                 l_status.setText("\"" + cur_nsp_name + "\"")
             else:
                 l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
@@ -1135,7 +1191,7 @@ class UI:
                 set_usb_success(True)
                 l_switch.setText(Language.CurrentDict[11]+"!")
                 l_switch.setStyleSheet(GREEN)
-                if not is_goldleaf:
+                if is_tinfoil():
                     if list_nsp.count() > 0:
                         btn_header.setEnabled(True)
                     else:
@@ -1160,7 +1216,7 @@ class UI:
     @staticmethod
     def init_language():
         l_nsp.setText("")
-        if not is_goldleaf:
+        if is_tinfoil():
             if list_nsp.count() > 0:
                 l_status.setText(str(total_nsp) + " " + Language.CurrentDict[14])
             else:
@@ -1243,7 +1299,8 @@ try:
     l_ip = QtWidgets.QLabel(Language.CurrentDict[2]+":")
     l_port = QtWidgets.QLabel("Port:")
     txt_ip = QtWidgets.QLineEdit("0.0.0.0")
-    tin_radio = QtWidgets.QRadioButton("Tinfoil")
+    tin_radio = QtWidgets.QRadioButton("Tinfoil/Adubbz")
+    nut_radio = QtWidgets.QRadioButton("Tinfoil/Blawar")
     gold_radio = QtWidgets.QRadioButton("Goldleaf")
     split_check = QtWidgets.QCheckBox("Use Split NSP")
     dark_check = QtWidgets.QCheckBox(Language.CurrentDict[20])
@@ -1294,13 +1351,21 @@ try:
     combo.addItem(Language.CurrentDict[6])
     combo.addItem(Language.CurrentDict[5])
     combo.setCurrentIndex(1)
+
     tin_radio.setChecked(True)
     tin_radio.toggled.connect(UI.tin_radio_cmd)
+    
+    nut_radio.setChecked(False)
+    nut_radio.toggled.connect(UI.nut_radio_cmd)
+    
     gold_radio.setChecked(False)
     gold_radio.toggled.connect(UI.gold_radio_cmd)
+    
     h_group.addButton(tin_radio)
+    h_group.addButton(nut_radio)
     h_group.addButton(gold_radio)
     h2_box.addWidget(tin_radio)
+    h2_box.addWidget(nut_radio)
     h2_box.addWidget(gold_radio)
     dark_check.stateChanged.connect(UI.dark_mode_cmd)
     usb_radio.setChecked(True)
@@ -1411,7 +1476,8 @@ try:
     else:
         set_dark_mode(0)
         dark_check.setChecked(False)
-    
+
+    nut.startNetwork(ctx)
     # Main loop
     while True:
         QApplication.processEvents()
@@ -1546,7 +1612,8 @@ try:
                 pass
             
 except Exception as e:
-    if ctx.is_logging:
-        logging.error(e, exc_info=True)
+    #if ctx.is_logging:
+    #    logging.error(e, exc_info=True)
     save_config()
+    raise
     sys.exit()

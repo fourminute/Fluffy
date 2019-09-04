@@ -50,22 +50,22 @@ class Goldleaf:
         
     def write(self,buffer):
         try:
-            global_out.write(buffer,timeout=3000)
+            self.ctx.global_out.write(buffer,timeout=3000)
         except:
             pass
 
     def read(self,length):
-        return global_in.read(length,timeout=0).tobytes()
+        return self.ctx.global_in.read(length,timeout=0).tobytes()
         
     def write_u32(self,x):
         try:
-            global_out.write(struct.pack("<I", x))
+            self.ctx.global_out.write(struct.pack("<I", x))
         except:
             pass
         
     def write_u64(self,x):
         try:
-            global_out.write(struct.pack("<Q", x))
+            self.ctx.global_out.write(struct.pack("<Q", x))
         except:
             pass
         

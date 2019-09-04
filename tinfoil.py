@@ -190,19 +190,19 @@ class Usb:
             sys.exit()
         
     def send_response_header(self, cmd_id, data_size):
-        global_out.write(b'TUC0')
-        global_out.write(struct.pack('<B', self.CMD_TYPE_RESPONSE))
-        global_out.write(b'\x00' * 3)
-        global_out.write(struct.pack('<I', cmd_id))
-        global_out.write(struct.pack('<Q', data_size))
-        global_out.write(b'\x00' * 0xC)
+        self.ctx.global_out.write(b'TUC0')
+        self.ctx.global_out.write(struct.pack('<B', self.CMD_TYPE_RESPONSE))
+        self.ctx.global_out.write(b'\x00' * 3)
+        self.ctx.global_out.write(struct.pack('<I', cmd_id))
+        self.ctx.global_out.write(struct.pack('<Q', data_size))
+        self.ctx.global_out.write(b'\x00' * 0xC)
         
     def file_range_cmd(self, data_size):
-        file_range_header = global_in.read(0x20)
+        file_range_header = self.ctx.global_in.read(0x20)
         range_size = struct.unpack('<Q', file_range_header[:8])[0]
         range_offset = struct.unpack('<Q', file_range_header[8:16])[0]
         nsp_name_len = struct.unpack('<Q', file_range_header[16:24])[0]
-        nsp_name = bytes(global_in.read(nsp_name_len)).decode('utf-8')
+        nsp_name = bytes(self.ctx.global_in.read(nsp_name_len)).decode('utf-8')
         set_cur_nsp(str(os.path.basename(nsp_name)))
         self.send_response_header(self.CMD_ID_FILE_RANGE, range_size)
         with open(nsp_name, 'rb') as f:
@@ -220,7 +220,7 @@ class Usb:
                     except:
                         pass
                 buf = f.read(read_size)
-                global_out.write(data=buf, timeout=0)
+                self.ctx.global_out.write(data=buf, timeout=0)
                 curr_off += read_size
                 try:
                     set_progress(int(curr_off), int(end_off))
@@ -235,7 +235,7 @@ class Usb:
     def process(self):
         while True:
             if task_canceled: sys.exit()
-            cmd_header = bytes(global_in.read(0x20, timeout=0))
+            cmd_header = bytes(self.ctx.global_in.read(0x20, timeout=0))
             magic = cmd_header[:4]
             if magic != b'TUC0': 
                 continue
@@ -258,8 +258,8 @@ class Usb:
                         print(str(nsp_path))
                         nsp_path_list.append(selected_dir + "/" + nsp_path.__str__() + '\n')
                         nsp_path_list_len += len(selected_dir + "/" + nsp_path.__str__()) + 1
-        global_out.write(b'TUL0')
-        global_out.write(struct.pack('<I', nsp_path_list_len))
-        global_out.write(b'\x00' * 0x8) 
+        self.ctx.global_out.write(b'TUL0')
+        self.ctx.global_out.write(struct.pack('<I', nsp_path_list_len))
+        self.ctx.global_out.write(b'\x00' * 0x8) 
         for nsp_path in nsp_path_list:
-            global_out.write(nsp_path)
+            self.ctx.global_out.write(nsp_path)
