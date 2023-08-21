@@ -24,7 +24,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 # Imports
 import signal
 import time
-import socket
 import base64
 import os
 import sys
@@ -33,50 +32,72 @@ import struct
 import random
 import re
 import configparser
-try:
-    if "win" in sys.platform[:3].lower():
-        initial_dir = os.getcwd() + "/"
-    elif "linux" in sys.platform.lower():
-        if not os.path.exists(os.path.expanduser('~') + "/.fluffy"):
-            os.makedirs(os.path.expanduser('~') + "/.fluffy")
-        initial_dir = os.path.expanduser('~') + "/.fluffy/"
-    else: # MacOS. A little help here would be great.
-        initial_dir = os.getcwd() + "/"
-except:
-    initial_dir = os.getcwd() + "/"
-    pass
-try:
-    import logging
-    if os.path.isfile(initial_dir + 'fluffy.log'):
-        os.remove(initial_dir + 'fluffy.log')
-    LOG_FILENAME = initial_dir + 'fluffy.log'
-    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
-    logging.debug("Fluffy Log: If you see nothing here. Good!")
-    is_logging = True
-except:
-    is_logging = False
-    print('Error: Logging not possible. Possible permission issue.')
-    pass
+import goldleaf
+import tinfoil
+import nut
+
+class Context:
+    def __init__(self):
+        try:
+            if "win" in sys.platform[:3].lower():
+                self.initial_dir = os.getcwd() + "/"
+            elif "linux" in sys.platform.lower():
+                if not os.path.exists(os.path.expanduser('~') + "/.fluffy"):
+                    os.makedirs(os.path.expanduser('~') + "/.fluffy")
+                self.initial_dir = os.path.expanduser('~') + "/.fluffy/"
+            else: # MacOS. A little help here would be great.
+                self.initial_dir = os.getcwd() + "/"
+        except:
+            self.initial_dir = os.getcwd() + "/"
+            pass
+            
+        try:
+            import logging
+            if os.path.isfile(self.initial_dir + 'fluffy.log'):
+                os.remove(self.initial_dir + 'fluffy.log')
+            LOG_FILENAME = self.initial_dir + 'fluffy.log'
+            logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+            logging.debug("Fluffy Log: If you see nothing here. Good!")
+            self.is_logging = True
+        except:
+            self.is_logging = False
+            print('Error: Logging not possible. Possible permission issue.')
+            pass
+            
+        self.is_installing = False
+        self.switch_ip = "0.0.0.0"
+        self.host_ip = "0.0.0.0"
+        
+        self.qresponse = False
+        self.needresponse = False
+        self.qrespnum = 0
+        self.haveresponse = False
+        self.allow_access_non_nsp = 0
+        self.ignore_warning_prompt = 0
+        self.global_dev = None
+        self.global_in = None
+        self.global_out = None
+        self.task_canceled = False
+        self.usb_success = False
+        
+        self.installer_type = 0
+
+ctx = Context()
+
+
 try:
     from tkinter import filedialog
     import tkinter as tk
     root = tk.Tk()
     root.withdraw()
 except Exception as e:
-    if is_logging:
+    if ctx.is_logging:
         logging.error(e, exc_info=True)
         logging.debug("Error: Failed to import Tkinter.")
     print('Error: Failed to import Tkinter.')
     print(str(e))
     sys.exit()
-try:
-    from SimpleHTTPServer import SimpleHTTPRequestHandler
-    from SocketServer import TCPServer
-    from urllib import quote
-except ImportError:
-    from http.server import SimpleHTTPRequestHandler
-    from socketserver import TCPServer
-    from urllib.parse import quote
+
 try:
     from PyQt5 import QtWidgets
     from PyQt5.QtCore import Qt, QThread, QByteArray
@@ -85,7 +106,7 @@ try:
     app = QtWidgets.QApplication(sys.argv)
     window = QMainWindow()
 except Exception as e:
-    if is_logging:
+    if ctx.is_logging:
         logging.error(e, exc_info=True)
         logging.debug("Error: Failed to import PyQt5.")
     print('Error: Failed to import PyQt5.')
@@ -97,7 +118,7 @@ try:
 except:
     logging.debug("Error: Failed to import modules required for USB install. Defaulting to Network Mode.")
     print('Error: Failed to import modules required for USB install. Defaulting to Network Mode.')
-    usb_success = False
+    ctx.usb_success = False
     pass
 
 # Variables
@@ -114,11 +135,10 @@ inlaypixmap = QPixmap()
 dinlaypixmap = QPixmap()
 aboutpixmap = QPixmap()
 transfer_rate = 0
-is_installing = False
+ctx.is_installing = False
 last_error = "NA"
 is_done = False
 is_network = False
-is_goldleaf = False 
 selected_dir = None
 selected_files = None
 sent_header = False
@@ -130,48 +150,55 @@ end_progress = 0
 cur_nsp_count = 1
 total_nsp = 0
 cur_nsp_name = "NA"
-switch_ip = "0.0.0.0"
-host_ip = "0.0.0.0"
+
 language = 0
-qresponse = False
-needresponse = False
-qrespnum = 0
-haveresponse = False
-allow_access_non_nsp = 0
-ignore_warning_prompt = 0
-global_dev = None
-global_in = None
-global_out = None
-task_canceled = False
-usb_success = False
+
+def is_goldleaf():
+    return ctx.installer_type == 2
+
+def is_tinfoil():
+    return ctx.installer_type == 0
+    
+def is_nut():
+    return ctx.installer_type == 1
+    
+def set_goldleaf():
+    ctx.installer_type = 2
+    
+def set_tinfoil():
+    ctx.installer_type = 0
+    
+def set_nut():
+    ctx.installer_type = 1
+    
 
 # Load Settings
-if os.path.isfile(initial_dir + 'fluffy.conf'):
+if os.path.isfile(ctx.initial_dir + 'fluffy.conf'):
     try:
-        with open(initial_dir + 'fluffy.conf') as cfgfile:
+        with open(ctx.initial_dir + 'fluffy.conf') as cfgfile:
             configp = configparser.ConfigParser()
             configp.read_file(cfgfile)
-            switch_ip = configp.get('DEFAULT', 'switch_ip')
+            ctx.switch_ip = configp.get('DEFAULT', 'switch_ip')
             dark_mode = int(configp.get('DEFAULT', 'dark_mode'))
             language = int(configp.get('DEFAULT', 'language'))
-            allow_access_non_nsp = int(configp.get('DEFAULT', 'allow_access_non_nsp'))
-            ignore_warning_prompt = int(configp.get('DEFAULT', 'ignore_warning_prompt'))           
-            print("Successfully loaded config: \'" + str(initial_dir) + "fluffy.conf\'")
+            ctx.allow_access_non_nsp = int(configp.get('DEFAULT', 'allow_access_non_nsp'))
+            ctx.ignore_warning_prompt = int(configp.get('DEFAULT', 'ignore_warning_prompt'))           
+            print("Successfully loaded config: \'" + str(ctx.initial_dir) + "fluffy.conf\'")
     except:
-        print("Config not found: \'" + str(initial_dir) + "fluffy.conf\'")
-        switch_ip = "0.0.0.0"
+        print("Config not found: \'" + str(ctx.initial_dir) + "fluffy.conf\'")
+        ctx.switch_ip = "0.0.0.0"
         dark_mode = 0
         language = 0
-        allow_access_non_nsp = 0
-        ignore_warning_prompt = 0
+        ctx.allow_access_non_nsp = 0
+        ctx.ignore_warning_prompt = 0
         pass
 else:
-    print("Config not found: \'" + str(initial_dir) + "fluffy.conf\'")
-    switch_ip = "0.0.0.0"
+    print("Config not found: \'" + str(ctx.initial_dir) + "fluffy.conf\'")
+    ctx.switch_ip = "0.0.0.0"
     dark_mode = 0
     language = 0
-    allow_access_non_nsp = 0
-    ignore_warning_prompt = 0
+    ctx.allow_access_non_nsp = 0
+    ctx.ignore_warning_prompt = 0
     
 
 
@@ -602,8 +629,7 @@ class Language:
                    }
 
 
-                   
-				   
+
 set_language(language)
 # End Language
 
@@ -684,8 +710,8 @@ def set_dark_mode(v):
             
 
 def turn_off_logging():
-    global is_logging
-    is_logging = False
+    global ctx
+    ctx.is_logging = False
     
 def set_nca_name(v):
     global cur_nca_name
@@ -696,8 +722,8 @@ def set_start_time():
     start_time = time.time()
 
 def set_canceled(x):
-    global task_canceled
-    task_canceled = x
+    global ctx
+    ctx.task_canceled = x
     
 def set_cur_transfer_rate(v):
     global cur_transfer_rate
@@ -712,29 +738,27 @@ def set_last_transfer_rate(v):
     last_transfer_rate = v
 
 def detach_switch():
-    global global_dev
-    global global_out
-    global global_in
+    global ctx
+
     try:
-        usb.util.dispose_resources(global_dev)
-        global_dev.reset()
+        usb.util.dispose_resources(ctx.global_dev)
+        ctx.global_dev.reset()
     except:
         pass
-    global_in = None
-    global_out = None
-    global_dev = None
+    ctx.global_in = None
+    ctx.global_out = None
+    ctx.global_dev = None
         
 def connect_switch():
-    global global_dev
-    global global_out
-    global global_in
-    global_dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
-    if global_dev is not None:
+    global ctx
+
+    ctx.global_dev = usb.core.find(idVendor=0x057E, idProduct=0x3000)
+    if ctx.global_dev is not None:
         try:
-            global_dev.set_configuration()
-            intf = global_dev.get_active_configuration()[(0,0)]
-            global_out = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_OUT)
-            global_in = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_IN)
+            ctx.global_dev.set_configuration()
+            intf = ctx.global_dev.get_active_configuration()[(0,0)]
+            ctx.global_out = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_OUT)
+            ctx.global_in = usb.util.find_descriptor(intf,custom_match=lambda e:usb.util.endpoint_direction(e.bEndpointAddress)==usb.util.ENDPOINT_IN)
             return True
         except:
             return False
@@ -745,12 +769,12 @@ def connect_switch():
 def save_config():
     try:
         configp = configparser.ConfigParser()
-        configp['DEFAULT'] = {'switch_ip': switch_ip,
+        configp['DEFAULT'] = {'switch_ip': ctx.switch_ip,
                               'language': language,
                               'dark_mode': dark_mode,
-                              'allow_access_non_nsp': allow_access_non_nsp,
-                              'ignore_warning_prompt': ignore_warning_prompt}
-        with open(initial_dir + 'fluffy.conf', 'w') as cfgfile:
+                              'allow_access_non_nsp': ctx.allow_access_non_nsp,
+                              'ignore_warning_prompt': ctx.ignore_warning_prompt}
+        with open(ctx.initial_dir + 'fluffy.conf', 'w') as cfgfile:
             configp.write(cfgfile)
     except:
         pass
@@ -760,25 +784,21 @@ def set_transfer_rate(v):
     transfer_rate = TransferRateDict[v]
 
 def get_response_qmessage(e):
-    global needresponse
-    global qrespnum
-    needresponse = True
-    qrespnum = e
+    global ctx
+    ctx.needresponse = True
+    ctx.qrespnum = e
     
 def set_response_qmessage(x):
-    global qresponse
-    global haveresponse
-    haveresponse = True
-    qresponse = x
+    global ctx
+    ctx.haveresponse = True
+    ctx.qresponse = x
 
     
 def reset_response():
-    global needresponse
-    global qresponse
-    global haveresponse
-    needresponse = False
-    qresponse = False
-    haveresponse = False
+    global ctx
+    ctx.needresponse = False
+    ctx.qresponse = False
+    ctx.haveresponse = False
     
 
 def set_dir(d):
@@ -820,11 +840,11 @@ def complete_install():
     is_done = True
 
 def complete_goldleaf_transfer():
-    global is_installing
-    is_installing = False
+    global ctx
+    ctx.is_installing = False
     
 def reset_install():
-    global is_installing
+    global ctx
     global sent_header
     global is_done
     global cur_progress
@@ -846,13 +866,14 @@ def reset_install():
     usb_radio.setEnabled(True)
     txt_port.setEnabled(True)
     tin_radio.setEnabled(True)
+    nut_radio.setEnabled(True)
     gold_radio.setEnabled(True)
     l_nsp.setText("")
     l_nsp.setStyleSheet("")
     l_switch.setText("")
     l_switch.setStyleSheet("")
     l_status.setStyleSheet("")
-    if is_goldleaf:
+    if is_goldleaf():
         l_status.setText('')
     progressbar.setValue(0)
     cur_nsp_count = 1
@@ -863,7 +884,7 @@ def reset_install():
     cur_transfer_rate = 0
     last_transfer_rate = 0
     is_done = False
-    is_installing = False
+    ctx.is_installing = False
     sent_header = False
     cur_progress = 0
     end_progress = 100
@@ -888,610 +909,36 @@ def reset_last_error():
     last_error = "NA"
     
 def complete_loading():
-    global is_installing
-    is_installing = True
+    global ctx
+    ctx.is_installing = True
 
 def set_network(v):
     global is_network
     is_network = v
     
 def set_ip(v, n):
-    global switch_ip
-    global host_ip
-    if n == 0:
-        switch_ip = v
-    else:
-        host_ip = v
+    global ctx
 
-def set_goldleaf(v):
-    global is_goldleaf
-    is_goldleaf = v
+    if n == 0:
+        ctx.switch_ip = v
+    else:
+        ctx.host_ip = v
+
 
 def set_usb_success(v):
-    global usb_success
-    usb_success = v
+    global ctx
+    ctx.usb_success = v
     
-# Goldleaf            
-class GoldleafCommandId:
-    ListSystemDrives = 0
-    GetEnvironmentPaths = 1
-    GetPathType = 2
-    ListDirectories = 3
-    ListFiles = 4
-    GetFileSize = 5
-    FileRead = 6
-    FileWrite = 7
-    CreateFile = 8
-    CreateDirectory = 9
-    DeleteFile = 10
-    DeleteDirectory = 11
-    RenameFile = 12
-    RenameDirectory = 13
-    GetDriveTotalSpace = 14
-    GetDriveFreeSpace = 15
-    GetNSPContents = 16
-    Max = 17
 
-class GoldleafCommandReadResult:
-    Success = 0
-    InvalidMagic = 1
-    InvalidGoldleafCommandId = 2
 
-class Goldleaf:
-    GLUC         = b"GLUC"
-    magic        = b"GLUC"
-    cmd_id       = 0
-    drives       = {}
-    FW_DENIED = 0
-    FW_ACCEPTED = 1
-    FW_NOSTATUS = 2
-    fw_status = FW_NOSTATUS
-    
-    def init(self):
-        try:
-            detach_switch()
-            connect_switch()
-            self.goldleaf_usb()
-        except Exception as e:
-            if is_logging:
-                logging.error(e, exc_info=True)
-            throw_error(0)
-            sys.exit()
-        
-    def write(self,buffer):
-        try:
-            global_out.write(buffer,timeout=3000)
-        except:
-            pass
+def usbLoop():
+    detach_switch()
+    connect_switch()
 
-    def read(self,length):
-        return global_in.read(length,timeout=0).tobytes()
-        
-    def write_u32(self,x):
-        try:
-            global_out.write(struct.pack("<I", x))
-        except:
-            pass
-        
-    def write_u64(self,x):
-        try:
-            global_out.write(struct.pack("<Q", x))
-        except:
-            pass
-        
-    def write_string(self,x):
-        try:
-            self.write_u32(len(x))
-            self.write(x.encode())
-        except:
-            pass
-        
-    def read_u32(self):
-        return struct.unpack("<I", self.read(4))[0]
-    
-    def read_u64(self):
-        return struct.unpack("<Q", self.read(8))[0]
-    
-    def read_string(self):
-        return self.read(self.read_u32() + 1)[:-1].decode()
-    
-    def magic_ok(self):
-        return self.GLUC == self.magic
-        
-    def is_id(self,a_cmd):
-        return a_cmd == self.cmd_id
-    
-    def read_cmd(self):
-        try:
-            self.magic = self.read(4)
-            self.cmd_id = self.read_u32()
-        except:
-            pass
-        
-    def write_cmd(self,a_cmd):
-        try:
-            self.write(self.magic)
-            self.write_u32(a_cmd)
-        except:
-            pass
+    while ctx.global_dev is not None and not ctx.task_canceled:
+        self.read_cmd()
 
-    def read_path(self):
-        path = self.read_string()
-        drive = path.split(":", 1)[0]
-        try:
-            path = path.replace(drive + ":", self.drives[drive])
-        except KeyError:
-            pass
-        return path
-    
-    def goldleaf_usb(self):
-        while global_dev is not None and not task_canceled:
-            self.read_cmd()
-            if self.magic_ok():
-                if self.is_id(GoldleafCommandId.ListSystemDrives):
-                    drive_labels = {}
-                    if "win" in sys.platform[:3].lower():
-                        import string
-                        import ctypes
-                        kernel32 = ctypes.windll.kernel32
-                        bitmask = kernel32.GetLogicalDrives()
-                        for letter in string.ascii_uppercase:
-                            if bitmask & 1:
-                                self.drives[letter] = letter + ":/"
-                                label_buf = ctypes.create_unicode_buffer(1024)
-                                kernel32.GetVolumeInformationW(
-                                    ctypes.c_wchar_p(letter + ":\\"),
-                                    label_buf,
-                                    ctypes.sizeof(label_buf),
-                                    None,
-                                    None,
-                                    None,
-                                    None,
-                                    0
-                                    )
-                                if label_buf.value:
-                                    drive_labels[letter] = label_buf.value
-                            bitmask >>= 1
-                    else:
-                        self.drives["ROOT"] = "/"
-                    self.write_u32(len(self.drives))
-                    for d in self.drives:
-                        try:
-                            self.write_string(drive_labels[d])
-                        except KeyError:
-                            self.write_string(d)
-                        self.write_string(d)
-                elif self.is_id(GoldleafCommandId.GetEnvironmentPaths):
-                    env_paths = {x:os.path.expanduser("~/"+x) for x in ["Desktop", "Documents"]}
-                    for arg in sys.argv[1:]:
-                        folder = os.path.abspath(arg)
-                        if os.path.isfile(folder):
-                            folder = os.path.dirname(folder)
-                        env_paths[os.path.basename(folder)] = folder
-                    env_paths = {x:env_paths[x] for x in env_paths if os.path.exists(env_paths[x])}
-                    self.write_u32(len(env_paths))
-                    for env in env_paths:
-                        env_paths[env] = env_paths[env].replace("\\", "/")
-                        self.write_string(env)
-                        if env_paths[env][1:3] != ":/":
-                            env_paths[env] = "ROOT:" + env_paths[env]
-                        self.write_string(env_paths[env])
-                elif self.is_id(GoldleafCommandId.GetPathType):
-                    ptype = 0
-                    path = self.read_path()
-                    if os.path.isfile(path):
-                        ptype = 1
-                    elif os.path.isdir(path):
-                        ptype = 2
-                    self.write_u32(ptype)
-                elif self.is_id(GoldleafCommandId.ListDirectories):
-                    path = self.read_path()
-                    ents = [x for x in os.listdir(path) if os.path.isdir(os.path.join(path, x))]
-                    n_ents = []
-                    for e in ents:
-                        try:
-                            test = os.listdir(os.path.join(path, e))
-                            n_ents.append(e)
-                        except:
-                            pass
-                    self.write_u32(len(n_ents))
-                    for name in n_ents:
-                        self.write_string(name)
-                elif self.is_id(GoldleafCommandId.ListFiles):
-                    self.fw_status = self.FW_NOSTATUS
-                    if is_installing:
-                        complete_goldleaf_transfer()
-                    path = self.read_path()
-                    ents = [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))]
-                    if not allow_access_non_nsp:
-                        len_nsps = 0
-                        for f in ents:
-                            if f.lower().endswith('.nsp'):
-                                len_nsps = len_nsps+1
-                        self.write_u32(len_nsps)
-                        for name in ents:
-                            if name.lower().endswith('.nsp'):
-                                self.write_string(name)
-                    else:
-                        self.write_u32(len(ents))
-                        for name in ents:
-                            self.write_string(name)
-                elif self.is_id(GoldleafCommandId.GetFileSize):
-                    path = self.read_path()
-                    self.write_u64(os.path.getsize(path))
-                elif self.is_id(GoldleafCommandId.FileRead):
-                    can_read = True
-                    offset = self.read_u64()
-                    size = self.read_u64()
-                    path = self.read_path()
-                    if not os.path.basename(path).lower().endswith('.nsp'):
-                        if allow_access_non_nsp:
-                            can_read = True
-                        else:
-                            can_read = False
-                    if can_read:
-                        with open(path, "rb") as f:
-                            f.seek(offset)
-                            data = f.read(size)
-                        self.write_u64(len(data))
-                        self.write(data)
-                        try:
-                            if self.fw_status != self.FW_DENIED:
-                                complete_loading()
-                                set_cur_nsp(str(os.path.basename(path)))
-                                set_progress(int(offset), int(os.path.getsize(path)))
-                                elapsed_time = time.time() - start_time
-                                if elapsed_time >= 1:
-                                    set_cur_transfer_rate(int(offset) - last_transfer_rate)
-                                    set_last_transfer_rate(int(offset))
-                                    set_start_time()
-                            else:
-                                complete_goldleaf_transfer()
-                        except:
-                            pass
-                    else:
-                        logging.debug("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
-                        print("Error: Access denied. \nReason: Goldleaf tried to access a non .NSP file(to bypass this default restriction, change \'allow_access_non_nsp\' to 1 in fluffy.conf).")
-                        cancel_task()
-                        sys.exit()
-                elif self.is_id(GoldleafCommandId.FileWrite):
-                    offset = self.read_u64()
-                    size = self.read_u64()
-                    path = self.read_path()
-                    data = self.read(size)
-                    can_write = False
-                    if self.fw_status == self.FW_NOSTATUS:
-                        get_response_qmessage(1)
-                        while not haveresponse and global_dev is not None:                    
-                            time.sleep(1)
-                        if qresponse:
-                            self.fw_status = self.FW_ACCEPTED
-                            can_write = True
-                        else:
-                            self.fw_status = self.FW_DENIED
-                    elif self.fw_status == self.FW_ACCEPTED:
-                        can_write = True
-                    if can_write:
-                        cont = bytearray()
-                        try:
-                            with open(path, "rb") as f:
-                                cont=bytearray(f.read())
-                        except FileNotFoundError:
-                            pass
-                        cont[offset:offset + size] = data
-                        with open(path, "wb") as f:
-                            f.write(cont)
-                    reset_response()
-                elif self.is_id(GoldleafCommandId.CreateFile):
-                    path = self.read_path()
-                    get_response_qmessage(2)
-                    while not haveresponse and global_dev is not None:                    
-                        time.sleep(1)
-                    if qresponse:
-                        open(path, "a").close()
-                    reset_response()
-                elif self.is_id(GoldleafCommandId.CreateDirectory):
-                    path = self.read_path()
-                    get_response_qmessage(3)
-                    while not haveresponse and global_dev is not None:                    
-                        time.sleep(1)
-                    if qresponse:
-                        try:
-                            os.mkdir(path)
-                        except os.FileExistsError:
-                            pass
-                    reset_response()
-                elif self.is_id(GoldleafCommandId.DeleteFile):
-                    path = self.read_path()
-                    get_response_qmessage(4)
-                    while not haveresponse and global_dev is not None:                    
-                        time.sleep(1)
-                    if qresponse:
-                        os.remove(path)
-                    reset_response()
-                elif self.is_id(GoldleafCommandId.DeleteDirectory):
-                    path = self.read_path()
-                    get_response_qmessage(5)
-                    while not haveresponse and global_dev is not None:                    
-                        time.sleep(1)
-                    if qresponse:
-                        shutil.rmtree(path)
-                    reset_response()
-                elif self.is_id(GoldleafCommandId.RenameFile):
-                    path = self.read_path()
-                    new_name = self.read_string()
-                    get_response_qmessage(6)
-                    while not haveresponse and global_dev is not None:                    
-                        time.sleep(1)
-                    if qresponse:
-                        os.rename(path, new_name)
-                    reset_response()
-                elif self.is_id(GoldleafCommandId.RenameDirectory):
-                    path = self.read_path()
-                    new_name = self.read_path()
-                    get_response_qmessage(6)
-                    while not haveresponse and global_dev is not None:                    
-                        time.sleep(1)
-                    if qresponse:
-                        os.rename(path, new_name)
-                    reset_response()
-                elif self.is_id(GoldleafCommandId.GetDriveTotalSpace):
-                    path = self.read_path()
-                    disk = os.statvfs(path)
-                    totalBytes = float(disk.f_bsize*disk.f_blocks)
-                    self.write_u64(int(totalspace))
-                elif self.is_id(GoldleafCommandId.GetDriveFreeSpace):
-                    path = self.read_path()
-                    disk = os.statvfs(path)
-                    totalFreeSpace = float(disk.f_bsize*disk.f_bfree)
-                    self.write_u64(int(totalFreeSpace))
-        sys.exit()
 
-# Tinfoil Network
-netrlist = []
-def reset_netrlist():
-    global netrlist
-    netrlist = None
-    netrlist = []
-def append_netrlist(v, v2):
-    global netrlist
-    netrlist.append((v, v2))
-class TinfoilNetwork:
-    def init(self):
-        reset_netrlist()
-        accepted_extension = ('.nsp')
-        hostPort = random.randint(26490,26999)
-        target_ip = switch_ip
-        hostIp = host_ip
-        target_path = str(selected_dir).strip()
-        baseUrl = hostIp + ':' + str(hostPort) + '/'
-        directory = target_path
-        file_list_payload = ''  
-        for file in [file for file in next(os.walk(target_path))[2] if file.endswith(accepted_extension)]:
-            for y in selected_files:
-                if str(file).find(os.path.basename(y)) != -1:
-                    n = random.randint(1,10000000)
-                    fake_file = str(n) + ".nsp"
-                    append_netrlist(fake_file, str(y))
-                    file_list_payload += baseUrl + fake_file + '\n'
-        file_list_payloadBytes = file_list_payload.encode('ascii')
-        if directory and directory != '.':
-            os.chdir(directory)
-        server = TinfoilServer((host_ip, hostPort), TinfoilHTTPHandler)
-        thread = threading.Thread(target=server.serve_forever)
-        thread.daemon = True
-        thread.start()
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect((target_ip, 2000))
-            sock.sendall(struct.pack('!L', len(file_list_payloadBytes)) + file_list_payloadBytes)
-            while len(sock.recv(1)) < 1:
-                if task_canceled:
-                    server.force_stop()
-                    sys.exit()
-                time.sleep(0.1)
-            sock.close()
-        except Exception as e:
-            if is_logging:
-                logging.error(e, exc_info=True)
-            server.force_stop()
-            throw_error(1)
-            sys.exit()
-        complete_install()
-        server.force_stop()
-        sys.exit()
-class TinfoilHTTPHandler(SimpleHTTPRequestHandler):
-    def send_head(self):
-        for s in range(len(netrlist)):
-            if netrlist[s][0] == str(self.path)[1:]:
-                path = netrlist[s][1]
-        ctype = self.guess_type(path)
-        if os.path.isdir(path):
-            return SimpleHTTPRequestHandler.send_head(self)
-        if not os.path.exists(path):
-            return self.send_error(404, self.responses.get(404)[0])
-        f = open(path, 'rb')
-        fs = os.fstat(f.fileno())
-        size = fs[6]
-        start, end = 0, size - 1
-        if 'Range' in self.headers:
-            start, end = self.headers.get('Range').strip().strip('bytes=')\
-                .split('-')
-        if start == "":
-            try:
-                end = int(end)
-            except ValueError as e:
-                self.send_error(400, 'invalid range')
-            start = size - end
-        else:
-            try:
-                start = int(start)
-            except ValueError as e:
-                self.send_error(400, 'invalid range')
-            if start >= size:
-                self.send_error(416, self.responses.get(416)[0])
-            if end == "":
-                end = size - 1
-            else:
-                try:
-                    end = int(end)
-                except ValueError as e:
-                    self.send_error(400, 'invalid range')
-
-        start = max(start, 0)
-        end = min(end, size - 1)
-        self.range = (start, end)
-        cont_length = end - start + 1
-        if 'Range' in self.headers:
-            self.send_response(206)
-        else:
-            self.send_response(200)
-        self.send_header('Content-type', ctype)
-        self.send_header('Accept-Ranges', 'bytes')
-        self.send_header('Content-Range','bytes %s-%s/%s' % (start, end, size))
-        self.send_header('Content-Length', str(cont_length))
-        self.send_header('Last-Modified', self.date_time_string(fs.st_mtime))
-        self.end_headers()
-        return f
-
-    def copyfile(self, infile, outfile):
-        if 'Range' not in self.headers:
-            SimpleHTTPRequestHandler.copyfile(self, infile, outfile)
-            return
-        complete_loading()
-        set_cur_nsp(str(os.path.basename(infile.name)))
-        start, end = self.range
-        infile.seek(start)
-        bufsize = 64 * 1024  # 64KB
-        while True:
-            if task_canceled: sys.exit()
-            buf = infile.read(bufsize)
-            if not buf:
-                break
-            try:
-                outfile.write(buf)
-                try:
-                    set_progress(int(infile.tell()), int(end))
-                    elapsed_time = time.time() - start_time
-                    if elapsed_time >= 1:
-                        set_cur_transfer_rate(int(infile.tell()) - last_transfer_rate)
-                        set_last_transfer_rate(int(infile.tell()))
-                        set_start_time()
-                except:
-                    pass
-            except BrokenPipeError:
-                pass    
-class TinfoilServer(TCPServer):
-    stopped = False
-    def server_bind(self):
-        import socket
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind(self.server_address)
-    def serve_forever(self):
-        while not self.stopped:
-            if task_canceled: sys.exit()
-            self.handle_request()
-        sys.exit()
-    def force_stop(self):
-        self.server_close()
-        self.stopped = True
-        sys.exit()
-        
-    
-# Tinfoil USB
-class Tinfoil:
-    CMD_ID_EXIT = 0
-    CMD_ID_FILE_RANGE = 1
-    CMD_TYPE_RESPONSE = 1
-    
-    def init(self):
-        try:
-            detach_switch()
-            connect_switch()
-            self.send_nsp_list()
-            self.poll_commands()
-            complete_install()
-            sys.exit()
-        except Exception as e:
-            if is_logging:
-                logging.error(e, exc_info=True)
-            throw_error(2)
-            sys.exit()
-        
-    def send_response_header(self, cmd_id, data_size):
-        global_out.write(b'TUC0')
-        global_out.write(struct.pack('<B', self.CMD_TYPE_RESPONSE))
-        global_out.write(b'\x00' * 3)
-        global_out.write(struct.pack('<I', cmd_id))
-        global_out.write(struct.pack('<Q', data_size))
-        global_out.write(b'\x00' * 0xC)
-        
-    def file_range_cmd(self, data_size):
-        file_range_header = global_in.read(0x20)
-        range_size = struct.unpack('<Q', file_range_header[:8])[0]
-        range_offset = struct.unpack('<Q', file_range_header[8:16])[0]
-        nsp_name_len = struct.unpack('<Q', file_range_header[16:24])[0]
-        nsp_name = bytes(global_in.read(nsp_name_len)).decode('utf-8')
-        set_cur_nsp(str(os.path.basename(nsp_name)))
-        self.send_response_header(self.CMD_ID_FILE_RANGE, range_size)
-        with open(nsp_name, 'rb') as f:
-            complete_loading()
-            f.seek(range_offset)
-            curr_off = 0x0
-            end_off = range_size
-            read_size = transfer_rate
-            while curr_off < end_off:
-                if task_canceled: sys.exit()
-                if curr_off + read_size >= end_off:
-                    read_size = end_off - curr_off
-                    try:
-                        set_progress(int(end_off), int(end_off))
-                    except:
-                        pass
-                buf = f.read(read_size)
-                global_out.write(data=buf, timeout=0)
-                curr_off += read_size
-                try:
-                    set_progress(int(curr_off), int(end_off))
-                    elapsed_time = time.time() - start_time
-                    if elapsed_time >= 1:
-                        set_cur_transfer_rate(curr_off - last_transfer_rate)
-                        set_last_transfer_rate(curr_off)
-                        set_start_time()
-                except:
-                    pass
-                
-    def poll_commands(self):
-        while True:
-            if task_canceled: sys.exit()
-            cmd_header = bytes(global_in.read(0x20, timeout=0))
-            magic = cmd_header[:4]
-            if magic != b'TUC0': 
-                continue
-            cmd_type = struct.unpack('<B', cmd_header[4:5])[0]
-            cmd_id = struct.unpack('<I', cmd_header[8:12])[0]
-            data_size = struct.unpack('<Q', cmd_header[12:20])[0]
-            if cmd_id == self.CMD_ID_EXIT:
-                complete_install()
-                sys.exit()
-            elif cmd_id == self.CMD_ID_FILE_RANGE:
-                self.file_range_cmd(data_size)
-
-    def send_nsp_list(self):
-        nsp_path_list = list()
-        nsp_path_list_len = 0
-        for nsp_path in os.listdir(selected_dir):
-            if nsp_path.endswith(".nsp"):
-                for y in selected_files:
-                    if str(nsp_path).find(os.path.basename(y)) != -1:
-                        print(str(nsp_path))
-                        nsp_path_list.append(selected_dir + "/" + nsp_path.__str__() + '\n')
-                        nsp_path_list_len += len(selected_dir + "/" + nsp_path.__str__()) + 1
-        global_out.write(b'TUL0')
-        global_out.write(struct.pack('<I', nsp_path_list_len))
-        global_out.write(b'\x00' * 0x8) 
-        for nsp_path in nsp_path_list:
-            global_out.write(nsp_path)
     
 # UI
 class UI:
@@ -1508,6 +955,7 @@ class UI:
             usb_radio.setEnabled(False)
             txt_port.setEnabled(False)
             tin_radio.setEnabled(False)
+            nut_radio.setEnabled(False)
             gold_radio.setEnabled(False)
             window.menuBar().setEnabled(False)
             if combo.currentText() == Language.CurrentDict[5]:
@@ -1519,26 +967,35 @@ class UI:
                 set_ip(txt_ip2.text(), 1)
                 set_sent_header()
                 set_start_time()
-                tinnet = TinfoilNetwork()
+                tinnet = tinfoil.Network(config)
                 thread = threading.Thread(target=tinnet.init)
                 thread.daemon = True
                 thread.start()
             else:
-                if is_goldleaf:
+                if is_goldleaf():
                     set_sent_header()
                     set_start_time()
-                    gold = Goldleaf()
+                    gold = goldleaf.Usb(ctx)
                     thread = threading.Thread(target=gold.init)
                     thread.daemon = True
                     thread.start()
 
-                else:
+                elif is_tinfoil():
                     set_sent_header()
                     set_start_time()
-                    tin = Tinfoil()
+                    tin = tinfoil.Usb(ctx)
                     thread = threading.Thread(target=tin.init)
                     thread.daemon = True
                     thread.start()
+                    
+                elif is_nut():
+                    set_sent_header()
+                    set_start_time()
+                    nutdz = nut.Usb(ctx)
+                    thread = threading.Thread(target=nutdz.init)
+                    thread.daemon = True
+                    thread.start()
+                
         else:
             cancel_task()
     @staticmethod
@@ -1548,7 +1005,7 @@ class UI:
             tmp = list()
             list_nsp.clear()
             i = 0
-            if not is_goldleaf:
+            if is_tinfoil():
                 file_list = list(d)
                 for f in file_list:
                     if str(f).endswith(".nsp"):
@@ -1569,7 +1026,7 @@ class UI:
                 btn_header.setEnabled(False)
                 l_status.setText(Language.CurrentDict[9])
         except Exception as e:
-            if is_logging:
+            if ctx.is_logging:
                 logging.error(e, exc_info=True)
             pass
     @staticmethod
@@ -1578,7 +1035,7 @@ class UI:
             try:
                 set_dark_mode(1)
             except Exception as e:
-                if is_logging:
+                if ctx.is_logging:
                     logging.error(e, exc_info=True)
                     logging.debug('Error: Failed to set Dark Mode')
                 print('Error: Failed to set Dark Mode')
@@ -1598,7 +1055,7 @@ class UI:
         net_radio.setChecked(False)
         usb_radio.setChecked(True)
         net_radio.setVisible(True)
-        set_goldleaf(False)
+        set_tinfoil()
         split_check.setEnabled(True)
         l_status.setText(Language.CurrentDict[9])
         gold_img_label.setVisible(False)
@@ -1614,6 +1071,33 @@ class UI:
         window.adjustSize()
         
     @staticmethod
+    def nut_radio_cmd():
+        l_nsp.setVisible(False)
+        combo.setVisible(False)
+        l_rate.setVisible(False)
+        txt_ip.setEnabled(False)
+        txt_ip2.setEnabled(False)
+        txt_port.setEnabled(False)
+        net_radio.setChecked(False)
+        usb_radio.setChecked(True)
+        net_radio.setVisible(False)
+        set_network(False)
+        set_nut()
+        split_check.setCheckState(False)
+        split_check.setEnabled(False)
+        list_nsp.clear()
+        l_status.setText('')
+        btn_nsp.setVisible(False)
+        l_ip.setVisible(False)
+        txt_ip.setVisible(False)
+        list_nsp.setVisible(False)
+        txt_ip2.setVisible(False)
+        l_host.setVisible(False)
+        usb_radio.setVisible(False)
+        gold_img_label.setVisible(True)
+        window.adjustSize() 
+        
+    @staticmethod
     def gold_radio_cmd():
         l_nsp.setVisible(False)
         combo.setVisible(False)
@@ -1625,7 +1109,7 @@ class UI:
         usb_radio.setChecked(True)
         net_radio.setVisible(False)
         set_network(False)
-        set_goldleaf(True)
+        set_goldleaf()
         split_check.setCheckState(False)
         split_check.setEnabled(False)
         list_nsp.clear()
@@ -1663,7 +1147,7 @@ class UI:
     @staticmethod 
     def set_done_text():
         tmp_string = str(total_nsp)
-        if not is_goldleaf:
+        if is_tinfoil():
             reset_install()
             l_nsp.setText(Language.CurrentDict[8] + " " + tmp_string + " NSP(s)!")
             
@@ -1671,7 +1155,7 @@ class UI:
     def set_loading_text():
         l_nsp.setText("")
         l_status.setText("")
-        if not is_goldleaf:
+        if is_tinfoil():
             l_switch.setText(str(total_nsp) + " " + Language.CurrentDict[26] + ".")
             l_switch.setStyleSheet(PURPLE)
         else:
@@ -1685,18 +1169,18 @@ class UI:
         n_rate = round((cur_transfer_rate /1000000),2)
         if n_rate < 0:
             n_rate = 0.0
-        if not is_goldleaf:
+        if is_tinfoil():
             l_status.setText(Language.CurrentDict[27] + " " + str(cur_nsp_count) + " / " + str(total_nsp) + " NSP(s).")
         l_switch.setText(Language.CurrentDict[28] + ": " + str(n_rate) + "MB/s.")
         l_switch.setStyleSheet(GREEN)
         l_status.setStyleSheet(GREEN)
         if len(cur_nsp_name) > 13:
-            if is_goldleaf:
+            if is_goldleaf():
                 l_status.setText("\"" + cur_nsp_name[:13] + "...\"")
             else:
                 l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name[:13] + "...\"")
         else:
-            if is_goldleaf:
+            if is_goldleaf():
                 l_status.setText("\"" + cur_nsp_name + "\"")
             else:
                 l_nsp.setText(Language.CurrentDict[7] + ": \"" + cur_nsp_name + "\"")
@@ -1707,7 +1191,7 @@ class UI:
                 set_usb_success(True)
                 l_switch.setText(Language.CurrentDict[11]+"!")
                 l_switch.setStyleSheet(GREEN)
-                if not is_goldleaf:
+                if is_tinfoil():
                     if list_nsp.count() > 0:
                         btn_header.setEnabled(True)
                     else:
@@ -1723,7 +1207,7 @@ class UI:
                 except:
                     pass
         except Exception as e:
-            if is_logging:
+            if ctx.is_logging:
                 logging.error(e, exc_info=True)
             set_usb_success(False)
             UI.check_usb_success()
@@ -1732,7 +1216,7 @@ class UI:
     @staticmethod
     def init_language():
         l_nsp.setText("")
-        if not is_goldleaf:
+        if is_tinfoil():
             if list_nsp.count() > 0:
                 l_status.setText(str(total_nsp) + " " + Language.CurrentDict[14])
             else:
@@ -1786,11 +1270,11 @@ class UI:
             connect_switch()
             set_usb_success(True)
         except Exception as e:
-            if is_logging:
+            if ctx.is_logging:
                 logging.error(e, exc_info=True)
             set_usb_success(False)
             pass
-        if not usb_success:
+        if not ctx.usb_success:
             UI.net_radio_cmd()
             net_radio.setChecked(True)
             usb_radio.setVisible(False)
@@ -1815,7 +1299,8 @@ try:
     l_ip = QtWidgets.QLabel(Language.CurrentDict[2]+":")
     l_port = QtWidgets.QLabel("Port:")
     txt_ip = QtWidgets.QLineEdit("0.0.0.0")
-    tin_radio = QtWidgets.QRadioButton("Tinfoil")
+    tin_radio = QtWidgets.QRadioButton("Tinfoil/Adubbz")
+    nut_radio = QtWidgets.QRadioButton("Tinfoil/Blawar")
     gold_radio = QtWidgets.QRadioButton("Goldleaf")
     split_check = QtWidgets.QCheckBox("Use Split NSP")
     dark_check = QtWidgets.QCheckBox(Language.CurrentDict[20])
@@ -1852,7 +1337,7 @@ try:
     except:
         pass
     try:
-        txt_ip.setText(switch_ip)
+        txt_ip.setText(ctx.switch_ip)
     except:
         txt_ip.setText("0.0.0.0")
         pass
@@ -1866,13 +1351,21 @@ try:
     combo.addItem(Language.CurrentDict[6])
     combo.addItem(Language.CurrentDict[5])
     combo.setCurrentIndex(1)
+
     tin_radio.setChecked(True)
     tin_radio.toggled.connect(UI.tin_radio_cmd)
+    
+    nut_radio.setChecked(False)
+    nut_radio.toggled.connect(UI.nut_radio_cmd)
+    
     gold_radio.setChecked(False)
     gold_radio.toggled.connect(UI.gold_radio_cmd)
+    
     h_group.addButton(tin_radio)
+    h_group.addButton(nut_radio)
     h_group.addButton(gold_radio)
     h2_box.addWidget(tin_radio)
+    h2_box.addWidget(nut_radio)
     h2_box.addWidget(gold_radio)
     dark_check.stateChanged.connect(UI.dark_mode_cmd)
     usb_radio.setChecked(True)
@@ -1983,51 +1476,52 @@ try:
     else:
         set_dark_mode(0)
         dark_check.setChecked(False)
-    
+
+    nut.startNetwork(ctx)
     # Main loop
     while True:
         QApplication.processEvents()
         # QMessage Response
-        if needresponse:
-            if ignore_warning_prompt == 0:
-                print("To ignore future prompts, change \'ignore_warning_prompt\' to 1 in fluffy.conf.")
-                if qrespnum == 0:
+        if ctx.needresponse:
+            if ctx.ignore_warning_prompt == 0:
+                print("To ignore future prompts, change \'ctx.ignore_warning_prompt\' to 1 in fluffy.conf.")
+                if ctx.qrespnum == 0:
                     re = QMessageBox.warning(window, 'Warning!', "Goldleaf wants to read a file that isn't an NSP.\nLet Goldleaf read this file?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                     if re == QMessageBox.No:
                         set_response_qmessage(False)
                     elif re == QMessageBox.Yes:
                         set_response_qmessage(True)
-                elif qrespnum == 1:
+                elif ctx.qrespnum == 1:
                     re = QMessageBox.warning(window, 'Warning!', "Goldleaf wants to write a file.\nConfirm file write?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                     if re == QMessageBox.No:
                         set_response_qmessage(False)
                     elif re == QMessageBox.Yes:
                         set_response_qmessage(True)
-                elif qrespnum == 2:
+                elif ctx.qrespnum == 2:
                     re = QMessageBox.warning(window, 'Warning!', "Goldleaf wants to create a file.\nConfirm creation?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                     if re == QMessageBox.No:
                         set_response_qmessage(False)
                     elif re == QMessageBox.Yes:
                         set_response_qmessage(True)
-                elif qrespnum == 3:
+                elif ctx.qrespnum == 3:
                     re = QMessageBox.warning(window, 'Warning!', "Goldleaf wants to create a directory.\nConfirm creation?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                     if re == QMessageBox.No:
                         set_response_qmessage(False)
                     elif re == QMessageBox.Yes:
                         set_response_qmessage(True)
-                elif qrespnum == 4:
+                elif ctx.qrespnum == 4:
                     re = QMessageBox.warning(window, 'Warning!', "Goldleaf wants to delete a file.\nConfirm deletion?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                     if re == QMessageBox.No:
                         set_response_qmessage(False)
                     elif re == QMessageBox.Yes:
                         set_response_qmessage(True)
-                elif qrespnum == 5:
+                elif ctx.qrespnum == 5:
                     re = QMessageBox.warning(window, 'Warning!', "Goldleaf wants to delete a directory.\nConfirm deletion?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                     if re == QMessageBox.No:
                         set_response_qmessage(False)
                     elif re == QMessageBox.Yes:
                         set_response_qmessage(True)
-                elif qrespnum == 6:
+                elif ctx.qrespnum == 6:
                     re = QMessageBox.warning(window, 'Warning!', "Goldleaf wants to rename a file or directory.\nConfirm rename?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                     if re == QMessageBox.No:
                         set_response_qmessage(False)
@@ -2035,20 +1529,20 @@ try:
                         set_response_qmessage(True)
             else:
                 set_response_qmessage(True)
-            while haveresponse:
+            while ctx.haveresponse:
                 time.sleep(1)
                 
         # Check If Any Errors
         if last_error != "NA":
-            if not task_canceled:
+            if not ctx.task_canceled:
                 msg_box = QMessageBox.critical(window, 'Error', last_error, QMessageBox.Ok)
             reset_last_error()
             cancel_task()
             
         # Check Log Size
-        if is_logging:
-            if os.path.isfile(initial_dir + 'fluffy.log'):
-                if os.path.getsize(initial_dir + 'fluffy.log') > 250000:
+        if ctx.is_logging:
+            if os.path.isfile(ctx.initial_dir + 'fluffy.log'):
+                if os.path.getsize(ctx.initial_dir + 'fluffy.log') > 250000:
                     logging.debug("Error: Log size reached, turning off logging.")
                     turn_off_logging()
 
@@ -2059,7 +1553,7 @@ try:
         # Save config and close
         if not window.isVisible():
             try:
-                switch_ip = txt_ip.text()
+                ctx.switch_ip = txt_ip.text()
             except:
                 pass
             save_config()
@@ -2068,11 +1562,11 @@ try:
             
                 
         # Switch Indicator
-        if not is_installing and not is_network and usb_success and not sent_header:
+        if not ctx.is_installing and not is_network and ctx.usb_success and not sent_header:
             UI.set_switch_text()
                     
         # Tinfoil Network Mode
-        if not sent_header and not is_installing and is_network:
+        if not sent_header and not ctx.is_installing and is_network:
             l_switch.setText(Language.CurrentDict[12])
             l_switch.setStyleSheet(BLUE)
             if list_nsp.count() > 0:
@@ -2086,7 +1580,7 @@ try:
                 if is_done:
                     UI.set_done_text()
                 else:
-                    if is_installing:
+                    if ctx.is_installing:
                         UI.set_progress_text()
                     else:
                         l_status.setText(Language.CurrentDict[25])
@@ -2101,7 +1595,7 @@ try:
             btn_header.setText(Language.CurrentDict[16])
 
         # Installation in progress disable cancel
-        #if sent_header and is_installing and not is_done:
+        #if sent_header and ctx.is_installing and not is_done:
             #btn_header.setEnabled(False)
             
         # Goldleaf & Tinfoil USB Mode
@@ -2110,7 +1604,7 @@ try:
                 if is_done:
                     UI.set_done_text()
                 else:
-                    if is_installing:
+                    if ctx.is_installing:
                         UI.set_progress_text()
                     else:
                         UI.set_loading_text()
@@ -2118,7 +1612,8 @@ try:
                 pass
             
 except Exception as e:
-    if is_logging:
-        logging.error(e, exc_info=True)
+    #if ctx.is_logging:
+    #    logging.error(e, exc_info=True)
     save_config()
+    raise
     sys.exit()
